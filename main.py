@@ -58,26 +58,29 @@ async def create_session():
         logger.success(f'Added session +{user_data.phone_number} @{user_data.username} PROXY : NONE')
 
 async def run_script(script_name):
-    if (os.getcwd().split('/')[-1] != 'main-telegram-autoclickers'): os.chdir('..')
+    if (os.getcwd().split('/')[-1] != 'main-telegram-autoclickers'):
+        os.chdir('..')
     os.chdir(script_name)
 
     process = await asyncio.create_subprocess_exec(
-        'python3', 'main.py',
+        'python3.11', 'main.py',
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE
     )
-    stdout, stderr = await process.communicate()
+
+    async def read_stream(stream, prefix):
+        while True:
+            line = await stream.readline()
+            if not line:
+                break
+            print(f"{Fore.GREEN}[{prefix}]: {Style.RESET_ALL}{line.decode().rstrip()}")
     
-    if stdout:
-        for line in stdout.decode().split('\n'):
-            print(Fore.GREEN + f'[{script_name.upper()[2:]}]: ', end='')
-            print(Style.RESET_ALL, end='')
-            print(line)
-    if stderr:
-        for line in stderr.decode().split('\n'):
-            print(Fore.RED + f'[{script_name.upper()[2:]}]: ', end='')
-            print(Style.RESET_ALL, end='')
-            print(line)
+    await asyncio.gather(
+        read_stream(process.stdout, script_name.upper()[2:]),
+        read_stream(process.stderr, script_name.upper()[2:])
+    )
+
+    await process.wait()
 
 async def process():
     print(message)
