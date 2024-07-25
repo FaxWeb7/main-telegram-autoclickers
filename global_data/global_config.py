@@ -38,6 +38,6 @@ petyaPaths = [
 shamhiPaths = [
     './5_tapswap',
     './6_dotcoin',
-    './7_pocketfi'
+    './7_pocketfi',
     './8_muskempire'
 ]
