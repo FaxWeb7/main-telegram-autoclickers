@@ -1,22 +1,33 @@
-# api id, hash
-API_ID = 111111111
-API_HASH = 'adf124h2j342x4u232sn'
+import os
+import sys
+import importlib.util
+parent_dir = os.path.abspath(os.path.join(os.getcwd(), ".."))
+file_path = os.path.join(parent_dir, "global_data", "global_config.py")
+spec = importlib.util.spec_from_file_location("global_config", file_path)
+modu = importlib.util.module_from_spec(spec)
+sys.modules["global_config"] = modu
+spec.loader.exec_module(modu)
+import global_config
 
-USE_TG_BOT = False # True if you want use tg, else False
-BOT_TOKEN = '87265743:JKFDHad' # API TOKEN get in @BotFather
-CHAT_ID = '237856' # Your telegram id
+# api id, hash
+API_ID = global_config.API_ID
+API_HASH = global_config.API_HASH
+
+USE_TG_BOT = global_config.USE_TG_BOT # True if you want use tg, else False
+BOT_TOKEN = global_config.BLUM_BOT_TOKEN # API TOKEN get in @BotFather
+CHAT_ID = global_config.CHAT_ID # Your telegram id
 
 # задержка между подключениями к аккаунтам
-ACC_DELAY = [60, 180]
+ACC_DELAY = global_config.ACC_DELAY
 
 # тип прокси
-PROXY_TYPE = "socks5" # http/socks5
+PROXY_TYPE = global_config.PROXY_TYPE # http/socks5
 
 # папка с сессиями (не менять)
 WORKDIR = "sessions/"
 
 # использование прокси
-USE_PROXY = True # True/False
+USE_PROXY = global_config.USE_PROXY # True/False
 
 # скок поинтов с игры
 POINTS = [120, 190] #[min, max]
