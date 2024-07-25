@@ -1,6 +1,7 @@
 
-# An automatic autoclicker for telegram bots
-This repository contains autoclicker bots for the most popular mini-apps in Telegram, multi-accounting supported.
+# Automatic autoclicker for popular telegram mini-apps
+![](https://i.ibb.co/5GFZXyB/res.png)
+
 ## Bot Status
 
 | ✔️ Active    | **Blum**  | **1Win Token** | **CryptoRank** | **YesCoin** | **TapSwap** | **Dotcoin** | **PocketFi** |
