@@ -1,22 +1,14 @@
 import os
 import asyncio
+import pyrogram
+import subprocess
 from shutil import copytree, ignore_patterns, rmtree, copy2
 from loguru import logger
-import pyrogram
-import global_config
-
-petyaPaths = [
-    '../1_blum',
-    '../2_onewin',
-    '../3_cryptorank',
-    '../4_yescoin'
-]
-
-shamhiPaths = [
-    '../5_tapswap',
-    '../6_dotcoin',
-    '../7_pocketfi'
-]
+from global_data import global_config
+from global_data.global_config import message, petyaPaths, shamhiPaths
+from colorama import init, Fore
+from colorama import Style
+init(autoreset=True)
 
 async def create_session():
     session_name = input('Enter session name (press Enter to exit)\n')
@@ -24,7 +16,7 @@ async def create_session():
         return
     
     proxy_dict = {}
-    with open('proxies.txt','r') as file:
+    with open('./global_data/proxies.txt','r') as file:
         proxy_list = [i.strip().split() for i in file.readlines() if len(i.strip().split()) == 2]
         for prox,name in proxy_list:
             proxy_dict[name] = prox
@@ -43,7 +35,7 @@ async def create_session():
             api_id=global_config.API_ID,
             api_hash=global_config.API_HASH,
             name=session_name,
-            workdir="./sessions/",
+            workdir="./global_data/sessions/",
             proxy=proxy_client
         )
 
@@ -57,7 +49,7 @@ async def create_session():
             api_id=global_config.API_ID,
             api_hash=global_config.API_HASH,
             name=session_name,
-            workdir="./sessions/"
+            workdir="./global_data/sessions/"
         )
 
         async with session:
@@ -65,35 +57,58 @@ async def create_session():
 
         logger.success(f'Added session +{user_data.phone_number} @{user_data.username} PROXY : NONE')
 
+async def run_script(script_name):
+    if (os.getcwd().split('/')[-1] != 'main-telegram-autoclickers'): os.chdir('..')
+    os.chdir(script_name)
+
+    process = await asyncio.create_subprocess_exec(
+        'python3', 'main.py',
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE
+    )
+    stdout, stderr = await process.communicate()
+    
+    if stdout:
+        for line in stdout.decode().split('\n'):
+            print(Fore.GREEN + f'[{script_name.upper()[2:]}]: ', end='')
+            print(Style.RESET_ALL, end='')
+            print(line)
+    if stderr:
+        for line in stderr.decode().split('\n'):
+            print(Fore.RED + f'[{script_name.upper()[2:]}]: ', end='')
+            print(Style.RESET_ALL, end='')
+            print(line)
+
 async def process():
+    print(message)
     while True:
-        operation = int(input("Select an action:\n1 -> Actions with sessions\n2 -> Actions with proxies\n3 -> Exit\n"))
+        operation = int(input("Select an action:\n1 -> Actions with sessions\n2 -> Actions with proxies\n3 -> Actions with bots\n4 -> Exit\n"))
 
         if (operation == 1):
-            sessionOperation = int(input("Select an action with sessions: \n1 -> Add one session from ./sessions\n2 -> Add all sessions from ./sessions\n3 -> Remove one session from all ./tapalka/sessions\n4 -> Remove all sessions from all ./tapalka/sessions\n5 -> Create new session\n6 -> Exit\n"))
+            sessionOperation = int(input("Select an action with sessions: \n1 -> Add one session from ./global_data/sessions/\n2 -> Add all sessions from ./global_data/sessions/\n3 -> Remove one session from all ./tapalka/sessions\n4 -> Remove all sessions from all ./tapalka/sessions\n5 -> Create new session\n6 -> Exit\n"))
             
             if (sessionOperation == 1):
                 sessionNumber = int(input("Enter session number (1-INF): "))
                 sessionFilePath = ""
-                for root, dirs, files in os.walk('./sessions/'):
+                for root, dirs, files in os.walk('./global_data/sessions/'):
                     for file in files:
                         if file.startswith(str(sessionNumber)+'_'): 
                             sessionFilePath = os.path.join(root, file).split('s/')[1]
 
                 for path in petyaPaths + shamhiPaths:
-                    copy2(f'./sessions/{sessionFilePath}', f'{path}/sessions/')
+                    copy2(f'./global_data/sessions/{sessionFilePath}', f'{path}/sessions/')
                 print(f'Session {sessionFilePath} added successfully!')
                 
             elif (sessionOperation == 2):
                 for path in petyaPaths + shamhiPaths:
                     rmtree(f'{path}/sessions')
-                    copytree('./sessions', f'{path}/sessions/', ignore=ignore_patterns('*.txt'))
+                    copytree('./global_data/sessions', f'{path}/sessions/', ignore=ignore_patterns('*.txt'))
                 print("All sessions added successfully!")
 
             elif (sessionOperation == 3):
                 sessionNumber = int(input("Enter session number (1-INF): "))
                 sessionFilePath = ""
-                for root, dirs, files in os.walk('./sessions/'):
+                for root, dirs, files in os.walk('./global_data/sessions/'):
                     for file in files:
                         if file.startswith(str(sessionNumber)+'_'): 
                             sessionFilePath = os.path.join(root, file).split('s/')[1]
@@ -113,14 +128,13 @@ async def process():
 
             else: continue
 
-
         elif (operation == 2):
-            proxyOperation = int(input("Select an action with proxies: \n1 -> Add one proxy from ./proxies.txt\n2 -> Add all proxies from ./proxies.txt\n3 -> Remove one proxy from all ./tapalka/proxy.txt\n4 -> Remove all proxies from all ./tapalka/proxy.txt\n5 -> Exit\n"))
+            proxyOperation = int(input("Select an action with proxies: \n1 -> Add one proxy from ./global_data/proxies.txt/\n2 -> Add all proxies from ./global_data/proxies.txt/\n3 -> Remove one proxy from all ./tapalka/proxy.txt\n4 -> Remove all proxies from all ./tapalka/proxy.txt\n5 -> Exit\n"))
 
             if (proxyOperation == 1):
                 proxyNumber = int(input("Enter proxy number (1-INF): "))
                 proxy = ""
-                with open('./proxies.txt', 'r') as file:
+                with open('./global_data/proxies.txt', 'r') as file:
                     for idx, line in enumerate(file):
                         if (idx == proxyNumber-1): proxy = line
                     file.close()
@@ -141,7 +155,7 @@ async def process():
             
             elif (proxyOperation == 2):
                 proxies = ""
-                with open('./proxies.txt', 'r') as file:
+                with open('./global_data/proxies.txt', 'r') as file:
                     for line in file:
                         proxies += line
                     file.close()
@@ -166,7 +180,7 @@ async def process():
             elif (proxyOperation == 3):
                 proxyNumber = int(input("Enter proxy number (1-INF): "))
                 proxy = ""
-                with open('./proxies.txt', 'r') as file:
+                with open('./global_data/proxies.txt', 'r') as file:
                     for idx, line in enumerate(file):
                         if (idx == proxyNumber-1): proxy = line
                     file.close()
@@ -198,6 +212,21 @@ async def process():
                         file.close()
 
                 print(f'All proxies successfully removed!')
+
+            else: continue
+
+        elif (operation == 3):
+            botsOperation = int(input("Select an action with bots: \n0 -> Run all bots\nAny other number -> Run a bot that starts with this number\n52 -> Exit\n"))
+
+            if (botsOperation == 0):
+                folders = [f'{path}' for path in petyaPaths+shamhiPaths]
+                await asyncio.gather(*(run_script(folder) for folder in folders))
+            
+            elif (botsOperation != 52):
+                folders = []
+                for path in petyaPaths+shamhiPaths:
+                    if (str(botsOperation)+'_' in path): folders.append(path)
+                await asyncio.gather(*(run_script(folder) for folder in folders))
 
             else: continue
 

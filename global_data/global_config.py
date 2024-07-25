@@ -16,3 +16,26 @@ YESCOIN_BOT_TOKEN = '87265743:JKFDHad'
 TAPSWAP_BOT_TOKEN = '87265743:JKFDHad'
 DOTCOIN_BOT_TOKEN = '87265743:JKFDHad'
 POCKETFI_BOT_TOKEN = '87265743:JKFDHad'
+
+
+
+# don't change
+message = """
+███████╗ █████╗ ██╗  ██╗██╗    ██╗███████╗██████╗      GitHub Repository: https://github.com/FaxWeb7/main-telegram-autoclickers
+██╔════╝██╔══██╗╚██╗██╔╝██║    ██║██╔════╝██╔══██╗
+█████╗  ███████║ ╚███╔╝ ██║ █╗ ██║█████╗  ██████╔╝
+██╔══╝  ██╔══██║ ██╔██╗ ██║███╗██║██╔══╝  ██╔══██╗
+██║     ██║  ██║██╔╝ ██╗╚███╔███╔╝███████╗██████╔╝
+╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝ ╚══╝╚══╝ ╚══════╝╚═════╝
+"""
+petyaPaths = [
+    './1_blum',
+    './2_onewin',
+    './3_cryptorank',
+    './4_yescoin'
+]
+shamhiPaths = [
+    './5_tapswap',
+    './6_dotcoin',
+    './7_pocketfi'
+]
