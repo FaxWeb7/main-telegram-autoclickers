@@ -4,9 +4,9 @@
 
 ## Bot Status
 
-| ✔️ Active    | **Blum**  | **1Win Token** | **CryptoRank** | **YesCoin** | **TapSwap** | **Dotcoin** | **PocketFi** |
-| ----------- | --------- | -------------- | -------------- | ----------- | ----------- | ----------- | ------------ |
-| ❌ Inactive | Musk Empire | TapTether | OKX Racer
+| ✔ Active    | **Blum**  | **1Win Token** | **CryptoRank** | **YesCoin** | **TapSwap** | **Dotcoin** | **PocketFi** | **Musk Empire** |
+| ----------- | --------- | -------------- | -------------- | ----------- | ----------- | ----------- | ------------ | --------------- |
+| ⌛ in developing... | TapTether | OKX Racer
 
 ## Requirements
 - Python 3.11 (you can install it [here](https://www.python.org/downloads/release/python-3110/))
