@@ -33,6 +33,6 @@ USE_PROXY = global_config.USE_PROXY # True/False
 AUTO_UPGRATE = True
 
 # если автоулучшение = True, то будет прокачиваться до заданного уровня
-MULIVALUE = 10
-COINLIMIT = 10
-FILLRATE = 10
+MULIVALUE = 5
+COINLIMIT = 4
+FILLRATE = 3

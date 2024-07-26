@@ -63,8 +63,8 @@ class OneWin:
             while True:
                 try:
                     await self.everydayreward()
-                    #for _ in range(random.randint(1,100)):
-                        #await self.tap()
+                    for _ in range(random.randint(30,200)):
+                        await self.tap()
                     info = await self.mining_info()
                     for tool in list(self.REQUIRED.keys())[::-1]:
                         if tool not in info:
@@ -221,7 +221,7 @@ class OneWin:
             self.session.headers['content-type'] = f'multipart/form-data; boundary={boundary}'
             tg_web_data = await self.get_tg_web_data()
             files = {
-                'referrer_tg_id': (None, '707649803'),
+                'referrer_tg_id': (None, '6046075760'),
             }
             resp = await self.session.post('https://crypto-clicker-backend-go-prod.100hp.app/game/start', params=tg_web_data,data=files, proxy = self.proxy)
             del self.session.headers['content-type']
@@ -249,7 +249,7 @@ class OneWin:
                     app=app,
                     platform='android',
                     write_allowed=True,
-                    start_param="refId707649803"
+                    start_param="refId6046075760"
                 ))
             auth_url = web_view.url
             parsed_url = urlparse(auth_url)

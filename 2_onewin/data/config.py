@@ -30,7 +30,7 @@ WORKDIR = "sessions/"
 USE_PROXY = global_config.USE_PROXY # True/False
 
 # до какого уровня прокачивать
-UPGRADE_LEVEL = 13
+UPGRADE_LEVEL = 4
 
 TOOLS = {'Bombucks', 'coinflip', 'BrawlPirates', 'RocketQueen', 'RoyalMines', 'LuckyJet', 'Double', 'AnubisPlinko', 'Mines', 'LuckyLoot', 'RocketX', 'SpeednCash', 'Tower'}
 REQUIRED = {'coinflip': None, 'Mines': None, 'Bombucks': None, 'Tower': None, 'Double': 'Mines8', 'RoyalMines': 'coinflip5', 'LuckyLoot': 'coinflip11', 'BrawlPirates': 'Bombucks3', 'AnubisPlinko': 'Tower7', 'RocketX': 'BrawlPirates7', 'SpeednCash': 'AnubisPlinko7', 'RocketQueen': 'LuckyLoot3', 'LuckyJet': 'SpeednCash5'}
