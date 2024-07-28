@@ -6,7 +6,8 @@
 
 | Status | Bots                                            |
 |:------:|-------------------------------------------------|
-|   ✅   | **Blum, 1Win Token, CryptoRank, YesCoin, TapSwap, DotCoin, PocketFi, MuskEmpire**       |
+|   ✅   | **Blum, 1Win Token, CryptoRank, YesCoin, TapSwap, DotCoin**       |
+|   ✅   | **PocketFi, MuskEmpire, HamsterKombat**       |
 |   ⌛   | **DOGS, OKX Racer, TapTether**                        |
 
 
@@ -92,3 +93,4 @@ Launch all or one bot
 - DONT USE MAIN ACCOUNT BECAUSE THERE IS ALWAYS A CHANCE TO GET BANNED IN TELEGRAM
 - **Python Version:** The software runs on Python 3.11. Using a different version may cause errors.
 - The software will work with all accounts using the single `API_ID` and `API_HASH`. No need to change them for each account.
+

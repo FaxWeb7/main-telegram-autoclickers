@@ -17,6 +17,7 @@ TAPSWAP_BOT_TOKEN = '87265743:JKFDHad'
 DOTCOIN_BOT_TOKEN = '87265743:JKFDHad'
 POCKETFI_BOT_TOKEN = '87265743:JKFDHad'
 MUSKEMPIRE_BOT_TOKEN = '87265743:JKFDHad'
+HAMSTERKOMBAT_BOT_TOKEN = '87265743:JKFDHad'
 
 
 # don't change
@@ -33,7 +34,8 @@ petyaPaths = [
     './1_blum',
     './2_onewin',
     './3_cryptorank',
-    './4_yescoin'
+    './4_yescoin',
+    './9_hamsterkombat',
 ]
 shamhiPaths = [
     './5_tapswap',
