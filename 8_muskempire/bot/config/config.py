@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     PVP_LEAGUE: str = 'bronze'
     PVP_STRATEGY: str = 'random'
     PVP_COUNT: int = 4
+    INVEST_AMOUNT: int = 100000
 
     SLEEP_BETWEEN_START: list[int] = global_config.ACC_DELAY
     ERRORS_BEFORE_STOP: int = 10
