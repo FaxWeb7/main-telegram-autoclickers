@@ -198,7 +198,7 @@ async def get_promo_code(app_token: str,
         "Host": "api.gamepromo.io"
     }
 
-    proxy_conn = aiohttp.TCPConnector(verify_ssl=False) if proxy else None
+    proxy_conn = aiohttp_proxy.ProxyConnector().from_url(proxy) if proxy else None
     async with aiohttp.ClientSession(headers=headers, connector=proxy_conn) as http_client:
         client_id = generate_client_id()
 

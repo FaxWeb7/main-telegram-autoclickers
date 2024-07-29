@@ -43,7 +43,7 @@ class Tapper:
             await asyncio.sleep(delay=random_delay)
 
         headers = get_headers(name=self.tg_client.name)
-        proxy_conn = aiohttp.TCPConnector(verify_ssl=False) if proxy else None
+        proxy_conn = aiohttp_proxy.ProxyConnector().from_url(proxy) if proxy else None
 
         http_client = aiohttp.ClientSession(headers=headers, connector=proxy_conn)
 
@@ -59,7 +59,7 @@ class Tapper:
                         if not proxy_conn.closed:
                             proxy_conn.close()
 
-                    proxy_conn = aiohttp.TCPConnector(verify_ssl=False) if proxy else None
+                    proxy_conn = aiohttp_proxy.ProxyConnector().from_url(proxy) if proxy else None
                     http_client = aiohttp.ClientSession(headers=headers, connector=proxy_conn)
 
                 if time() - access_token_created_time >= 3600:
@@ -463,6 +463,7 @@ class Tapper:
 
 async def run_tapper(tg_client: Client, proxy: str | None):
     try:
+        tg_client.proxy = proxy
         await Tapper(tg_client=tg_client).run(proxy=proxy)
     except InvalidSession:
         logger.error(f"{tg_client.name} | Invalid Session")
