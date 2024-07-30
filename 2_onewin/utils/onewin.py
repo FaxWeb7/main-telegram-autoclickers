@@ -1,6 +1,7 @@
 from pyrogram.raw.functions.messages import RequestAppWebView
 from pyrogram.raw.types import InputBotAppShortName
 from urllib.parse import urlparse,parse_qs
+import aiohttp_proxy
 from utils.core import logger
 from fake_useragent import UserAgent
 from pyrogram import Client
@@ -50,7 +51,8 @@ class OneWin:
             'sec-fetch-site': 'same-site',
             'user-agent': UserAgent(os='android').random
             }
-        self.session = aiohttp.ClientSession(headers=headers, trust_env=True, connector=aiohttp.TCPConnector(verify_ssl=False))
+        proxy_conn = aiohttp_proxy.ProxyConnector().from_url(proxy) if proxy else None
+        self.session = aiohttp.ClientSession(headers=headers, connector=proxy_conn)
         self.balance = 0
         
     async def main(self):
@@ -63,8 +65,10 @@ class OneWin:
             while True:
                 try:
                     await self.everydayreward()
-                    for _ in range(random.randint(30,200)):
+                    tapsNum = random.randint(5, 50)
+                    for _ in range(tapsNum):
                         await self.tap()
+                    logger.success(f"main | Thread {self.thread} | {self.name} | successfully tapped {tapsNum} times")
                     info = await self.mining_info()
                     for tool in list(self.REQUIRED.keys())[::-1]:
                         if tool not in info:
@@ -196,7 +200,7 @@ class OneWin:
         del self.session.headers['access-control-request-headers']
         del self.session.headers['access-control-request-method']
         self.session.headers['authorization'] = authorization
-        await asyncio.sleep(2)
+        await asyncio.sleep(5)
         
     async def get_balance(
         self 
