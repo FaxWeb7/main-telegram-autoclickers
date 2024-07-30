@@ -22,11 +22,14 @@ async def start(thread: int, session_name: str, phone_number: str, proxy: str | 
                 if await dogs.verify_task(task['slug']):
                     logger.success(f'Thread {thread} | {account} | Completed task «{task["slug"]}». Reward {task["reward"]}')
                 else:
-                    logger.warning(f'Thread {thread} | {account} | Can\' complete task «{task["slug"]}»')
+                    logger.warning(f'Thread {thread} | {account} | Cannot complete task «{task["slug"]}»')
                 await asyncio.sleep(random.uniform(*config.DELAYS['TASK']))
 
             await dogs.logout()
-            await asyncio.sleep(random.uniform(*config.DELAYS["CLAIMING"]))
+
+            sleepTime = random.uniform(*config.DELAYS["CLAIMING"])
+            logger.success(f'Thread {thread} | {account} | Tasks completed! Sleep {sleepTime}')
+            await asyncio.sleep(sleepTime)
         except Exception as e:
             logger.error(f'Thread {thread} | {account} | Error: {e}')
 
