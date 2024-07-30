@@ -1,6 +1,6 @@
 
 # Automatic autoclicker for popular telegram mini-apps
-![](https://i.ibb.co/5GFZXyB/res.png)
+![](https://i.ibb.co/7QBLHsT/result.png)
 
 ## Bot Status
 
