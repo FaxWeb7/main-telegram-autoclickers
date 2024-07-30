@@ -18,7 +18,7 @@ DOTCOIN_BOT_TOKEN = '87265743:JKFDHad'
 POCKETFI_BOT_TOKEN = '87265743:JKFDHad'
 MUSKEMPIRE_BOT_TOKEN = '87265743:JKFDHad'
 HAMSTERKOMBAT_BOT_TOKEN = '87265743:JKFDHad'
-
+DOGSHOUSE_BOT_TOKEN = '87265743:JKFDHad'
 
 # don't change
 message = """
@@ -36,6 +36,7 @@ petyaPaths = [
     './3_cryptorank',
     './4_yescoin',
     './9_hamsterkombat',
+    './10_dogshouse',
 ]
 shamhiPaths = [
     './5_tapswap',
