@@ -224,7 +224,9 @@ class CryptoBot:
 				for name, quest in response_json['data'].items():
 					if 'youtube' in name: continue
 					if 'quiz' in name:
-						if quest['isRewarded'] == False: self.need_quiz = True
+						if quest['isRewarded'] == False:
+							self.need_quiz = True
+							self.need_rebus = True
 						continue
 					if quest['isComplete'] == True and quest['isRewarded'] == False:
 						if await self.daily_quest_reward(quest=name):
@@ -479,14 +481,14 @@ class CryptoBot:
 					else:
 						log.info(f"{self.session_name} | Daily reward not available")
 					
+					for quest in full_profile['data']['quests']:
+						if 'rebus' in quest:
+							self.rebus_key = quest
+							break
 					unrewarded_quests = [quest['key'] for quest in full_profile['data']['quests'] if not quest['isRewarded']]
 					if unrewarded_quests:
 						log.info(f"{self.session_name} | Quest rewards available")
 						for quest in unrewarded_quests:
-							if 'rebus' in quest:
-								self.rebus_key = quest
-								self.need_rebus = True
-								continue
 							if await self.quest_reward(quest=quest):
 								log.success(f"{self.session_name} | Reward for quest {quest} claimed")
 					
