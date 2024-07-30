@@ -2,6 +2,7 @@ import os
 import asyncio
 import pyrogram
 import subprocess
+from contextlib import suppress
 from shutil import copytree, ignore_patterns, rmtree, copy2
 from global_data import global_config
 from global_data.global_config import message, petyaPaths, shamhiPaths
@@ -236,4 +237,5 @@ async def process():
         else: break
 
 if __name__ == '__main__':
-    asyncio.get_event_loop().run_until_complete(process())
+    with suppress(KeyboardInterrupt, RuntimeError, RuntimeWarning):
+        asyncio.run(process())

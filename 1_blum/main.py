@@ -2,6 +2,7 @@ from utils.core import create_sessions
 from utils.telegram import Accounts
 from utils.blum import Blum
 from data.config import USE_PROXY,USE_TG_BOT,BOT_TOKEN
+from contextlib import suppress
 import asyncio
 import os
 
@@ -36,4 +37,5 @@ async def main():
         await asyncio.gather(*tasks)
 
 if __name__ == '__main__':
-    asyncio.get_event_loop().run_until_complete(main())
+    with suppress(KeyboardInterrupt, RuntimeError, RuntimeWarning):
+        asyncio.run(main())
