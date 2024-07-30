@@ -57,7 +57,7 @@ async def create_session():
         print(f'Added session +{user_data.phone_number} @{user_data.username} PROXY : NONE')
 
 async def run_script(script_name):
-    if (os.getcwd().split('/')[-1] != 'main-telegram-autoclickers'):
+    if ('./' + os.getcwd().split('/')[-1] in petyaPaths+shamhiPaths):
         os.chdir('..')
     os.chdir(script_name)
 
