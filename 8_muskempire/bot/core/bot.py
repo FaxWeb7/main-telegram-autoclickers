@@ -1,4 +1,4 @@
-import asyncio, aiohttp, random, math
+import asyncio, aiohttp, random, math, json, hashlib
 from time import time
 from zoneinfo import ZoneInfo
 from datetime import datetime
@@ -82,7 +82,8 @@ class CryptoBot:
 		url = self.api_url + '/telegram/auth'
 		try:
 			log.info(f"{self.session_name} | Trying to login...")
-			self.http_client.headers.pop('Api-Key', None)
+			self.http_client.headers['Api-Key'] = 'empty'
+			await self.set_sign_headers(data=json_data)
 			response = await self.http_client.post(url, json=json_data)
 			response.raise_for_status()
 			response_json = await response.json()
@@ -94,11 +95,21 @@ class CryptoBot:
 			self.errors += 1
 			await asyncio.sleep(delay=3)
 			return False
+
+	async def set_sign_headers(self, data: Dict[str, Any]) -> None:
+		time_string = str(int(time()))
+		json_string = json.dumps(data)
+		hash_object = hashlib.md5()
+		hash_object.update(f"{time_string}_{json_string}".encode('utf-8'))
+		hash_string = hash_object.hexdigest()
+		self.http_client.headers['Api-Time'] = time_string
+		self.http_client.headers['Api-Hash'] = hash_string
 	
 	async def get_dbs(self) -> Dict[str, Any]:
 		url = self.api_url + '/dbs'
 		try:
 			json_data = {'data': {'dbs': ['all']}}
+			await self.set_sign_headers(data=json_data)
 			response = await self.http_client.post(url, json=json_data)
 			response.raise_for_status()
 			response_json = await response.json()
@@ -115,6 +126,7 @@ class CryptoBot:
 		url = self.api_url + '/user/data/all' if full else self.api_url + '/hero/balance/sync'
 		try:
 			json_data = {'data': {}} if full else {}
+			await self.set_sign_headers(data=json_data)
 			response = await self.http_client.post(url, json=json_data)
 			response.raise_for_status()
 			response_json = await response.json()
@@ -128,7 +140,9 @@ class CryptoBot:
 	async def get_offline_bonus(self) -> bool:
 		url = self.api_url + '/hero/bonus/offline/claim'
 		try:
-			response = await self.http_client.post(url, json={})
+			json_data = {}
+			await self.set_sign_headers(data=json_data)
+			response = await self.http_client.post(url, json=json_data)
 			response.raise_for_status()
 			response_json = await response.json()
 			success = response_json.get('success', False)
@@ -147,6 +161,7 @@ class CryptoBot:
 		url = self.api_url + '/quests/daily/claim'
 		try:
 			json_data = {'data': f"{index}"}
+			await self.set_sign_headers(data=json_data)
 			response = await self.http_client.post(url, json=json_data)
 			response.raise_for_status()
 			response_json = await response.json()
@@ -164,6 +179,7 @@ class CryptoBot:
 		url = self.api_url + '/quests/claim'
 		try:
 			json_data = {'data': [quest, code]}
+			await self.set_sign_headers(data=json_data)
 			response = await self.http_client.post(url, json=json_data)
 			response.raise_for_status()
 			response_json = await response.json()
@@ -181,6 +197,7 @@ class CryptoBot:
 		url = self.api_url + '/quests/daily/progress/claim'
 		try:
 			json_data = {'data': {'quest': quest, 'code': code}}
+			await self.set_sign_headers(data=json_data)
 			response = await self.http_client.post(url, json=json_data)
 			response.raise_for_status()
 			response_json = await response.json()
@@ -197,7 +214,9 @@ class CryptoBot:
 	async def daily_quests(self) -> None:
 		url = self.api_url + '/quests/daily/progress/all'
 		try:
-			response = await self.http_client.post(url, json={})
+			json_data = {}
+			await self.set_sign_headers(data=json_data)
+			response = await self.http_client.post(url, json=json_data)
 			response.raise_for_status()
 			response_json = await response.json()
 			success = response_json.get('success', False)
@@ -218,6 +237,7 @@ class CryptoBot:
 		url = self.api_url + '/quests/check'
 		try:
 			json_data = {'data': [quest, code]}
+			await self.set_sign_headers(data=json_data)
 			response = await self.http_client.post(url, json=json_data)
 			response.raise_for_status()
 			response_json = await response.json()
@@ -234,6 +254,7 @@ class CryptoBot:
 		url = self.api_url + '/friends/claim'
 		try:
 			json_data = {'data': friend}
+			await self.set_sign_headers(data=json_data)
 			response = await self.http_client.post(url, json=json_data)
 			response.raise_for_status()
 			response_json = await response.json()
@@ -262,6 +283,7 @@ class CryptoBot:
 			await asyncio.sleep(delay=seconds)
 			try:
 				json_data = {'data': {'data':{'task': {'amount': earned_money, 'currentEnergy': energy}}, 'seconds': seconds}}
+				await self.set_sign_headers(data=json_data)
 				response = await self.http_client.post(url, json=json_data)
 				response.raise_for_status()
 				response_json = await response.json()
@@ -281,7 +303,9 @@ class CryptoBot:
 		url_fight = self.api_url + '/pvp/fight'
 		url_claim = self.api_url + '/pvp/claim'
 		log.info(f"{self.session_name} | PvP negotiations started | League: {league['key']} | Strategy: {strategy}")
-		await self.http_client.post(url_info, json={})
+		json_data = {}
+		await self.set_sign_headers(data=json_data)
+		await self.http_client.post(url_info, json=json_data)
 		await asyncio.sleep(3)
 		curent_strategy = strategy
 		money = 0
@@ -295,6 +319,7 @@ class CryptoBot:
 			log.info(f"{self.session_name} | Searching opponent...")
 			try:
 				json_data = {'data': {'league': league['key'], 'strategy': curent_strategy}}
+				await self.set_sign_headers(data=json_data)
 				response = await self.http_client.post(url_fight, json=json_data)
 				response.raise_for_status()
 				response_json = await response.json()
@@ -326,7 +351,9 @@ class CryptoBot:
 									f"Opponent strategy: {opponent_strategy} | "
 									f"You LOSE (-{money_contract})")
 					
-					response = await self.http_client.post(url_claim, json={})
+					json_data = {}
+					await self.set_sign_headers(data=json_data)
+					response = await self.http_client.post(url_claim, json=json_data)
 					response.raise_for_status()
 					response_json = await response.json()
 					success = response_json.get('success', False)
@@ -353,7 +380,9 @@ class CryptoBot:
 	async def get_funds_info(self) -> Dict[str, Any]:
 		url = self.api_url + '/fund/info'
 		try:
-			response = await self.http_client.post(url, json={})
+			json_data = {}
+			await self.set_sign_headers(data=json_data)
+			response = await self.http_client.post(url, json=json_data)
 			response.raise_for_status()
 			response_json = await response.json()
 			return response_json['data']
@@ -370,6 +399,7 @@ class CryptoBot:
 			return
 		try:
 			json_data = {'data': {'fund': fund, 'money': amount}}
+			await self.set_sign_headers(data=json_data)
 			response = await self.http_client.post(url, json=json_data)
 			response.raise_for_status()
 			response_json = await response.json()
