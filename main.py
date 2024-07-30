@@ -3,7 +3,6 @@ import asyncio
 import pyrogram
 import subprocess
 from shutil import copytree, ignore_patterns, rmtree, copy2
-from loguru import logger
 from global_data import global_config
 from global_data.global_config import message, petyaPaths, shamhiPaths
 from colorama import init, Fore
@@ -42,7 +41,7 @@ async def create_session():
         async with session:
             user_data = await session.get_me()
 
-        logger.success(f'Added session +{user_data.phone_number} @{user_data.username} PROXY {proxy.split(":")[0]}')
+        print(f'Added session +{user_data.phone_number} @{user_data.username} PROXY {proxy.split(":")[0]}')
     else:
         
         session = pyrogram.Client(
@@ -55,7 +54,7 @@ async def create_session():
         async with session:
             user_data = await session.get_me()
 
-        logger.success(f'Added session +{user_data.phone_number} @{user_data.username} PROXY : NONE')
+        print(f'Added session +{user_data.phone_number} @{user_data.username} PROXY : NONE')
 
 async def run_script(script_name):
     if (os.getcwd().split('/')[-1] != 'main-telegram-autoclickers'):
@@ -73,7 +72,8 @@ async def run_script(script_name):
             line = await stream.readline()
             if not line:
                 break
-            print(f"{Fore.GREEN}[{prefix}]: {Style.RESET_ALL}{line.decode().rstrip()}")
+            pref = f'{Fore.GREEN}[{prefix}]'
+            print(f'{pref:<{23}} | {Style.RESET_ALL}{line.decode().rstrip()}')
     
     await asyncio.gather(
         read_stream(process.stdout, script_name.upper()[2:]),
