@@ -1,7 +1,6 @@
 from pyrogram.raw.functions.messages import RequestAppWebView
 from pyrogram.raw.types import InputBotAppShortName
 from urllib.parse import urlparse,parse_qs
-import aiohttp_proxy
 from utils.core import logger
 from fake_useragent import UserAgent
 from pyrogram import Client
@@ -51,8 +50,8 @@ class OneWin:
             'sec-fetch-site': 'same-site',
             'user-agent': UserAgent(os='android').random
             }
-        proxy_conn = aiohttp_proxy.ProxyConnector().from_url(proxy) if proxy else None
-        self.session = aiohttp.ClientSession(headers=headers, connector=proxy_conn)
+        
+        self.session = aiohttp.ClientSession(headers=headers, trust_env=True, connector=aiohttp.TCPConnector(verify_ssl=False))
         self.balance = 0
         
     async def main(self):
