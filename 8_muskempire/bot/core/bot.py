@@ -273,10 +273,12 @@ class CryptoBot:
 	async def perform_taps(self, per_tap: int, energy: int) -> None:
 		url = self.api_url + '/hero/action/tap'
 		log.info(f"{self.session_name} | Taps started")
+		earned_money_sum = 0
 		while True:
 			taps_per_second = random.randint(*config.TAPS_PER_SECOND)
 			seconds = random.randint(4, 6)
 			earned_money = per_tap * taps_per_second * seconds
+			earned_money_sum += earned_money
 			energy_spent = math.ceil(earned_money / 2)
 			energy -= energy_spent
 			if energy < 0:
@@ -294,11 +296,11 @@ class CryptoBot:
 					self.errors = 0
 					self.balance = int(response_json['data']['hero']['money'])
 					energy = int(response_json['data']['hero']['earns']['task']['energy'])
-					log.success(f"{self.session_name} | Earned money: +{earned_money} | Energy left: {energy}")
 			except Exception as error:
 				log.error(f"{self.session_name} | Taps error: {str(error)}")
 				self.errors += 1
 				break
+			log.success(f"{self.session_name} | Earned money: +{earned_money_sum}")
 
 	async def perform_pvp(self, league: Dict[str, Any], strategy: str, count: int) -> None:
 		url_info = self.api_url + '/pvp/info'
