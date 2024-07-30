@@ -13,7 +13,7 @@ def send_log_to_telegram(message):
         logger.error(f"Failed to send log to Telegram: {e}")
 
 def logging_setup():
-    format_info = "<green>{time:HH:mm:ss.SS}</green> | <blue>{level}</blue> | <level>{message}</level>"
+    format_info = "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <blue>{level}</blue> | <level>{message}</level>"
     logger.remove()
 
     logger.add(sys.stdout, colorize=True, format=format_info, level="INFO")
