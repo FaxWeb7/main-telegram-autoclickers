@@ -1,11 +1,13 @@
 import sys
 import requests
+import time, random
 from loguru import logger
 from bot.config import config
 
 TELEGRAM_API_URL = f"https://api.telegram.org/bot{config.BOT_TOKEN}/sendMessage"
 def send_log_to_telegram(message):
     try:
+        time.sleep(random.randint(10, 20)/10)
         response = requests.post(TELEGRAM_API_URL, data={'chat_id': config.CHAT_ID, 'text': message})
         if response.status_code != 200:
             logger.error(f"Failed to send log to Telegram: {response.text}")
