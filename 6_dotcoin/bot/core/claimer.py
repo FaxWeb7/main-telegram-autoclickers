@@ -82,7 +82,7 @@ class Claimer:
         try:
             http_client.headers["Authorization"] = f"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impqdm5tb3luY21jZXdudXlreWlkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDg3MDE5ODIsImV4cCI6MjAyNDI3Nzk4Mn0.oZh_ECA6fA2NlwoUamf1TqF45lrMC0uIdJXvVitDbZ8"
             http_client.headers["Content-Type"] = "application/json"
-            response = await http_client.post('https://jjvnmoyncmcewnuykyid.supabase.co/functions/v1/getToken', json={"initData": tg_web_data})
+            response = await http_client.post('https://api.dotcoin.bot/functions/v1/getToken', json={"initData": tg_web_data})
             response.raise_for_status()
 
             response_json = await response.json()
@@ -94,7 +94,7 @@ class Claimer:
 
     async def get_profile_data(self, http_client: aiohttp.ClientSession) -> dict[str]:
         try:
-            response = await http_client.post('https://jjvnmoyncmcewnuykyid.supabase.co/rest/v1/rpc/get_user_info', json={})
+            response = await http_client.post('https://api.dotcoin.bot/rest/v1/rpc/get_user_info', json={})
             response.raise_for_status()
 
             response_json = await response.json()
@@ -106,7 +106,7 @@ class Claimer:
 
     async def get_tasks_data(self, http_client: aiohttp.ClientSession, is_premium: bool) -> dict[str]:
         try:
-            response = await http_client.post('https://jjvnmoyncmcewnuykyid.supabase.co/rest/v1/rpc/get_filtered_tasks', 
+            response = await http_client.post('https://api.dotcoin.bot/rest/v1/rpc/get_filtered_tasks', 
                 json={"platform":"android","locale":"en","is_premium":is_premium})
             response.raise_for_status()
 
@@ -119,7 +119,7 @@ class Claimer:
 
     async def complate_task(self, http_client: aiohttp.ClientSession, task_id: int) -> bool:
         try:
-            response = await http_client.post('https://jjvnmoyncmcewnuykyid.supabase.co/rest/v1/rpc/complete_task', 
+            response = await http_client.post('https://api.dotcoin.bot/rest/v1/rpc/complete_task', 
                 json={"oid":task_id})
             response.raise_for_status()
 
@@ -134,7 +134,7 @@ class Claimer:
 
     async def upgrade_boosts(self, http_client: aiohttp.ClientSession, boost_type: str, lvl: int) -> bool:
         try:
-            response = await http_client.post(f'https://jjvnmoyncmcewnuykyid.supabase.co/rest/v1/rpc/{boost_type}', 
+            response = await http_client.post(f'https://api.dotcoin.bot/rest/v1/rpc/{boost_type}', 
                 json={"lvl":lvl})
             response.raise_for_status()
 
@@ -149,7 +149,7 @@ class Claimer:
 
     async def save_coins(self, http_client: aiohttp.ClientSession, taps: int) -> bool:
         try:
-            response = await http_client.post('https://jjvnmoyncmcewnuykyid.supabase.co/rest/v1/rpc/save_coins', json={"coins":taps})
+            response = await http_client.post('https://api.dotcoin.bot/rest/v1/rpc/save_coins', json={"coins":taps})
             response.raise_for_status()
 
             response_json = await response.json()
