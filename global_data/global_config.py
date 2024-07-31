@@ -10,7 +10,6 @@ USE_TG_BOT = False
 CHAT_ID = '237856'
 # api tokens for tg bots, if USE_TH_BOT=True (get in @BotFather)
 BLUM_BOT_TOKEN = '87265743:JKFDHad'
-ONEWIN_BOT_TOKEN = '87265743:JKFDHad'
 CRYPTORANK_BOT_TOKEN = '87265743:JKFDHad'
 YESCOIN_BOT_TOKEN = '87265743:JKFDHad'
 TAPSWAP_BOT_TOKEN = '87265743:JKFDHad'
@@ -32,14 +31,14 @@ GitHub Repository: https://github.com/FaxWeb7/main-telegram-autoclickers
 """
 petyaPaths = [
     './1_blum',
-    './3_cryptorank',
-    './4_yescoin',
-    './9_hamsterkombat',
-    './10_dogshouse',
+    './2_cryptorank',
+    './3_yescoin',
+    './8_hamsterkombat',
+    './9_dogshouse',
 ]
 shamhiPaths = [
-    './5_tapswap',
-    './6_dotcoin',
-    './7_pocketfi',
-    './8_muskempire'
+    './4_tapswap',
+    './5_dotcoin',
+    './6_pocketfi',
+    './7_muskempire'
 ]
