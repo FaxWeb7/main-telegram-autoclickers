@@ -32,7 +32,6 @@ GitHub Repository: https://github.com/FaxWeb7/main-telegram-autoclickers
 """
 petyaPaths = [
     './1_blum',
-    './2_onewin',
     './3_cryptorank',
     './4_yescoin',
     './9_hamsterkombat',
