@@ -103,7 +103,7 @@ class Claimer:
 
     async def check_daily(self, http_client: aiohttp.ClientSession) -> bool:
         try:
-            response = await http_client.get('https://gm.pocketfi.org/mining/taskExecuting')
+            response = await http_client.get('https://rubot.pocketfi.org/mining/taskExecuting')
             response.raise_for_status()
             response_json = await response.json()
             claim = response_json['tasks']['daily'][0]['doneAmount']
@@ -117,7 +117,7 @@ class Claimer:
 
     async def claim_daily(self, http_client: aiohttp.ClientSession) -> int:
         try:
-            response = await http_client.post(url='https://gm.pocketfi.org/boost/activateDailyBoost', json={})
+            response = await http_client.post(url='https://rubot.pocketfi.org/boost/activateDailyBoost', json={})
             response.raise_for_status()
             response_json = await response.json()
             return response_json['updatedForDay']
