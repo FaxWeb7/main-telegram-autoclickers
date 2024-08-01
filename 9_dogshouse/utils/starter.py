@@ -25,8 +25,6 @@ async def start(thread: int, session_name: str, phone_number: str, proxy: str | 
                     logger.warning(f'Thread {thread} | {account} | Cannot complete task «{task["slug"]}»')
                 await asyncio.sleep(random.uniform(*config.DELAYS['TASK']))
 
-            await dogs.logout()
-
             sleepTime = random.uniform(*config.DELAYS["CLAIMING"])
             logger.success(f'Thread {thread} | {account} | Tasks completed! Sleep {sleepTime}')
             await asyncio.sleep(sleepTime)
