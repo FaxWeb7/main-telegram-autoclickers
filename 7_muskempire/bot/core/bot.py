@@ -282,6 +282,7 @@ class CryptoBot:
 			energy_spent = math.ceil(earned_money / 2)
 			energy -= energy_spent
 			if energy < 0:
+				log.success(f"{self.session_name} | Earned money: +{earned_money_sum}")
 				log.info(f"{self.session_name} | Taps stopped (not enough energy)")
 				break
 			await asyncio.sleep(delay=seconds)
@@ -300,7 +301,6 @@ class CryptoBot:
 				log.error(f"{self.session_name} | Taps error: {str(error)}")
 				self.errors += 1
 				break
-			log.success(f"{self.session_name} | Earned money: +{earned_money_sum}")
 
 	async def perform_pvp(self, league: Dict[str, Any], strategy: str, count: int) -> None:
 		url_info = self.api_url + '/pvp/info'
