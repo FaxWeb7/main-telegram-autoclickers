@@ -21,7 +21,7 @@ ACC_DELAY = global_config.ACC_DELAY
 PROXY_TYPE = global_config.PROXY_TYPE
 REF_CODE = 'linkCode_65404668'
 
-WHITELIST = {5, 6, 7, 10, 11, 12, 13, 14, 15, 16}
+WHITELIST = {4, 6, 7, 10, 11, 12, 13, 14, 15, 16}
 
 WORKDIR = "sessions/"
 
