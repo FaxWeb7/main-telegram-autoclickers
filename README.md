@@ -17,7 +17,7 @@
 
 1. Install the required dependencies:
    ```bash
-   pip install -r requirements.txt
+   python3.11 -m pip install -r requirements.txt
    ```
 
 2. Get your API_ID and API_HASH:
