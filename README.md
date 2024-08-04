@@ -7,8 +7,8 @@
 | Status | Bots                                            |
 |:------:|-------------------------------------------------|
 |   ✅   | **Blum, CryptoRank, YesCoin, TapSwap, DotCoin**       |
-|   ✅   | **PocketFi, MuskEmpire, HamsterKombat, DOGS**       |
-|   ⌛   | **OKX Racer**                        |
+|   ✅   | **PocketFi, MuskEmpire, HamsterKombat, DOGS, OKX Racer**       |
+|   ⌛   | **Lost Dogs**                        |
 
 
 ## Requirements
