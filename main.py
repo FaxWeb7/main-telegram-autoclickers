@@ -58,12 +58,12 @@ async def create_session():
         print(f'Added session +{user_data.phone_number} @{user_data.username} PROXY : NONE')
 
 async def run_script(script_name):
-    if ('./' + os.getcwd().split('/')[-1] in petyaPaths+shamhiPaths):
+    if ('./' + os.getcwd().split('\\' if os.name == 'nt' else '/')[-1] in petyaPaths+shamhiPaths):
         os.chdir('..')
     os.chdir(script_name)
 
     process = await asyncio.create_subprocess_exec(
-        'python3.11', 'main.py',
+        f'{'python' if os.name == 'nt' else 'python3.11'}', 'main.py',
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE
     )
