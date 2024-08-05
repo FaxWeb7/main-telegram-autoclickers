@@ -22,11 +22,14 @@ class Settings(BaseSettings):
 
     TAPS_ENABLED: bool = True
     TAPS_PER_SECOND: list[int] = [13, 30] # tested with 4 fingers
-    PVP_ENABLED: bool = False
+    PVP_ENABLED: bool = True
+    PROTECTED_BALANCE: int = 3000000
     PVP_LEAGUE: str = 'bronze'
+    PVP_LEAGUE: str = 'auto'
+    PVP_UPGRADE_LEAGUE: bool = True
     PVP_STRATEGY: str = 'random'
-    PVP_COUNT: int = 4
-    INVEST_AMOUNT: int = 100000
+    PVP_COUNT: int = 3
+    SKILLS_COUNT: int = 5
 
     SLEEP_BETWEEN_START: list[int] = global_config.ACC_DELAY
     ERRORS_BEFORE_STOP: int = 10

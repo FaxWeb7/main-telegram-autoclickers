@@ -12,6 +12,7 @@ from pyrogram.raw.functions.messages import RequestWebView
 
 from bot.utils.logger import log
 from bot.config import config
+from .skills import calculate_best_skill
 from .headers import headers
 
 class CryptoBot:
@@ -19,7 +20,7 @@ class CryptoBot:
 		self.session_name = tg_client.name
 		self.tg_client = tg_client
 		self.user_id = None
-		self.api_url = 'https://api.muskempire.io'
+		self.api_url = 'https://api.xempire.io'
 		self.need_quiz = False
 		self.need_rebus = False
 		self.rebus_key = ''
@@ -51,7 +52,7 @@ class CryptoBot:
 				bot=await self.tg_client.resolve_peer('muskempire_bot'),
 				platform='android',
 				from_bot_menu=False,
-				url='https://game.muskempire.io/',
+				url='https://game.xempire.io/',
 				start_param='hero6046075760'
 			))
 			auth_url = web_view.url
@@ -95,7 +96,7 @@ class CryptoBot:
 			self.errors += 1
 			await asyncio.sleep(delay=3)
 			return False
-
+	
 	async def set_sign_headers(self, data: Dict[str, Any]) -> None:
 		time_string = str(int(time()))
 		json_string = json.dumps(data)
@@ -149,6 +150,8 @@ class CryptoBot:
 			if success:
 				self.errors = 0
 				self.balance = int(response_json['data']['hero']['money'])
+				self.level = int(response_json['data']['hero']['level'])
+				self.mph = int(response_json['data']['hero']['moneyPerHour'])
 				return True
 			else: return False
 		except Exception as error:
@@ -169,6 +172,8 @@ class CryptoBot:
 			if success:
 				self.errors = 0
 				self.balance = int(response_json['data']['hero']['money'])
+				self.level = int(response_json['data']['hero']['level'])
+				self.mph = int(response_json['data']['hero']['moneyPerHour'])
 				return True
 			else: return False
 		except Exception as error:
@@ -187,6 +192,8 @@ class CryptoBot:
 			if success:
 				self.errors = 0
 				self.balance = int(response_json['data']['hero']['money'])
+				self.level = int(response_json['data']['hero']['level'])
+				self.mph = int(response_json['data']['hero']['moneyPerHour'])
 				return True
 			else: return False
 		except Exception as error:
@@ -205,6 +212,8 @@ class CryptoBot:
 			if success:
 				self.errors = 0
 				self.balance = int(response_json['data']['hero']['money'])
+				self.level = int(response_json['data']['hero']['level'])
+				self.mph = int(response_json['data']['hero']['moneyPerHour'])
 				return True
 			else: return False
 		except Exception as error:
@@ -226,7 +235,6 @@ class CryptoBot:
 					if 'quiz' in name:
 						if quest['isRewarded'] == False:
 							self.need_quiz = True
-							self.need_rebus = True
 						continue
 					if quest['isComplete'] == True and quest['isRewarded'] == False:
 						if await self.daily_quest_reward(quest=name):
@@ -264,6 +272,8 @@ class CryptoBot:
 			if success:
 				self.errors = 0
 				self.balance = int(response_json['data']['hero']['money'])
+				self.level = int(response_json['data']['hero']['level'])
+				self.mph = int(response_json['data']['hero']['moneyPerHour'])
 				return True
 			else: return False
 		except Exception as error:
@@ -282,8 +292,8 @@ class CryptoBot:
 			energy_spent = math.ceil(earned_money / 2)
 			energy -= energy_spent
 			if energy < 0:
-				log.success(f"{self.session_name} | Earned money: +{earned_money_sum}")
-				log.info(f"{self.session_name} | Taps stopped (not enough energy)")
+				log.success(f"{self.session_name} | Earned money sum: +{earned_money_sum} | Energy left: {energy}")
+				log.warning(f"{self.session_name} | Taps stopped (not enough energy)")
 				break
 			await asyncio.sleep(delay=seconds)
 			try:
@@ -296,6 +306,8 @@ class CryptoBot:
 				if success:
 					self.errors = 0
 					self.balance = int(response_json['data']['hero']['money'])
+					self.level = int(response_json['data']['hero']['level'])
+					self.mph = int(response_json['data']['hero']['moneyPerHour'])
 					energy = int(response_json['data']['hero']['earns']['task']['energy'])
 			except Exception as error:
 				log.error(f"{self.session_name} | Taps error: {str(error)}")
@@ -305,6 +317,7 @@ class CryptoBot:
 	async def perform_pvp(self, league: Dict[str, Any], strategy: str, count: int) -> None:
 		url_info = self.api_url + '/pvp/info'
 		url_fight = self.api_url + '/pvp/fight'
+		url_cancel = self.api_url + '/pvp/fight/cancel'
 		url_claim = self.api_url + '/pvp/claim'
 		log.info(f"{self.session_name} | PvP negotiations started | League: {league['key']} | Strategy: {strategy}")
 		json_data = {}
@@ -313,15 +326,21 @@ class CryptoBot:
 		await asyncio.sleep(3)
 		curent_strategy = strategy
 		money = 0
+		search_attempts = 0
 		while count > 0:
 			if self.balance < int(league['maxContract']):
 				money_str = f"Profit: +{money}" if money > 0 else (f"Loss: {money}" if money < 0 else "Profit: 0")
-				log.info(f"{self.session_name} | PvP negotiations stopped (not enough money). {money_str}")
+				log.warning(f"{self.session_name} | PvP negotiations stopped (not enough money). {money_str}")
+				break
+			if self.balance - int(league['maxContract']) < config.PROTECTED_BALANCE:
+				money_str = f"Profit: +{money}" if money > 0 else (f"Loss: {money}" if money < 0 else "Profit: 0")
+				log.warning(f"{self.session_name} | PvP negotiations stopped (balance protection). {money_str}")
 				break
 			
 			if strategy == 'random': curent_strategy = random.choice(self.strategies)
 			log.info(f"{self.session_name} | Searching opponent...")
 			try:
+				search_attempts += 1
 				json_data = {'data': {'league': league['key'], 'strategy': curent_strategy}}
 				await self.set_sign_headers(data=json_data)
 				response = await self.http_client.post(url_fight, json=json_data)
@@ -329,12 +348,20 @@ class CryptoBot:
 				response_json = await response.json()
 				success = response_json.get('success', False)
 				if success:
+					self.errors = 0
 					if response_json['data']['opponent'] is None:
-						await asyncio.sleep(random.randint(2, 4))
+						if search_attempts > 2:
+							json_data = {}
+							await self.set_sign_headers(data=json_data)
+							await self.http_client.post(url_cancel, json=json_data)
+							search_attempts = 0
+							log.info(f"{self.session_name} | Search cancelled")
+						await asyncio.sleep(random.randint(5, 10))
 						continue
 					
 					await asyncio.sleep(random.randint(6, 7))
 					count -= 1
+					search_attempts = 0
 					if int(response_json['data']['fight']['player1']) == self.user_id:
 						opponent_strategy = response_json['data']['fight']['player2Strategy']
 					else:
@@ -362,19 +389,22 @@ class CryptoBot:
 					response_json = await response.json()
 					success = response_json.get('success', False)
 					if success:
+						self.errors = 0
 						self.balance = int(response_json['data']['hero']['money'])
+						self.level = int(response_json['data']['hero']['level'])
+						self.mph = int(response_json['data']['hero']['moneyPerHour'])
 					
 					await asyncio.sleep(random.randint(1, 2))
 			
 			except Exception as error:
 				log.error(f"{self.session_name} | PvP error: {str(error)}")
 				self.errors += 1
-				await asyncio.sleep(random.randint(5, 10))
+				await asyncio.sleep(random.randint(10, 30))
 		money_str = f"Profit: +{money}" if money > 0 else (f"Loss: {money}" if money < 0 else "Profit: 0")
 		log.info(f"{self.session_name} | PvP negotiations finished. {money_str}")
 
 	async def get_helper(self) -> Dict[str, Any]:
-		url = 'https://alexell.ru/crypto/musk-empire/data.json'
+		url = 'https://alexell.pro/crypto/x-empire/data.json'
 		response = await self.http_client.get(url)
 		if response.status == 200:
 			response_json = await response.json()
@@ -396,10 +426,63 @@ class CryptoBot:
 			await asyncio.sleep(delay=3)
 			return {}
 
+	def calculate_bet(self) -> int:
+		bet_steps_count = 7 # from game js, may be changed in the future
+		def smart_zero_round(amount):
+			def round_to_nearest(value, base=100):
+				return round(value / base) * base
+
+			if amount < 100:
+				return round_to_nearest(amount, 50)
+			elif amount < 1000:
+				return round_to_nearest(amount, 100)
+			elif amount < 10000:
+				return round_to_nearest(amount, 1000)
+			elif amount < 100000:
+				return round_to_nearest(amount, 10000)
+			elif amount < 1000000:
+				return round_to_nearest(amount, 100000)
+			elif amount < 10000000:
+				return round_to_nearest(amount, 1000000)
+			elif amount < 100000000:
+				return round_to_nearest(amount, 10000000)
+			else:
+				return round_to_nearest(amount, 1000)
+
+		def min_bet():
+			multiplier = 2
+			if self.level < 3:
+				multiplier = 5
+			elif self.level < 6:
+				multiplier = 4
+			elif self.level < 10:
+				multiplier = 3
+
+			calculated_bet = smart_zero_round(self.mph * multiplier / (bet_steps_count * 3))
+			return calculated_bet or 100
+
+		def max_bet():
+			return min_bet() * bet_steps_count
+		
+		avail_bet = 0
+		max_bet = max_bet()
+		if max_bet < self.balance:
+			avail_bet = max_bet
+		else: # reduce the bet if there is not enough money
+			min_bet = min_bet()
+			while max_bet > self.balance and max_bet - min_bet >= min_bet:
+				max_bet -= min_bet
+			avail_bet = max(max_bet, min_bet)
+		
+		return avail_bet
+	
 	async def invest(self, fund: str, amount: int) -> None:
 		url = self.api_url + '/fund/invest'
 		if self.balance < amount:
-			log.info(f"{self.session_name} | Not enough money for invest")
+			log.warning(f"{self.session_name} | Not enough money for invest")
+			return
+		if self.balance - amount < config.PROTECTED_BALANCE:
+			log.warning(f"{self.session_name} | Investment skipped (balance protection)")
 			return
 		try:
 			json_data = {'data': {'fund': fund, 'money': amount}}
@@ -411,6 +494,8 @@ class CryptoBot:
 			if success:
 				self.errors = 0
 				self.balance = int(response_json['data']['hero']['money'])
+				self.level = int(response_json['data']['hero']['level'])
+				self.mph = int(response_json['data']['hero']['moneyPerHour'])
 				for fnd in response_json['data']['funds']:
 					if fnd['fundKey'] == fund:
 						money = fnd['moneyProfit']
@@ -421,6 +506,26 @@ class CryptoBot:
 			self.errors += 1
 			log.error(f"{self.session_name} | Invest error: {str(error)}")
 
+	async def improve_skill(self, skill: str) -> Dict[str, Any] | None:
+		url = self.api_url + '/skills/improve'
+		try:
+			json_data = {'data': skill}
+			await self.set_sign_headers(data=json_data)
+			response = await self.http_client.post(url, json=json_data)
+			response.raise_for_status()
+			response_json = await response.json()
+			success = response_json.get('success', False)
+			if success:
+				self.errors = 0
+				self.balance = int(response_json['data']['hero']['money'])
+				self.level = int(response_json['data']['hero']['level'])
+				self.mph = int(response_json['data']['hero']['moneyPerHour'])
+				return response_json
+			else: return None
+		except Exception as error:
+			log.error(f"{self.session_name} | Friend reward error: {str(error)}")
+			return None
+
 	async def check_proxy(self, proxy: Proxy) -> None:
 		try:
 			response = await self.http_client.get(url='https://httpbin.org/ip', timeout=aiohttp.ClientTimeout(5))
@@ -430,7 +535,7 @@ class CryptoBot:
 			log.error(f"{self.session_name} | Proxy: {proxy} | Error: {error}")
 
 	async def run(self, proxy: str | None) -> None:
-		proxy_conn = aiohttp.TCPConnector(verify_ssl=False) if proxy else None
+		proxy_conn = ProxyConnector().from_url(proxy) if proxy else None
 
 		async with aiohttp.ClientSession(headers=headers, connector=proxy_conn) as http_client:
 			self.http_client = http_client
@@ -454,6 +559,8 @@ class CryptoBot:
 							full_profile = await self.get_profile(full=True)
 							if self.user_id is None: self.user_id = int(full_profile['data']['profile']['id'])
 							self.balance = int(full_profile['data']['hero']['money'])
+							self.level = int(full_profile['data']['hero']['level'])
+							self.mph = int(full_profile['data']['hero']['moneyPerHour'])
 							offline_bonus = int(full_profile['data']['hero']['offlineBonus'])
 							if offline_bonus > 0:
 								if await self.get_offline_bonus():
@@ -464,9 +571,11 @@ class CryptoBot:
 						
 					profile = await self.get_profile(full=False)
 					self.balance = int(profile['data']['hero']['money'])
-					log.info(f"{self.session_name} | Level: {profile['data']['hero']['level']} | "
+					self.level = int(profile['data']['hero']['level'])
+					self.mph = int(profile['data']['hero']['moneyPerHour'])
+					log.info(f"{self.session_name} | Level: {self.level} | "
 								f"Balance: {self.balance} | "
-								f"Money per hour: {profile['data']['hero']['moneyPerHour']}")
+								f"Money per hour: {self.mph}")
 					
 					daily_rewards = full_profile['data']['dailyRewards']
 					daily_index = None
@@ -483,10 +592,6 @@ class CryptoBot:
 					else:
 						log.info(f"{self.session_name} | Daily reward not available")
 					
-					for quest in full_profile['data']['quests']:
-						if 'rebus' in quest:
-							self.rebus_key = quest
-							break
 					unrewarded_quests = [quest['key'] for quest in full_profile['data']['quests'] if not quest['isRewarded']]
 					if unrewarded_quests:
 						log.info(f"{self.session_name} | Quest rewards available")
@@ -513,29 +618,57 @@ class CryptoBot:
 					if config.PVP_ENABLED:
 						if self.dbs:
 							league_data = None
+							selected_league = None
 							for league in self.dbs['dbNegotiationsLeague']:
-								if league['key'] == config.PVP_LEAGUE:
-									league_data = league
-									break;
-
-							if league_data is not None:
-								if int(profile['data']['hero']['level']) >= int(league_data['requiredLevel']):
-									self.strategies = [strategy['key'] for strategy in self.dbs['dbNegotiationsStrategy']]
-									if config.PVP_STRATEGY == 'random' or config.PVP_STRATEGY in self.strategies:
-										await self.perform_pvp(league=league_data, strategy=config.PVP_STRATEGY, count=config.PVP_COUNT)
+								if config.PVP_LEAGUE == 'auto':
+									if self.level >= league['requiredLevel'] and self.level <= league['maxLevel']:
+										if league_data is None or league['requiredLevel'] < league_data['requiredLevel']:
+											league_data = league
+								else:
+									if league['key'] == config.PVP_LEAGUE:
+										selected_league = league
+										if self.level >= league['requiredLevel'] and self.level <= league['maxLevel']:
+											league_data = league
+											break
+							
+							# if the current league is no longer available, select the next league
+							if config.PVP_LEAGUE != 'auto' and league_data is None:
+								if selected_league:
+									if config.PVP_UPGRADE_LEAGUE:
+										for league in self.dbs['dbNegotiationsLeague']:
+											if league['requiredLevel'] > selected_league['requiredLevel'] and self.level >= league['requiredLevel']:
+												league_data = league
+												break
+										log.info(f"{self.session_name} | Selected league is no longer available. New league: {league_data['key']}.")
 									else:
 										config.PVP_ENABLED = False
-										log.warning(f"{self.session_name} | PVP_STRATEGY param is invalid. PvP negotiations disabled.")
+										log.warning(f"{self.session_name} | Selected league is no longer available. PvP negotiations disabled.")
 								else:
 									config.PVP_ENABLED = False
-									log.warning(f"{self.session_name} | Your level is too low for the {config.PVP_LEAGUE} league. PvP negotiations disabled.")
-							else:
-								config.PVP_ENABLED = False
-								log.warning(f"{self.session_name} | PVP_LEAGUE param is invalid. PvP negotiations disabled.")
+									log.warning(f"{self.session_name} | PVP_LEAGUE param is invalid. PvP negotiations disabled.")
+
+							if league_data is not None:
+								self.strategies = [strategy['key'] for strategy in self.dbs['dbNegotiationsStrategy']]
+								if config.PVP_STRATEGY == 'random' or config.PVP_STRATEGY in self.strategies:
+									await self.perform_pvp(league=league_data, strategy=config.PVP_STRATEGY, count=config.PVP_COUNT)
+								else:
+									config.PVP_ENABLED = False
+									log.warning(f"{self.session_name} | PVP_STRATEGY param is invalid. PvP negotiations disabled.")
 						else:
 							log.warning(f"{self.session_name} | Database is missing. PvP negotiations will be skipped this time.")
 					
 					# Daily quiz, rebus and combo invest with external data
+					for quest in self.dbs['dbQuests']:
+						if 'rebus' in quest['key']:
+							self.rebus_key = quest['key']
+							self.rebus_answer = quest['checkData']
+							break
+					self.need_rebus = True
+					for quest in full_profile['data']['quests']:
+						if self.rebus_key in quest['key']:
+							self.need_rebus = False
+							break
+					
 					helper = await self.get_helper()
 					cur_time_gmt = datetime.now(gmt_timezone)
 					cur_time_gmt_s = cur_time_gmt.strftime('%Y-%m-%d')
@@ -546,21 +679,41 @@ class CryptoBot:
 							if await self.daily_quest_reward(quest='quiz', code=helper['quiz']):
 								self.need_quiz = False
 								log.success(f"{self.session_name} | Reward for daily quiz claimed")
-						if 'rebus' in helper and self.need_rebus:
-							if await self.solve_rebus(quest=self.rebus_key, code=helper['rebus']):
+						if self.need_rebus:
+							if await self.solve_rebus(quest=self.rebus_key, code=self.rebus_answer):
 								self.need_rebus = False
 								log.success(f"{self.session_name} | Reward for daily rebus claimed")
 						if 'funds' in helper:
 							current_invest = await self.get_funds_info()
-							if 'funds' in current_invest and not current_invest['funds'] and config.INVEST_AMOUNT > 0:
+							if 'funds' in current_invest and not current_invest['funds']:
 								for fund in helper['funds']:
-									await self.invest(fund=fund, amount=config.INVEST_AMOUNT)
+									await self.invest(fund=fund, amount=self.calculate_bet())
 					
 					profile = await self.get_profile(full=False)
 					self.balance = int(profile['data']['hero']['money'])
-					log.info(f"{self.session_name} | Level: {profile['data']['hero']['level']} | "
+					self.level = int(profile['data']['hero']['level'])
+					self.mph = int(profile['data']['hero']['moneyPerHour'])
+					log.info(f"{self.session_name} | Level: {self.level} | "
 								f"Balance: {self.balance} | "
-								f"Money per hour: {profile['data']['hero']['moneyPerHour']}")
+								f"Money per hour: {self.mph}")
+					
+					# improve skills
+					if config.SKILLS_COUNT > 0:
+						improved_skills = 0
+						improve_data = None
+						while improved_skills < config.SKILLS_COUNT:
+							skill = calculate_best_skill(skills=self.dbs['dbSkills'], profile=full_profile, level=self.level, balance=self.balance, improve=improve_data)
+							if skill is not None:
+								if self.balance - skill['price'] < config.PROTECTED_BALANCE:
+									log.warning(f"{self.session_name} | Skill improvement stopped (balance protection)")
+									break
+								improve_data = await self.improve_skill(skill=skill['key'])
+								if improve_data is not None:
+									improved_skills += 1
+									log.success(f"{self.session_name} | Skill {skill['key']} improved to level {skill['newlevel']}")
+									await asyncio.sleep(random.randint(2, 5))
+								else:
+									break
 					
 					log.info(f"{self.session_name} | Sleep 1 hour")
 					await asyncio.sleep(3600)
@@ -569,7 +722,6 @@ class CryptoBot:
 				except RuntimeError as error:
 					raise error
 				except Exception as error:
-					self.errors += 1
 					log.error(f"{self.session_name} | Unknown error: {error}")
 					await asyncio.sleep(delay=3)
 
