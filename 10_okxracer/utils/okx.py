@@ -58,31 +58,41 @@ class Okx:
         while True:
             await self.login()
             info = (await self.get_info())
-            tasks = (await self.get_tasks())['data']
-            random.shuffle(tasks)
-            for task in tasks:
-                if random.randint(0,3) == 1:
-                    if task['state'] == 1 or task['id'] not in config.WHITELIST:
-                        continue
-                    is_do = await self.do_task(id_ = task['id'])
-                    if is_do:
-                        logger.success(f'do task | Thread {self.thread} | {self.name}.session | claim {task["points"]} points for {task["context"]["name"]}')
+            tasks = (await self.get_tasks())
+            if 'data' not in tasks:
+                logger.error(f'tasks | Thread {self.thread} | {self.name}.session | {tasks}')
+                await asyncio.sleep(random.uniform(*config.MINI_SLEEP))
+            else:
+                tasks = tasks['data']
+                random.shuffle(tasks)
+                for task in tasks:
+                    if random.randint(0,3) == 1:
+                        if task['state'] == 1 or task['id'] not in config.WHITELIST:
+                            continue
+                        is_do = await self.do_task(id_ = task['id'])
+                        if is_do:
+                            logger.success(f'do task | Thread {self.thread} | {self.name}.session | claim {task["points"]} points for {task["context"]["name"]}')
                         
-            boosts = (await self.get_boosts())['data']
-            random.shuffle(boosts)
-            for boost in boosts:
-                if 'isLocked' in boost:
-                    if boost['isLocked']:
-                        continue
-                is_can_buy = await self.can_buy(boost=boost)
-                if is_can_buy:
-                    bougth = await self.do_boost(id_ = boost['id'])
-                    if bougth:
-                        if 'pointCost' in boost['context']:
-                            price = boost["context"]["pointCost"]
-                        else:
-                            price = 0
-                        logger.success(f'do boost | Thread {self.thread} | {self.name}.session | buy {task["context"]["name"]} for {price} points')
+            boosts = (await self.get_boosts())
+            if 'data' not in boosts:
+                logger.error(f'boosts | Thread {self.thread} | {self.name}.session | {boosts}')
+                await asyncio.sleep(random.uniform(*config.MINI_SLEEP))
+            else:
+                boosts = boosts['data']
+                random.shuffle(boosts)
+                for boost in boosts:
+                    if 'isLocked' in boost:
+                        if boost['isLocked']:
+                            continue
+                    is_can_buy = await self.can_buy(boost=boost)
+                    if is_can_buy:
+                        bougth = await self.do_boost(id_ = boost['id'])
+                        if bougth:
+                            if 'pointCost' in boost['context']:
+                                price = boost["context"]["pointCost"]
+                            else:
+                                price = 0
+                            logger.success(f'do boost | Thread {self.thread} | {self.name}.session | buy {task["context"]["name"]} for {price} points')
             for _ in range(random.randint(0,info['data']['numChances'])):
                 await self.guess_price()
             
@@ -128,6 +138,7 @@ class Okx:
         
     async def get_info(self):
         json_data = {
+            "extUserId": self.user_id,
             'extUserName': f'{self.first_name} {self.last_name}',
             'linkCode': self.ref[9:],
         }
@@ -140,6 +151,7 @@ class Okx:
             params=params,
             proxy=self.proxy
         )
+        await asyncio.sleep(random.uniform(*config.MINI_SLEEP))
         return (await response.json())
     
     async def get_boosts(self):
@@ -152,6 +164,7 @@ class Okx:
             params=params,
             proxy = self.proxy
         )
+        await asyncio.sleep(random.uniform(*config.MINI_SLEEP))
         return (await response.json())
     
     async def do_boost(self, id_ : int):
@@ -160,6 +173,7 @@ class Okx:
         }
 
         json_data = {
+            "extUserId": self.user_id,
             'id': id_,
         }
 
@@ -179,7 +193,13 @@ class Okx:
             return False
     
     async def can_buy(self,boost : dict):
-        balance = (await self.get_info())['data']['balancePoints']
+        balance = (await self.get_info())
+        if 'data' not in balance:
+            logger.error(f'can_buy | Thread {self.thread} | {self.name}.session | {balance}')
+            await asyncio.sleep(random.uniform(*config.MINI_SLEEP))
+            return False
+        else:
+            balance = balance['data']['balancePoints']
         curStage = boost['curStage']
         totalStage = boost['totalStage']
         pointCost = boost['pointCost']
@@ -197,6 +217,7 @@ class Okx:
             params=params,
             proxy = self.proxy
         )
+        await asyncio.sleep(random.uniform(*config.MINI_SLEEP))
         return (await response.json())
     
     async def do_task(self, id_ : int):
@@ -204,6 +225,7 @@ class Okx:
             't': str(int(time.time()*1000)),
         }
         json_data = {
+            "extUserId": self.user_id,
             'id': id_,
         }
 
@@ -243,8 +265,12 @@ class Okx:
             proxy=self.proxy
         )
         
-        is_won = (await response.json())['data']['won']
-        claimed = (await response.json())['data']['basePoint']
+        try:
+            is_won = (await response.json())['data']['won']
+            claimed = (await response.json())['data']['basePoint']
+        except:
+            logger.error(f"guess_price | Thread {self.thread} | {self.name}.session | {(await response.json())}")
+            return False
         
         await asyncio.sleep(5)
 
