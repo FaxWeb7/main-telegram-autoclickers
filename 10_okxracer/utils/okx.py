@@ -36,7 +36,7 @@ class Okx:
         else:
             self.proxy = None
             
-        headers = {
+        self.headers = {
                     'Accept': 'application/json',
                     'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7,bg;q=0.6,mk;q=0.5',
                     'Content-Type': 'application/json',
@@ -51,11 +51,12 @@ class Okx:
                     'Sec-Ch-Ua-platform': '"Android"',
                     'User-Agent': UserAgent(os='android').random,
                 }
-        self.session = aiohttp.ClientSession(headers=headers, trust_env=True, connector=aiohttp.TCPConnector(verify_ssl=False))
+        self.session = None
 
     async def main(self):
         await asyncio.sleep(random.uniform(*config.ACC_DELAY))
         while True:
+            self.session = aiohttp.ClientSession(headers=self.headers, trust_env=True, connector=aiohttp.TCPConnector(verify_ssl=False))
             await self.login()
             info = (await self.get_info())
             tasks = (await self.get_tasks())
@@ -98,6 +99,7 @@ class Okx:
             
             sleep = random.uniform(*config.BIG_SLEEP)
             logger.info(f'main | Thread {self.thread} | {self.name}.session | Ушел в сон на {sleep} сек')
+            await self.session.close()
             await asyncio.sleep(sleep)
         
     async def get_tg_web_data(self):
