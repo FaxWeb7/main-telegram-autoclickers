@@ -87,6 +87,7 @@ def fn_payback(e, t):
 		s.append(L)
 	return s[e]
 
+
 # main function for calculating the most profitable skill
 def calculate_best_skill(skills: list, profile: Dict[str, Any], level: int, balance: int, improve: Dict[str, Any] | None) -> Dict[str, Any] | None:
 	friends = profile["data"]["profile"]["friends"]
@@ -95,9 +96,10 @@ def calculate_best_skill(skills: list, profile: Dict[str, Any], level: int, bala
 	else:
 		my_skills = profile["data"]["skills"]
 	
-	for my_skill, my_limit in my_skills.items():
-		if type(my_limit["finishUpgradeDate"]) is str:
-			my_skills[my_skill]["finishUpgradeDate"] = datetime.strptime(my_limit["finishUpgradeDate"], "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc).timestamp()
+	if (len(my_skills) != 0):
+		for my_skill, my_limit in my_skills.items():
+			if type(my_limit["finishUpgradeDate"]) is str:
+				my_skills[my_skill]["finishUpgradeDate"] = datetime.strptime(my_limit["finishUpgradeDate"], "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc).timestamp()
 	
 	qualified_skills = []
 	for skill in skills:
@@ -133,13 +135,16 @@ def calculate_best_skill(skills: list, profile: Dict[str, Any], level: int, bala
 					if not skill_limit['requiredSkills']: qualified = True
 					else:
 						for req_skill, req_level in skill_limit['requiredSkills'].items():
-							if my_skills.get(req_skill, {}).get("level", 0) >= req_level: qualified = True
+							if req_skill in my_skills and my_skills.get(req_skill, {}).get("level", 0) >= req_level: qualified = True
 
 		if qualified:
 			skill['ratio'] = skill_profit / skill_price
 			skill['price'] = skill_price
 			skill['profit'] = skill_profit
-			skill['newlevel'] = my_skills.get(skill['key'], {}).get('level', 0) + 1 # new level for improve or 1 level for buy
+			if (skill['key'] in my_skills):
+				skill['newlevel'] = my_skills.get(skill['key'], {}).get('level', 0) + 1 # new level for improve or 1 level for buy
+			else:
+				skill['newlevel'] = 1
 			qualified_skills.append(skill)
 	
 	best_skill = sorted(qualified_skills, key=lambda x: x["ratio"])[-1]
