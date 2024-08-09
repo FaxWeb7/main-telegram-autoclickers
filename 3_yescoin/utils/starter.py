@@ -3,7 +3,6 @@ import random
 from utils.yescoin import YesCoin
 from utils.core import logger
 import datetime
-import pandas as pd
 from utils.core.telegram import Accounts
 from aiohttp.client_exceptions import ContentTypeError
 import asyncio

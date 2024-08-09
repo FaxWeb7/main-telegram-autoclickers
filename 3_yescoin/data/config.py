@@ -13,7 +13,7 @@ API_ID = global_config.API_ID
 API_HASH = global_config.API_HASH
 
 USE_TG_BOT = global_config.USE_TG_BOT
-BOT_TOKEN = global_config.DOGSHOUSE_BOT_TOKEN
+BOT_TOKEN = global_config.YESCOIN_BOT_TOKEN
 CHAT_ID = global_config.CHAT_ID
 
 # auto complete tasks True/False

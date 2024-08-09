@@ -1,5 +1,5 @@
 from utils.core.telegram import Accounts
-from utils.starter import start, stats
+from utils.starter import start
 import asyncio
 from data import config
 from itertools import zip_longest
@@ -45,4 +45,4 @@ async def main():
 
 
 if __name__ == '__main__':
-    asyncio.get_event_loop().run_until_complete(main())
+    asyncio.run(main())
