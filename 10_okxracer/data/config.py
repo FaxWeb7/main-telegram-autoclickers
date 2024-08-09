@@ -21,7 +21,7 @@ ACC_DELAY = global_config.ACC_DELAY
 PROXY_TYPE = global_config.PROXY_TYPE
 REF_CODE = 'linkCode_65404668'
 
-WHITELIST = {4, 6, 7, 10, 11, 12, 13, 14, 15, 16}
+BLACKLIST = {5, 9}
 
 WORKDIR = "sessions/"
 
@@ -30,13 +30,13 @@ USE_PROXY = global_config.USE_PROXY
 # задержка между кругом
 BIG_SLEEP = [3600,10000]
 
-MINI_SLEEP = [3,20]
+MINI_SLEEP = [10,30]
 
 # задержка между тасками
-TASK_SLEEP = [10,30] #[min,max]
+TASK_SLEEP = [30,60] #[min,max]
 
 # задержка между бустами
-BOOST_SLEEP = [5,15] #[min,max]
+BOOST_SLEEP = [15,60] #[min,max]
 
 
 hello ='''              _                               __  _        
