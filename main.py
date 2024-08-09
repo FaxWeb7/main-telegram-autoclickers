@@ -63,7 +63,7 @@ async def run_script(script_name):
     os.chdir(script_name)
 
     process = await asyncio.create_subprocess_exec(
-        f'{'python' if os.name == 'nt' else 'python3.11'}', 'main.py',
+        f'{"python" if os.name == "nt" else "python3.11"}', 'main.py',
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE
     )
