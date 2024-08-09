@@ -9,30 +9,54 @@ sys.modules["global_config"] = modu
 spec.loader.exec_module(modu)
 import global_config
 
-# api id, hash
 API_ID = global_config.API_ID
 API_HASH = global_config.API_HASH
 
-USE_TG_BOT = global_config.USE_TG_BOT # True if you want use tg, else False
-BOT_TOKEN = global_config.YESCOIN_BOT_TOKEN # API TOKEN get in @BotFather
-CHAT_ID = global_config.CHAT_ID # Your telegram id
+USE_TG_BOT = global_config.USE_TG_BOT
+BOT_TOKEN = global_config.DOGSHOUSE_BOT_TOKEN
+CHAT_ID = global_config.CHAT_ID
 
-# задержка между подключениями к аккаунтам
-ACC_DELAY = global_config.ACC_DELAY
+# auto complete tasks True/False
+COMPLETE_TASKS = True
 
-# тип прокси
-PROXY_TYPE = global_config.PROXY_TYPE # http/socks5
+# autoupgrade fill rate; [True/False (use/no use), max upgrade lvl]
+AUTOUPGRADE_FILL_RATE = [True, 5]
 
-# папка с сессиями (не менять)
+# minimum allowable energy
+MINIMUM_ENERGY = 50
+
+# daily boosters; True/False
+BOOSTERS = {
+    'USE_CHESTS': True,    # Chests
+    'USE_RECOVERY': True   # Full energy recover
+}
+
+DELAYS = {
+    'ACCOUNT': global_config.ACC_DELAY,  # delay between connections to accounts (the more accounts, the longer the delay)
+    'CLICKS': [2, 10],   # delay between clicks
+    'TASKS': [10, 40]      # delay between completed tasks
+}
+
+PROXY = {
+    "USE_PROXY_FROM_FILE": global_config.USE_PROXY,
+    "PROXY_PATH": "./proxy.txt",
+    "TYPE": {
+        "TG": global_config.PROXY_TYPE,
+        "REQUESTS": global_config.PROXY_TYPE
+    }
+}
+
+# session folder (do not change)
 WORKDIR = "sessions/"
 
-# использование прокси
-USE_PROXY = global_config.USE_PROXY # True/False
+# timeout in seconds for checking accounts on valid
+TIMEOUT = 30
 
-# автоулучшение True = включено, False = выключено
-AUTO_UPGRATE = True
+SOFT_INFO = f"""{"Yescoin".center(40)}
+Soft for https://t.me/theYescoin_bot; claim points;
+claim daily boosters; complete tasks; upgrade 'FillRate';
+register accounts in web app
 
-# если автоулучшение = True, то будет прокачиваться до заданного уровня
-MULIVALUE = 5
-COINLIMIT = 4
-FILLRATE = 3
+The soft also collects statistics on accounts and uses proxies from {f"the {PROXY['PROXY_PATH']} file" if PROXY['USE_PROXY_FROM_FILE'] else "the accounts.json file"}
+To buy this soft with the option to set your referral link write me: https://t.me/Axcent_ape
+"""
