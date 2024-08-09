@@ -36,7 +36,7 @@ class Okx:
         else:
             self.proxy = None
             
-        self.headers = {
+        headers = {
                     'Accept': 'application/json',
                     'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7,bg;q=0.6,mk;q=0.5',
                     'Content-Type': 'application/json',
@@ -51,32 +51,32 @@ class Okx:
                     'Sec-Ch-Ua-platform': '"Android"',
                     'User-Agent': UserAgent(os='android').random,
                 }
-        self.session = None
+        self.session = aiohttp.ClientSession(headers=headers, trust_env=True, connector=aiohttp.TCPConnector(verify_ssl=False))
 
     async def main(self):
         await asyncio.sleep(random.uniform(*config.ACC_DELAY))
+        logger.info(f"main | Thread {self.thread} | {self.name} | Start! | PROXY : {self.proxy}")
         while True:
-            self.session = aiohttp.ClientSession(headers=self.headers, trust_env=True, connector=aiohttp.TCPConnector(verify_ssl=False))
             await self.login()
             info = (await self.get_info())
             tasks = (await self.get_tasks())
             if 'data' not in tasks:
-                logger.error(f'tasks | Thread {self.thread} | {self.name}.session | {tasks}')
+                logger.error(f'tasks | Thread {self.thread} | {self.name} | {tasks}')
                 await asyncio.sleep(random.uniform(*config.MINI_SLEEP))
             else:
                 tasks = tasks['data']
                 random.shuffle(tasks)
                 for task in tasks:
                     if random.randint(0,3) == 1:
-                        if task['state'] == 1 or task['id'] not in config.WHITELIST:
+                        if task['state'] == 1 or task['id'] in config.BLACKLIST:
                             continue
                         is_do = await self.do_task(id_ = task['id'])
                         if is_do:
-                            logger.success(f'do task | Thread {self.thread} | {self.name}.session | claim {task["points"]} points for {task["context"]["name"]}')
+                            logger.success(f'do task | Thread {self.thread} | {self.name} | claim {task["points"]} points for {task["context"]["name"]}')
                         
             boosts = (await self.get_boosts())
             if 'data' not in boosts:
-                logger.error(f'boosts | Thread {self.thread} | {self.name}.session | {boosts}')
+                logger.error(f'boosts | Thread {self.thread} | {self.name} | {boosts}')
                 await asyncio.sleep(random.uniform(*config.MINI_SLEEP))
             else:
                 boosts = boosts['data']
@@ -93,13 +93,16 @@ class Okx:
                                 price = boost["context"]["pointCost"]
                             else:
                                 price = 0
-                            logger.success(f'do boost | Thread {self.thread} | {self.name}.session | buy {task["context"]["name"]} for {price} points')
-            for _ in range(random.randint(0,info['data']['numChances'])):
-                await self.guess_price()
+                            logger.success(f'do boost | Thread {self.thread} | {self.name} | buy {task["context"]["name"]} for {price} points')
+            if 'data' not in info:
+                logger.error(f'info | Thread {self.thread} | {self.name} | {info}')
+                await asyncio.sleep(random.uniform(*config.MINI_SLEEP))
+            else:
+                for _ in range(random.randint(0,info['data']['numChances'])):
+                    await self.guess_price()
             
             sleep = random.uniform(*config.BIG_SLEEP)
-            logger.info(f'main | Thread {self.thread} | {self.name}.session | Ушел в сон на {sleep} сек')
-            await self.session.close()
+            logger.info(f'main | Thread {self.thread} | {self.name} | Ушел в сон на {sleep} сек')
             await asyncio.sleep(sleep)
         
     async def get_tg_web_data(self):
@@ -126,9 +129,9 @@ class Okx:
             self.last_name = info['last_name']
             
         except Exception as err:
-            logger.error(f"main | Thread {self.thread} | {self.name}.session | {err}")
+            logger.error(f"main | Thread {self.thread} | {self.name} | {err}")
             if 'USER_DEACTIVATED_BAN' in str(err):
-                logger.error(f"login | Thread {self.thread} | {self.name}.session | USER BANNED")
+                logger.error(f"login | Thread {self.thread} | {self.name} | USER BANNED")
                 await self.client.disconnect()
                 return False
         await self.client.disconnect()
@@ -191,13 +194,13 @@ class Okx:
         if (await response.json())['code'] == 0:
             return True
         else:
-            logger.error(f"do_boost| Thread {self.thread} | {self.name}.session | {(await response.json())}")
+            logger.error(f"do_boost| Thread {self.thread} | {self.name} | {(await response.json())}")
             return False
     
     async def can_buy(self,boost : dict):
         balance = (await self.get_info())
         if 'data' not in balance:
-            logger.error(f'can_buy | Thread {self.thread} | {self.name}.session | {balance}')
+            logger.error(f'can_buy | Thread {self.thread} | {self.name} | {balance}')
             await asyncio.sleep(random.uniform(*config.MINI_SLEEP))
             return False
         else:
@@ -243,7 +246,7 @@ class Okx:
         if (await response.json())['code'] == 0:
             return True
         else:
-            logger.error(f"do_task | Thread {self.thread} | {self.name}.session | {id_} {(await response.json())}")
+            logger.error(f"do_task | Thread {self.thread} | {self.name} | {id_} {(await response.json())}")
             return False
         
     async def guess_price(self):
@@ -256,9 +259,9 @@ class Okx:
         }
         
         if json_data['predict'] == 0:
-            logger.info(f"guess_price | Thread {self.thread} | {self.name}.session | predict DOOM")
+            logger.info(f"guess_price | Thread {self.thread} | {self.name} | predict DOOM")
         else:
-            logger.info(f"guess_price | Thread {self.thread} | {self.name}.session | predict MOON")
+            logger.info(f"guess_price | Thread {self.thread} | {self.name} | predict MOON")
             
         response = await self.session.post(
             'https://www.okx.com/priapi/v1/affiliate/game/racer/assess',
@@ -266,19 +269,18 @@ class Okx:
             json=json_data,
             proxy=self.proxy
         )
-        
         try:
             is_won = (await response.json())['data']['won']
             claimed = (await response.json())['data']['basePoint']
         except:
-            logger.error(f"guess_price | Thread {self.thread} | {self.name}.session | {(await response.json())}")
+            logger.error(f"guess_price | Thread {self.thread} | {self.name} | {(await response.json())}")
             return False
         
         await asyncio.sleep(5)
 
         if is_won:
-            logger.success(f"guess_price | Thread {self.thread} | {self.name}.session | Your predict success : claimed {claimed} points")
+            logger.success(f"guess_price | Thread {self.thread} | {self.name} | Your predict success : claimed {claimed} points")
         else:
-            logger.info(f"guess_price | Thread {self.thread} | {self.name}.session | Your predict fail")
+            logger.info(f"guess_price | Thread {self.thread} | {self.name} | Your predict fail")
             
         return (await response.json())
