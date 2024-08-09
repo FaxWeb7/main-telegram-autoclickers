@@ -21,18 +21,19 @@ class Settings(BaseSettings):
     CHAT_ID: str = global_config.CHAT_ID
 
     TAPS_ENABLED: bool = True
-    TAPS_PER_SECOND: list[int] = [13, 30] # tested with 4 fingers
-    PVP_ENABLED: bool = True
-    PROTECTED_BALANCE: int = 3000000
-    PVP_LEAGUE: str = 'bronze'
+    TAPS_PER_SECOND: list[int] = [10, 30] # tested with 4 fingers
+    PVP_ENABLED: bool = False
     PVP_LEAGUE: str = 'auto'
-    PVP_UPGRADE_LEAGUE: bool = True
+    PVP_UPGRADE_LEAGUE: bool = False
     PVP_STRATEGY: str = 'random'
     PVP_COUNT: int = 3
-    SKILLS_COUNT: int = 5
+    SKILLS_COUNT: int = 8
+    IGNORED_SKILLS: list[str] = []
+    MINING_SKILLS_LEVEL: int = 10
+    PROTECTED_BALANCE: int = 3000000
 
     SLEEP_BETWEEN_START: list[int] = global_config.ACC_DELAY
-    ERRORS_BEFORE_STOP: int = 10
+    ERRORS_BEFORE_STOP: int = 5
     USE_PROXY_FROM_FILE: bool = global_config.USE_PROXY
 
 
