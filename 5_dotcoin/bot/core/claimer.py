@@ -174,7 +174,7 @@ class Claimer:
         await asyncio.sleep(randint(*settings.ACC_DELAY))
         access_token_created_time = 0
 
-        proxy_conn = ProxyConnector().from_url(proxy) if proxy else None
+        proxy_conn = aiohttp.TCPConnector(verify_ssl=False) if proxy else None
 
         async with aiohttp.ClientSession(headers=headers, connector=proxy_conn) as http_client:
             if proxy:
