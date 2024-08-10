@@ -22,7 +22,7 @@ class DogsHouse:
         self.ref_code = config.REF_LINK.split('startapp=')[1]
         self.reference, self.telegram_id = None, None
         self.proxy = f"{config.PROXY['TYPE']['REQUESTS']}://{proxy.split(':')[2]}:{proxy.split(':')[3]}@{proxy.split(':')[0]}:{proxy.split(':')[1]}"
-        connector = aiohttp.TCPConnector(verify_ssl=False)
+        connector =  ProxyConnector.from_url(self.proxy) if proxy else aiohttp.TCPConnector(verify_ssl=False)
 
         if proxy:
             proxy = {
