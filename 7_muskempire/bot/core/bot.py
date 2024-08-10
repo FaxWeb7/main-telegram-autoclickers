@@ -20,9 +20,6 @@ class CryptoBot:
 		self.tg_client = tg_client
 		self.user_id = None
 		self.api_url = 'https://api.xempire.io'
-		self.need_quiz = False
-		self.need_rebus = False
-		self.rebus_key = ''
 		self.taps_limit = False
 		self.taps_limit_date = ''
 		self.errors = 0
@@ -131,17 +128,41 @@ class CryptoBot:
 			return {}
 
 	async def get_profile(self, full: bool) -> dict:
-		url = self.api_url + '/user/data/all' if full else self.api_url + '/hero/balance/sync'
+		full_url = self.api_url + '/user/data/all'
+		after_url = self.api_url + '/user/data/after'
+		sync_url = self.api_url + '/hero/balance/sync'
 		try:
-			json_data = {'data': {}} if full else {}
-			await self.set_sign_headers(data=json_data)
-			response = await self.http_client.post(url, json=json_data)
-			response.raise_for_status()
-			response_text = await response.text()
-			if config.DEBUG_MODE:
-				log.debug(f"{self.session_name} | Profile data response:\n{response_text}")
-			response_json = json.loads(response_text)
-			return response_json
+			if full:
+				json_data = {'data': {}}
+				await self.set_sign_headers(data=json_data)
+				response = await self.http_client.post(full_url, json=json_data)
+				response.raise_for_status()
+				response_text = await response.text()
+				if config.DEBUG_MODE:
+					log.debug(f"{self.session_name} | Full profile response:\n{response_text}")
+				response_json = json.loads(response_text)
+				data = response_json['data']
+				lang = data.get('settings', {}).get('lang', 'en')
+				json_data = {'data': {'lang': lang}}
+				await self.set_sign_headers(data=json_data)
+				response = await self.http_client.post(after_url, json=json_data)
+				response.raise_for_status()
+				response_text = await response.text()
+				if config.DEBUG_MODE:
+					log.debug(f"{self.session_name} | After profile response:\n{response_text}")
+				response_json = json.loads(response_text)
+				data.update(response_json['data'])
+				return data
+			else:
+				json_data = {}
+				await self.set_sign_headers(data=json_data)
+				response = await self.http_client.post(full_url, json=json_data)
+				response.raise_for_status()
+				response_text = await response.text()
+				if config.DEBUG_MODE:
+					log.debug(f"{self.session_name} | Sync profile response:\n{response_text}")
+				response_json = json.loads(response_text)
+				return response_json['data']
 		except Exception as error:
 			self.errors += 1
 			log.error(f"{self.session_name} | Profile data error: {error}" + (f"\nTraceback: {traceback.format_exc()}" if config.DEBUG_MODE else ""))
@@ -257,10 +278,6 @@ class CryptoBot:
 			if success:
 				for name, quest in response_json['data'].items():
 					if 'youtube' in name: continue
-					if 'quiz' in name:
-						if quest['isRewarded'] == False:
-							self.need_quiz = True
-						continue
 					if quest['isComplete'] == True and quest['isRewarded'] == False:
 						if await self.daily_quest_reward(quest=name):
 							log.success(f"{self.session_name} | Reward for daily quest {name} claimed")
@@ -268,7 +285,7 @@ class CryptoBot:
 			log.error(f"{self.session_name} | Daily quests error: {str(error)}" + (f"\nTraceback: {traceback.format_exc()}" if config.DEBUG_MODE else ""))
 			return False
 	
-	async def solve_rebus(self, quest: str, code:str) -> bool:
+	async def complete_quest(self, quest: str, code:str) -> bool:
 		url = self.api_url + '/quests/check'
 		try:
 			json_data = {'data': [quest, code]}
@@ -277,7 +294,7 @@ class CryptoBot:
 			response.raise_for_status()
 			response_text = await response.text()
 			if config.DEBUG_MODE:
-				log.debug(f"{self.session_name} | Rebus response:\n{response_text}")
+				log.debug(f"{self.session_name} | Check quest response:\n{response_text}")
 			response_json = json.loads(response_text)
 			if response_json.get('success', False) and response_json['data'].get('result', False):
 				await asyncio.sleep(delay=2)
@@ -285,7 +302,7 @@ class CryptoBot:
 					return True
 			return False
 		except Exception as error:
-			log.error(f"{self.session_name} | Rebus error: {str(error)}" + (f"\nTraceback: {traceback.format_exc()}" if config.DEBUG_MODE else ""))
+			log.error(f"{self.session_name} | Complete quest error: {str(error)}" + (f"\nTraceback: {traceback.format_exc()}" if config.DEBUG_MODE else ""))
 			return False
 	
 	async def friend_reward(self, friend: int) -> bool:
@@ -310,13 +327,13 @@ class CryptoBot:
 		except Exception as error:
 			log.error(f"{self.session_name} | Friend reward error: {str(error)}" + (f"\nTraceback: {traceback.format_exc()}" if config.DEBUG_MODE else ""))
 			return False
-		
+	
 	def get_tap_limit(self) -> int:
 		for level_info in self.dbs['dbLevels']:
 			if level_info['level'] == self.level:
 				return int(level_info['tapLimit'] or 0)
 		return 0
-	
+
 	async def perform_taps(self, per_tap: int, energy: int, bonus_chance: int, bonus_mult: int) -> None:
 		url = self.api_url + '/hero/action/tap'
 		log.info(f"{self.session_name} | Taps started")
@@ -359,7 +376,7 @@ class CryptoBot:
 					if last and not taps_over:
 						log.warning(f"{self.session_name} | Taps stopped (not enough energy)")
 				elif 'too many taps' in error: taps_over = True
-
+				
 				if taps_over:
 					log.warning(f"{self.session_name} | Taps stopped (tap limit reached)")
 					self.taps_limit = True
@@ -543,7 +560,7 @@ class CryptoBot:
 				self.update_level(level=int(response_json['data']['hero']['level']))
 				self.balance = int(response_json['data']['hero']['money'])
 				self.mph = int(response_json['data']['hero']['moneyPerHour'])
-				return response_json
+				return response_json['data']
 			else: return None
 		except Exception as error:
 			log.error(f"{self.session_name} | Improve skill error: {str(error)}" + (f"\nTraceback: {traceback.format_exc()}" if config.DEBUG_MODE else ""))
@@ -563,7 +580,7 @@ class CryptoBot:
 			log.error(f"{self.session_name} | Proxy: {proxy} | Error: {error}")
 
 	async def run(self, proxy: str | None) -> None:
-		proxy_conn = aiohttp.TCPConnector(verify_ssl=False) if proxy else None
+		proxy_conn = ProxyConnector().from_url(proxy) if proxy else None
 
 		async with aiohttp.ClientSession(headers=headers, connector=proxy_conn) as http_client:
 			self.http_client = http_client
@@ -585,14 +602,14 @@ class CryptoBot:
 							self.http_client.headers['Api-Key'] = self.api_key
 							self.dbs = await self.get_dbs()
 							full_profile = await self.get_profile(full=True)
-							if self.user_id is None: self.user_id = int(full_profile['data']['profile']['id'] or 0)
-							self.balance = int(full_profile['data']['hero']['money'] or 0)
+							if self.user_id is None: self.user_id = int(full_profile['profile']['id'] or 0)
+							self.balance = int(full_profile['hero']['money'] or 0)
 							if not hasattr(self, 'level'):
-								self.level = int(full_profile['data']['hero']['level'] or 0)
+								self.level = int(full_profile['hero']['level'] or 0)
 							else:
-								self.update_level(level=int(full_profile['data']['hero']['level'] or 0))
-							self.mph = int(full_profile['data']['hero']['moneyPerHour'] or 0)
-							offline_bonus = int(full_profile['data']['hero']['offlineBonus'] or 0)
+								self.update_level(level=int(full_profile['hero']['level'] or 0))
+							self.mph = int(full_profile['hero']['moneyPerHour'] or 0)
+							offline_bonus = int(full_profile['hero']['offlineBonus'] or 0)
 							if offline_bonus > 0:
 								if await self.get_offline_bonus():
 									log.success(f"{self.session_name} | Offline bonus claimed: +{number_short(value=offline_bonus)}")
@@ -601,14 +618,14 @@ class CryptoBot:
 						else: continue
 						
 					profile = await self.get_profile(full=False)
-					self.update_level(level=int(profile['data']['hero']['level'] or 0))
-					self.balance = int(profile['data']['hero']['money'] or 0)
-					self.mph = int(profile['data']['hero']['moneyPerHour'] or 0)
+					self.update_level(level=int(profile['hero']['level'] or 0))
+					self.balance = int(profile['hero']['money'] or 0)
+					self.mph = int(profile['hero']['moneyPerHour'] or 0)
 					log.info(f"{self.session_name} | Level: {self.level} | "
 								f"Balance: {number_short(value=self.balance)} | "
 								f"Profit per hour: +{number_short(value=self.mph)}")
 					
-					daily_rewards = full_profile['data']['dailyRewards']
+					daily_rewards = full_profile['dailyRewards']
 					daily_index = None
 					for day, status in daily_rewards.items():
 						if status == 'canTake':
@@ -623,7 +640,7 @@ class CryptoBot:
 					else:
 						log.info(f"{self.session_name} | Daily reward not available")
 					
-					unrewarded_quests = [quest['key'] for quest in full_profile['data']['quests'] if not quest['isRewarded']]
+					unrewarded_quests = [quest['key'] for quest in full_profile['quests'] if not quest['isRewarded']]
 					if unrewarded_quests:
 						log.info(f"{self.session_name} | Quest rewards available")
 						for quest in unrewarded_quests:
@@ -632,7 +649,7 @@ class CryptoBot:
 					
 					await self.daily_quests()
 					
-					unrewarded_friends = [int(friend['id']) for friend in full_profile['data']['friends'] if friend['bonusToTake'] > 0]
+					unrewarded_friends = [int(friend['id']) for friend in full_profile['friends'] if friend['bonusToTake'] > 0]
 					if unrewarded_friends:
 						log.info(f"{self.session_name} | Reward for friends available")
 						for friend in unrewarded_friends:
@@ -640,11 +657,11 @@ class CryptoBot:
 								log.success(f"{self.session_name} | Reward for friend {friend} claimed")
 					
 					if config.TAPS_ENABLED:
-						per_tap = profile['data']['hero']['earns']['task']['moneyPerTap'] or 0
-						max_energy = profile['data']['hero']['earns']['task']['limit'] or 0
-						energy = profile['data']['hero']['earns']['task']['energy'] or 0
-						bonus_chance = profile['data']['hero']['earns']['task']['bonusChance'] or 0
-						bonus_mult = profile['data']['hero']['earns']['task']['bonusMultiplier'] or 0
+						per_tap = profile['hero']['earns']['task']['moneyPerTap'] or 0
+						max_energy = profile['hero']['earns']['task']['limit'] or 0
+						energy = profile['hero']['earns']['task']['energy'] or 0
+						bonus_chance = profile['hero']['earns']['task']['bonusChance'] or 0
+						bonus_mult = profile['hero']['earns']['task']['bonusMultiplier'] or 0
 						if energy == max_energy and not self.taps_limit:
 							await self.perform_taps(per_tap=per_tap, energy=energy, bonus_chance=bonus_chance, bonus_mult=bonus_mult)
 					
@@ -690,35 +707,54 @@ class CryptoBot:
 						else:
 							log.warning(f"{self.session_name} | Database is missing. PvP negotiations will be skipped this time.")
 					
-					# Daily quiz, rebus and combo invest with external data
-					for quest in self.dbs['dbQuests']:
-						if 'rebus' in quest['key']:
-							self.rebus_key = quest['key']
-							self.rebus_answer = quest['checkData']
-							break
-					self.need_rebus = True
-					for quest in full_profile['data']['quests']:
-						if self.rebus_key in quest['key']:
-							self.need_rebus = False
-							break
-					
-					helper = await self.get_helper()
 					cur_time_gmt = datetime.now(self.gmt_timezone)
 					cur_time_gmt_s = cur_time_gmt.strftime('%Y-%m-%d')
 					new_day_gmt = cur_time_gmt.replace(hour=7, minute=0, second=0, microsecond=0)
+
+					# Reset taps limit
 					if cur_time_gmt >= new_day_gmt and cur_time_gmt_s != self.taps_limit_date:
 						self.taps_limit = False
 						self.taps_limit_date = ''
+					
+					# Daily quiz and rebus
+					quiz_key = ''
+					quiz_answer = ''
+					quiz_req_level = 0
+					rebus_key = ''
+					rebus_answer = ''
+					rebus_req_level = 0
+					for quest in self.dbs['dbQuests']:
+						if quest['isArchived']: continue
+						date_start = datetime.strptime(quest['dateStart'], '%Y-%m-%d %H:%M:%S') if quest.get('dateStart') else None
+						date_end = datetime.strptime(quest['dateEnd'], '%Y-%m-%d %H:%M:%S') if quest.get('dateEnd') else None
+						if date_start: date_start = date_start.replace(tzinfo=self.gmt_timezone)
+						if date_end: date_end = date_end.replace(tzinfo=self.gmt_timezone)
+						if date_start and date_end and not (date_start <= cur_time_gmt <= date_end): continue
+						if 'riddle' in quest['key']:
+							quiz_key = quest['key']
+							quiz_answer = quest['checkData']
+							quiz_req_level = int(quest['requiredLevel'] or 0)
+						if 'rebus' in quest['key']:
+							rebus_key = quest['key']
+							rebus_answer = quest['checkData']
+							rebus_req_level = int(quest['requiredLevel']  or 0)
+					
+					need_quiz = bool(quiz_key and quiz_answer) and not any(quiz_key in quest['key'] for quest in full_profile['quests'])
+					need_rebus = bool(rebus_key and rebus_answer) and not any(rebus_key in quest['key'] for quest in full_profile['quests'])
+					
+					if need_quiz and self.level >= quiz_req_level:
+						if await self.complete_quest(quest=quiz_key, code=quiz_answer):
+							need_quiz = False
+							log.success(f"{self.session_name} | Reward for daily quiz claimed")
+					if need_rebus and self.level >= rebus_req_level:
+						if await self.complete_quest(quest=rebus_key, code=rebus_answer):
+							need_rebus = False
+							log.success(f"{self.session_name} | Reward for daily rebus claimed")
+					
+					# Invest with external data for combo
+					helper = await self.get_helper()
 					if cur_time_gmt >= new_day_gmt and cur_time_gmt_s in helper:
 						helper = helper[cur_time_gmt_s]
-						if 'quiz' in helper and self.need_quiz:
-							if await self.daily_quest_reward(quest='quiz', code=helper['quiz']):
-								self.need_quiz = False
-								log.success(f"{self.session_name} | Reward for daily quiz claimed")
-						if self.need_rebus:
-							if await self.solve_rebus(quest=self.rebus_key, code=self.rebus_answer):
-								self.need_rebus = False
-								log.success(f"{self.session_name} | Reward for daily rebus claimed")
 						if 'funds' in helper:
 							current_invest = await self.get_funds_info()
 							if 'funds' in current_invest and not current_invest['funds']:
@@ -726,17 +762,17 @@ class CryptoBot:
 									await self.invest(fund=fund, amount=calculate_bet(level=self.level, mph=self.mph, balance=self.balance))
 					
 					profile = await self.get_profile(full=False)
-					self.update_level(level=int(profile['data']['hero']['level'] or 0))
-					self.balance = int(profile['data']['hero']['money'] or 0)
-					self.mph = int(profile['data']['hero']['moneyPerHour'] or 0)
+					self.update_level(level=int(profile['hero']['level'] or 0))
+					self.balance = int(profile['hero']['money'] or 0)
+					self.mph = int(profile['hero']['moneyPerHour'] or 0)
 					log.info(f"{self.session_name} | Level: {self.level} | "
 								f"Balance: {number_short(value=self.balance)} | "
 								f"Profit per hour: +{number_short(value=self.mph)}")
 					
 					# improve mining skills (+1 level to each per cycle)
 					if config.MINING_SKILLS_LEVEL > 0:
-						my_skills = full_profile['data']['skills']
-						friends_count = int(full_profile['data']['profile']['friends'] or 0)
+						my_skills = full_profile['skills']
+						friends_count = int(full_profile['profile']['friends'] or 0)
 						for skill in self.dbs['dbSkills']:
 							if skill['category'] != 'mining': continue
 							if skill['key'] in my_skills:

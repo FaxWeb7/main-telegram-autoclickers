@@ -91,11 +91,11 @@ def fn_payback(e, t):
 
 # main function for calculating the most profitable skill
 def calculate_best_skill(skills: list, ignored_skills: list, profile: dict, level: int, balance: int, improve: dict | list | None) -> dict | None:
-	friends = int(profile["data"]["profile"]["friends"] or 0)
+	friends = int(profile["profile"]["friends"] or 0)
 	if improve is not None:
-		my_skills = improve["data"]["skill"]
+		my_skills = improve["skill"]
 	else:
-		my_skills = profile["data"]["skills"]
+		my_skills = profile["skills"]
 	
 	if isinstance(my_skills, dict):
 		for my_skill, my_limit in my_skills.items():
@@ -109,9 +109,10 @@ def calculate_best_skill(skills: list, ignored_skills: list, profile: dict, leve
 		if possible_skill is not None:
 			possible_skills.append(possible_skill)
 	
-	best_skill = sorted(possible_skills, key=lambda x: x["ratio"])[-1]
-	if len(best_skill) > 0: return best_skill
-	else: return None
+	if possible_skills:
+		best_skill = sorted(possible_skills, key=lambda x: x["ratio"])[-1]
+		if len(best_skill) > 0: return best_skill
+	return None
 
 def improve_possible(skill: dict, my_skills: dict | list, level: int, balance: int, friends: int) -> dict | None:
 	possible = False
