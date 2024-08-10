@@ -33,7 +33,7 @@ BOOSTERS = {
 
 DELAYS = {
     'ACCOUNT': global_config.ACC_DELAY,  # delay between connections to accounts (the more accounts, the longer the delay)
-    'CLICKS': [2, 10],   # delay between clicks
+    'CLICKS': [60, 180],   # delay between clicks
     'TASKS': [10, 40]      # delay between completed tasks
 }
 
