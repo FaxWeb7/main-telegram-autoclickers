@@ -32,6 +32,7 @@ class Settings(BaseSettings):
     MINING_SKILLS_LEVEL: int = 10
     PROTECTED_BALANCE: int = 3000000
 
+    DEBUG_MODE: bool = False
     SLEEP_BETWEEN_START: list[int] = global_config.ACC_DELAY
     ERRORS_BEFORE_STOP: int = 5
     USE_PROXY_FROM_FILE: bool = global_config.USE_PROXY
