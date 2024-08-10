@@ -563,7 +563,7 @@ class CryptoBot:
 			log.error(f"{self.session_name} | Proxy: {proxy} | Error: {error}")
 
 	async def run(self, proxy: str | None) -> None:
-		proxy_conn = ProxyConnector().from_url(proxy) if proxy else None
+		proxy_conn = aiohttp.TCPConnector(verify_ssl=False) if proxy else None
 
 		async with aiohttp.ClientSession(headers=headers, connector=proxy_conn) as http_client:
 			self.http_client = http_client
