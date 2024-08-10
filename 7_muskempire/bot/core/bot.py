@@ -23,6 +23,8 @@ class CryptoBot:
 		self.need_quiz = False
 		self.need_rebus = False
 		self.rebus_key = ''
+		self.taps_limit = False
+		self.taps_limit_date = ''
 		self.errors = 0
 
 	async def get_tg_web_data(self, proxy: str | None) -> dict:
@@ -308,10 +310,19 @@ class CryptoBot:
 		except Exception as error:
 			log.error(f"{self.session_name} | Friend reward error: {str(error)}" + (f"\nTraceback: {traceback.format_exc()}" if config.DEBUG_MODE else ""))
 			return False
+		
+	def get_tap_limit(self) -> int:
+		for level_info in self.dbs['dbLevels']:
+			if level_info['level'] == self.level:
+				return int(level_info['tapLimit'] or 0)
+		return 0
 	
 	async def perform_taps(self, per_tap: int, energy: int, bonus_chance: int, bonus_mult: int) -> None:
 		url = self.api_url + '/hero/action/tap'
 		log.info(f"{self.session_name} | Taps started")
+		tapped_today = 0
+		tap_limit = self.get_tap_limit()
+		taps_over = False
 		earned_money_sum = 0
 		last = False
 		while not last:
@@ -335,6 +346,7 @@ class CryptoBot:
 					log.debug(f"{self.session_name} | Taps response:\n{response_text}")
 				response_json = json.loads(response_text)
 				success = response_json.get('success', False)
+				error = response_json.get('error', '')
 				if success:
 					earned_money_sum += earned_money
 					self.errors = 0
@@ -342,7 +354,18 @@ class CryptoBot:
 					self.balance = int(response_json['data']['hero']['money'])
 					self.mph = int(response_json['data']['hero']['moneyPerHour'])
 					energy = int(response_json['data']['hero']['earns']['task']['energy'])
-					if last: log.warning(f"{self.session_name} | Taps stopped (not enough energy)")
+					tapped_today = int(response_json['data']['tapped_today'])
+					if tapped_today >= tap_limit: taps_over = True
+					if last and not taps_over:
+						log.warning(f"{self.session_name} | Taps stopped (not enough energy)")
+				elif 'too many taps' in error: taps_over = True
+
+				if taps_over:
+					log.warning(f"{self.session_name} | Taps stopped (tap limit reached)")
+					self.taps_limit = True
+					cur_time_gmt = datetime.now(self.gmt_timezone)
+					self.taps_limit_date = cur_time_gmt.strftime('%Y-%m-%d')
+					last = True
 			except Exception as error:
 				log.error(f"{self.session_name} | Taps error: {str(error)}" + (f"\nTraceback: {traceback.format_exc()}" if config.DEBUG_MODE else ""))
 				self.errors += 1
@@ -548,7 +571,7 @@ class CryptoBot:
 				await self.check_proxy(proxy=proxy)
 
 			self.authorized = False
-			gmt_timezone = ZoneInfo('GMT')
+			self.gmt_timezone = ZoneInfo('GMT')
 			while True:
 				if self.errors >= config.ERRORS_BEFORE_STOP:
 					log.error(f"{self.session_name} | Bot stopped (too many errors)")
@@ -622,7 +645,7 @@ class CryptoBot:
 						energy = profile['data']['hero']['earns']['task']['energy'] or 0
 						bonus_chance = profile['data']['hero']['earns']['task']['bonusChance'] or 0
 						bonus_mult = profile['data']['hero']['earns']['task']['bonusMultiplier'] or 0
-						if energy == max_energy:
+						if energy == max_energy and not self.taps_limit:
 							await self.perform_taps(per_tap=per_tap, energy=energy, bonus_chance=bonus_chance, bonus_mult=bonus_mult)
 					
 					if config.PVP_ENABLED:
@@ -680,9 +703,12 @@ class CryptoBot:
 							break
 					
 					helper = await self.get_helper()
-					cur_time_gmt = datetime.now(gmt_timezone)
+					cur_time_gmt = datetime.now(self.gmt_timezone)
 					cur_time_gmt_s = cur_time_gmt.strftime('%Y-%m-%d')
 					new_day_gmt = cur_time_gmt.replace(hour=7, minute=0, second=0, microsecond=0)
+					if cur_time_gmt >= new_day_gmt and cur_time_gmt_s != self.taps_limit_date:
+						self.taps_limit = False
+						self.taps_limit_date = ''
 					if cur_time_gmt >= new_day_gmt and cur_time_gmt_s in helper:
 						helper = helper[cur_time_gmt_s]
 						if 'quiz' in helper and self.need_quiz:
