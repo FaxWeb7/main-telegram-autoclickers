@@ -1,34 +1,35 @@
 import sys
-import re
 import requests
+import time
+from threading import Thread
+from queue import Queue
 from loguru import logger
 from data import config
 
 TELEGRAM_API_URL = f"https://api.telegram.org/bot{config.BOT_TOKEN}/sendMessage"
-def formatter(record, format_string):
-    return format_string + record["extra"].get("end", "\n") + "{exception}"
+message_queue = Queue()
+def process_queue():
+    while True:
+        message = message_queue.get()
+        if message is None:
+            break
+        try:
+            time.sleep(3)
+            response = requests.post(TELEGRAM_API_URL, data={'chat_id': config.CHAT_ID, 'text': message})
+            if response.status_code != 200:
+                logger.error(f"Failed to send log to Telegram: {response.text}")
+        except Exception as e:
+            logger.error(f"Failed to send log to Telegram: {e}")
+        finally:
+            message_queue.task_done()
 
-def clean_brackets(raw_str):
-    return re.sub(r'<.*?>', '', raw_str)
+thread = Thread(target=process_queue, daemon=True)
+thread.start()
 
-def send_log_to_telegram(message):
-    try:
-        response = requests.post(TELEGRAM_API_URL, data={'chat_id': config.CHAT_ID, 'text': message})
-        if response.status_code != 200:
-            logger.error(f"Failed to send log to Telegram: {response.text}")
-    except Exception as e:
-        logger.error(f"Failed to send log to Telegram: {e}")
+logger.remove()
+logger.add(sink=sys.stdout, format="<white>{time:YYYY-MM-DD HH:mm:ss}</white> | <blue>{level: <8}</blue> | <level>{message}</level>")
 
-def logging_setup():
-    format_info = "<white>{time:YYYY-MM-DD HH:mm:ss}</white> | <blue>{level: <8}</blue> | <level>{message}</level>"
-    format_error = "<white>{time:YYYY-MM-DD HH:mm:ss}</white> | <blue>{level: <8}</blue> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> | <level>{message}</level>"
-    logger_path = r"logs/out.log"
+if config.USE_TG_BOT:
+    logger.add(lambda msg: message_queue.put(msg), format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {message}", level="INFO")
 
-    logger.remove()
-
-    logger.add(sys.stdout, colorize=True, format=lambda record: format_info, level="INFO")
-    if config.USE_TG_BOT:
-        logger.add(lambda msg: send_log_to_telegram(msg), format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {message}", level="INFO")
-
-
-logging_setup()
+logger = logger.opt(colors=True)
