@@ -69,7 +69,9 @@ async def process() -> None:
 
 
 async def run_tasks(tg_clients: list[Client]):
-    tasks = [asyncio.create_task(run_tapper(tg_client=tg_client, proxy=get_proxy_string(tg_client.name)))
-             for tg_client in tg_clients]
+    if (settings.USE_PROXY):
+        tasks = [asyncio.create_task(run_tapper(tg_client=tg_client, proxy=get_proxy_string(tg_client.name))) for tg_client in tg_clients]
+    else:
+        tasks = [asyncio.create_task(run_tapper(tg_client=tg_client, proxy=None)) for tg_client in tg_clients]
 
     await asyncio.gather(*tasks)

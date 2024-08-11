@@ -21,6 +21,8 @@ class Settings(BaseSettings):
     BOT_TOKEN: str = global_config.HAMSTERKOMBAT_BOT_TOKEN
     CHAT_ID: str = global_config.CHAT_ID
 
+    USE_PROXY: bool = global_config.USE_PROXY
+
     MIN_AVAILABLE_ENERGY: int = 126
     SLEEP_BY_MIN_ENERGY: list[int] = [1800, 3600]
 
