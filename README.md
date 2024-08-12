@@ -7,8 +7,9 @@
 | Status | Bots                                            |
 |:------:|-------------------------------------------------|
 |   ✅   | **Blum, CryptoRank, YesCoin, TapSwap, DotCoin**       |
-|   ✅   | **PocketFi, MuskEmpire, HamsterKombat, DOGS, OKX Racer**       |
-|   ⌛   | **Lost Dogs**                        |
+|   ✅   | **PocketFi, MuskEmpire, HamsterKombat, DOGS**       |
+|   ✅   | **OKX Racer, Lost Dogs**                       |
+|   ⌛   |                        |
 
 
 ## Requirements
@@ -58,6 +59,8 @@
      MUSKEMPIRE_BOT_TOKEN = '87265743:JKFDHad'
      HAMSTERKOMBAT_BOT_TOKEN = '87265743:JKFDHad'
      DOGSHOUSE_BOT_TOKEN = '87265743:JKFDHad'
+     OKXRACER_BOT_TOKEN = '87265743:JKFDHad'
+     LOSTDOGS_BOT_TOKEN = '87265743:JKFDHad'
      ```
 
 4. Creating proxies:
