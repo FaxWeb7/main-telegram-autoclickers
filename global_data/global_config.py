@@ -19,6 +19,7 @@ MUSKEMPIRE_BOT_TOKEN = '87265743:JKFDHad'
 HAMSTERKOMBAT_BOT_TOKEN = '87265743:JKFDHad'
 DOGSHOUSE_BOT_TOKEN = '87265743:JKFDHad'
 OKXRACER_BOT_TOKEN = '87265743:JKFDHad'
+LOSTDOGS_BOT_TOKEN = '87265743:JKFDHad'
 
 # don't change
 message = """
@@ -42,5 +43,6 @@ shamhiPaths = [
     './4_tapswap',
     './5_dotcoin',
     './6_pocketfi',
-    './7_muskempire'
+    './7_muskempire',
+    './11_lostdogs',
 ]
