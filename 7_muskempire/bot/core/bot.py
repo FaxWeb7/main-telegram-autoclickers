@@ -1,7 +1,7 @@
 import asyncio, aiohttp, random, math, json, hashlib, traceback
-from time import time
+from time import time as time_now
 from zoneinfo import ZoneInfo
-from datetime import datetime
+from datetime import datetime, time
 from urllib.parse import unquote
 from aiohttp_proxy import ProxyConnector
 from better_proxy import Proxy
@@ -46,8 +46,8 @@ class CryptoBot:
 				except (Unauthorized, UserDeactivated, AuthKeyUnregistered) as error:
 					raise RuntimeError(str(error)) from error
 			web_view = await self.tg_client.invoke(RequestWebView(
-				peer=await self.tg_client.resolve_peer('muskempire_bot'),
-				bot=await self.tg_client.resolve_peer('muskempire_bot'),
+				peer=await self.tg_client.resolve_peer('empirebot'),
+				bot=await self.tg_client.resolve_peer('empirebot'),
 				platform='android',
 				from_bot_menu=False,
 				url='https://game.xempire.io/',
@@ -99,33 +99,13 @@ class CryptoBot:
 			return False
 	
 	async def set_sign_headers(self, data: dict) -> None:
-		time_string = str(int(time()))
+		time_string = str(int(time_now()))
 		json_string = json.dumps(data)
 		hash_object = hashlib.md5()
 		hash_object.update(f"{time_string}_{json_string}".encode('utf-8'))
 		hash_string = hash_object.hexdigest()
 		self.http_client.headers['Api-Time'] = time_string
 		self.http_client.headers['Api-Hash'] = hash_string
-	
-	async def get_dbs(self) -> dict:
-		url = self.api_url + '/dbs'
-		try:
-			json_data = {'data': {'dbs': ['all']}}
-			await self.set_sign_headers(data=json_data)
-			response = await self.http_client.post(url, json=json_data)
-			response.raise_for_status()
-			response_text = await response.text()
-			if config.DEBUG_MODE:
-				log.debug(f"{self.session_name} | Database response:\n{response_text}")
-			response_json = json.loads(response_text)
-			success = response_json.get('success', False)
-			if success: return response_json['data']
-			else: return {}
-		except Exception as error:
-			self.errors += 1
-			log.error(f"{self.session_name} | Database error: {error}" + (f"\nTraceback: {traceback.format_exc()}" if config.DEBUG_MODE else ""))
-			await asyncio.sleep(delay=3)
-			return {}
 
 	async def get_profile(self, full: bool) -> dict:
 		full_url = self.api_url + '/user/data/all'
@@ -156,7 +136,7 @@ class CryptoBot:
 			else:
 				json_data = {}
 				await self.set_sign_headers(data=json_data)
-				response = await self.http_client.post(full_url, json=json_data)
+				response = await self.http_client.post(sync_url, json=json_data)
 				response.raise_for_status()
 				response_text = await response.text()
 				if config.DEBUG_MODE:
@@ -278,7 +258,8 @@ class CryptoBot:
 			if success:
 				for name, quest in response_json['data'].items():
 					if 'youtube' in name: continue
-					if quest['isComplete'] == True and quest['isRewarded'] == False:
+					if quest['isComplete'] is True and quest['isRewarded'] is False:
+						await asyncio.sleep(random.randint(1, 2))
 						if await self.daily_quest_reward(quest=name):
 							log.success(f"{self.session_name} | Reward for daily quest {name} claimed")
 		except Exception as error:
@@ -329,18 +310,17 @@ class CryptoBot:
 			return False
 	
 	def get_tap_limit(self) -> int:
-		for level_info in self.dbs['dbLevels']:
+		for level_info in self.dbData['dbLevels']:
 			if level_info['level'] == self.level:
 				return int(level_info['tapLimit'] or 0)
 		return 0
 
-	async def perform_taps(self, per_tap: int, energy: int, bonus_chance: int, bonus_mult: int) -> None:
+	async def perform_taps(self, per_tap: int, energy: int, bonus_chance: float, bonus_mult: float) -> None:
 		url = self.api_url + '/hero/action/tap'
-		log.info(f"{self.session_name} | Taps started")
+		log.info(f"{self.session_name} | Taps started | moneyPerTap: {per_tap} | bonusChance: {bonus_chance:.2f} | bonusMultiplier: {bonus_mult:.2f}")
 		tapped_today = 0
 		tap_limit = self.get_tap_limit()
 		taps_over = False
-		earned_money_sum = 0
 		last = False
 		while not last:
 			taps_per_second = random.randint(*config.TAPS_PER_SECOND)
@@ -365,13 +345,13 @@ class CryptoBot:
 				success = response_json.get('success', False)
 				error = response_json.get('error', '')
 				if success:
-					earned_money_sum += earned_money
 					self.errors = 0
 					self.update_level(level=int(response_json['data']['hero']['level']))
 					self.balance = int(response_json['data']['hero']['money'])
 					self.mph = int(response_json['data']['hero']['moneyPerHour'])
 					energy = int(response_json['data']['hero']['earns']['task']['energy'])
 					tapped_today = int(response_json['data']['tapped_today'])
+					log.success(f"{self.session_name} | Earned money: +{number_short(value=earned_money)} | Energy left: {energy}")
 					if tapped_today >= tap_limit: taps_over = True
 					if last and not taps_over:
 						log.warning(f"{self.session_name} | Taps stopped (not enough energy)")
@@ -387,7 +367,6 @@ class CryptoBot:
 				log.error(f"{self.session_name} | Taps error: {str(error)}" + (f"\nTraceback: {traceback.format_exc()}" if config.DEBUG_MODE else ""))
 				self.errors += 1
 				break
-		log.success(f"{self.session_name} | Earned money: +{number_short(value=earned_money_sum)}")
 
 	async def perform_pvp(self, league: dict, strategy: str, count: int) -> None:
 		url_info = self.api_url + '/pvp/info'
@@ -586,9 +565,15 @@ class CryptoBot:
 			self.http_client = http_client
 			if proxy:
 				await self.check_proxy(proxy=proxy)
-
-			self.authorized = False
+			
+			day_start = time(9, 0)
+			day_end = time(23, 59)
 			self.gmt_timezone = ZoneInfo('GMT')
+			main_delay = 0
+			sum_delay = 0
+			sleep_time = 0
+			main_actions = True
+			self.authorized = False
 			while True:
 				if self.errors >= config.ERRORS_BEFORE_STOP:
 					log.error(f"{self.session_name} | Bot stopped (too many errors)")
@@ -600,8 +585,9 @@ class CryptoBot:
 							log.success(f"{self.session_name} | Login successful")
 							self.authorized = True
 							self.http_client.headers['Api-Key'] = self.api_key
-							self.dbs = await self.get_dbs()
 							full_profile = await self.get_profile(full=True)
+							self.dbData = full_profile.get('dbData', {})
+							if self.dbData: del full_profile['dbData']
 							if self.user_id is None: self.user_id = int(full_profile['profile']['id'] or 0)
 							self.balance = int(full_profile['hero']['money'] or 0)
 							if not hasattr(self, 'level'):
@@ -611,12 +597,14 @@ class CryptoBot:
 							self.mph = int(full_profile['hero']['moneyPerHour'] or 0)
 							offline_bonus = int(full_profile['hero']['offlineBonus'] or 0)
 							if offline_bonus > 0:
+								await asyncio.sleep(random.randint(1, 2))
 								if await self.get_offline_bonus():
 									log.success(f"{self.session_name} | Offline bonus claimed: +{number_short(value=offline_bonus)}")
 							else:
 								log.info(f"{self.session_name} | Offline bonus not available")
 						else: continue
-						
+					
+					await asyncio.sleep(random.randint(2, 4))
 					profile = await self.get_profile(full=False)
 					self.update_level(level=int(profile['hero']['level'] or 0))
 					self.balance = int(profile['hero']['money'] or 0)
@@ -624,195 +612,244 @@ class CryptoBot:
 					log.info(f"{self.session_name} | Level: {self.level} | "
 								f"Balance: {number_short(value=self.balance)} | "
 								f"Profit per hour: +{number_short(value=self.mph)}")
-					
-					daily_rewards = full_profile['dailyRewards']
-					daily_index = None
-					for day, status in daily_rewards.items():
-						if status == 'canTake':
-							daily_index = day
-							break
-					if daily_index is not None:
-						log.info(f"{self.session_name} | Daily reward available")
-						daily_claimed = await self.daily_reward(index=daily_index)
-						if daily_claimed:
-							log.success(f"{self.session_name} | Daily reward claimed")
-							self.errors = 0
-					else:
-						log.info(f"{self.session_name} | Daily reward not available")
-					
-					unrewarded_quests = [quest['key'] for quest in full_profile['quests'] if not quest['isRewarded']]
-					if unrewarded_quests:
-						log.info(f"{self.session_name} | Quest rewards available")
-						for quest in unrewarded_quests:
-							if await self.quest_reward(quest=quest):
-								log.success(f"{self.session_name} | Reward for quest {quest} claimed")
-					
-					await self.daily_quests()
-					
-					unrewarded_friends = [int(friend['id']) for friend in full_profile['friends'] if friend['bonusToTake'] > 0]
-					if unrewarded_friends:
-						log.info(f"{self.session_name} | Reward for friends available")
-						for friend in unrewarded_friends:
-							if await self.friend_reward(friend=friend):
-								log.success(f"{self.session_name} | Reward for friend {friend} claimed")
-					
-					if config.TAPS_ENABLED:
-						per_tap = profile['hero']['earns']['task']['moneyPerTap'] or 0
-						max_energy = profile['hero']['earns']['task']['limit'] or 0
-						energy = profile['hero']['earns']['task']['energy'] or 0
-						bonus_chance = profile['hero']['earns']['task']['bonusChance'] or 0
-						bonus_mult = profile['hero']['earns']['task']['bonusMultiplier'] or 0
-						if energy == max_energy and not self.taps_limit:
-							await self.perform_taps(per_tap=per_tap, energy=energy, bonus_chance=bonus_chance, bonus_mult=bonus_mult)
-					
-					if config.PVP_ENABLED:
-						if self.dbs:
-							league_data = None
-							selected_league = None
-							for league in self.dbs['dbNegotiationsLeague']:
-								if config.PVP_LEAGUE == 'auto':
-									if self.level >= league['requiredLevel'] and self.level <= league['maxLevel']:
-										if league_data is None or league['requiredLevel'] < league_data['requiredLevel']:
-											league_data = league
-								else:
-									if league['key'] == config.PVP_LEAGUE:
-										selected_league = league
-										if self.level >= league['requiredLevel'] and self.level <= league['maxLevel']:
-											league_data = league
-											break
-							
-							# if the current league is no longer available, select the next league
-							if config.PVP_LEAGUE != 'auto' and league_data is None:
-								if selected_league:
-									if config.PVP_UPGRADE_LEAGUE:
-										for league in self.dbs['dbNegotiationsLeague']:
-											if league['requiredLevel'] > selected_league['requiredLevel'] and self.level >= league['requiredLevel']:
-												league_data = league
-												break
-										log.info(f"{self.session_name} | Selected league is no longer available. New league: {league_data['key']}.")
-									else:
-										config.PVP_ENABLED = False
-										log.warning(f"{self.session_name} | Selected league is no longer available. PvP negotiations disabled.")
-								else:
-									config.PVP_ENABLED = False
-									log.warning(f"{self.session_name} | PVP_LEAGUE param is invalid. PvP negotiations disabled.")
-
-							if league_data is not None:
-								self.strategies = [strategy['key'] for strategy in self.dbs['dbNegotiationsStrategy']]
-								if config.PVP_STRATEGY == 'random' or config.PVP_STRATEGY in self.strategies:
-									await self.perform_pvp(league=league_data, strategy=config.PVP_STRATEGY, count=config.PVP_COUNT)
-								else:
-									config.PVP_ENABLED = False
-									log.warning(f"{self.session_name} | PVP_STRATEGY param is invalid. PvP negotiations disabled.")
-						else:
-							log.warning(f"{self.session_name} | Database is missing. PvP negotiations will be skipped this time.")
 					
 					cur_time_gmt = datetime.now(self.gmt_timezone)
 					cur_time_gmt_s = cur_time_gmt.strftime('%Y-%m-%d')
 					new_day_gmt = cur_time_gmt.replace(hour=7, minute=0, second=0, microsecond=0)
-
-					# Reset taps limit
-					if cur_time_gmt >= new_day_gmt and cur_time_gmt_s != self.taps_limit_date:
-						self.taps_limit = False
-						self.taps_limit_date = ''
 					
-					# Daily quiz and rebus
-					quiz_key = ''
-					quiz_answer = ''
-					quiz_req_level = 0
-					rebus_key = ''
-					rebus_answer = ''
-					rebus_req_level = 0
-					for quest in self.dbs['dbQuests']:
-						if quest['isArchived']: continue
-						date_start = datetime.strptime(quest['dateStart'], '%Y-%m-%d %H:%M:%S') if quest.get('dateStart') else None
-						date_end = datetime.strptime(quest['dateEnd'], '%Y-%m-%d %H:%M:%S') if quest.get('dateEnd') else None
-						if date_start: date_start = date_start.replace(tzinfo=self.gmt_timezone)
-						if date_end: date_end = date_end.replace(tzinfo=self.gmt_timezone)
-						if date_start and date_end and not (date_start <= cur_time_gmt <= date_end): continue
-						if 'riddle' in quest['key']:
-							quiz_key = quest['key']
-							quiz_answer = quest['checkData']
-							quiz_req_level = int(quest['requiredLevel'] or 0)
-						if 'rebus' in quest['key']:
-							rebus_key = quest['key']
-							rebus_answer = quest['checkData']
-							rebus_req_level = int(quest['requiredLevel']  or 0)
-					
-					need_quiz = bool(quiz_key and quiz_answer) and not any(quiz_key in quest['key'] for quest in full_profile['quests'])
-					need_rebus = bool(rebus_key and rebus_answer) and not any(rebus_key in quest['key'] for quest in full_profile['quests'])
-					
-					if need_quiz and self.level >= quiz_req_level:
-						if await self.complete_quest(quest=quiz_key, code=quiz_answer):
-							need_quiz = False
-							log.success(f"{self.session_name} | Reward for daily quiz claimed")
-					if need_rebus and self.level >= rebus_req_level:
-						if await self.complete_quest(quest=rebus_key, code=rebus_answer):
-							need_rebus = False
-							log.success(f"{self.session_name} | Reward for daily rebus claimed")
-					
-					# Invest with external data for combo
-					helper = await self.get_helper()
-					if cur_time_gmt >= new_day_gmt and cur_time_gmt_s in helper:
-						helper = helper[cur_time_gmt_s]
-						if 'funds' in helper:
-							current_invest = await self.get_funds_info()
-							if 'funds' in current_invest and not current_invest['funds']:
-								for fund in helper['funds']:
-									await self.invest(fund=fund, amount=calculate_bet(level=self.level, mph=self.mph, balance=self.balance))
-					
-					profile = await self.get_profile(full=False)
-					self.update_level(level=int(profile['hero']['level'] or 0))
-					self.balance = int(profile['hero']['money'] or 0)
-					self.mph = int(profile['hero']['moneyPerHour'] or 0)
-					log.info(f"{self.session_name} | Level: {self.level} | "
-								f"Balance: {number_short(value=self.balance)} | "
-								f"Profit per hour: +{number_short(value=self.mph)}")
-					
-					# improve mining skills (+1 level to each per cycle)
-					if config.MINING_SKILLS_LEVEL > 0:
-						my_skills = full_profile['skills']
-						friends_count = int(full_profile['profile']['friends'] or 0)
-						for skill in self.dbs['dbSkills']:
-							if skill['category'] != 'mining': continue
-							if skill['key'] in my_skills:
-								if my_skills[skill['key']]['level'] >= config.MINING_SKILLS_LEVEL: continue
-							possible_skill = improve_possible(skill, my_skills, self.level, self.balance, friends_count)
-							if possible_skill is not None:
-								if self.balance - possible_skill['price'] >= config.PROTECTED_BALANCE:
-									improve_data = await self.improve_skill(skill=possible_skill['key'])
-									if improve_data is not None:
-										log.success(f"{self.session_name} | Mining skill {possible_skill['key']} improved to level {possible_skill['newlevel']}")
-										await asyncio.sleep(random.randint(2, 5))
+					if main_actions:
+						daily_rewards = full_profile['dailyRewards']
+						daily_index = None
+						for day, status in daily_rewards.items():
+							if status == 'canTake':
+								daily_index = day
+								break
+						if daily_index is not None:
+							log.info(f"{self.session_name} | Daily reward available")
+							await asyncio.sleep(random.randint(2, 4))
+							daily_claimed = await self.daily_reward(index=daily_index)
+							if daily_claimed:
+								log.success(f"{self.session_name} | Daily reward claimed")
+								self.errors = 0
+						else:
+							log.info(f"{self.session_name} | Daily reward not available")
+						
+						unrewarded_quests = [quest['key'] for quest in full_profile['quests'] if not quest['isRewarded']]
+						if unrewarded_quests:
+							log.info(f"{self.session_name} | Quest rewards available")
+							await asyncio.sleep(random.randint(2, 4))
+							for quest in unrewarded_quests:
+								await asyncio.sleep(random.randint(1, 2))
+								if await self.quest_reward(quest=quest):
+									log.success(f"{self.session_name} | Reward for quest {quest} claimed")
+						
+						await asyncio.sleep(random.randint(2, 4))
+						await self.daily_quests()
+						
+						unrewarded_friends = [int(friend['id']) for friend in full_profile['friends'] if friend['bonusToTake'] > 0]
+						if unrewarded_friends:
+							log.info(f"{self.session_name} | Reward for friends available")
+							await asyncio.sleep(random.randint(2, 4))
+							for friend in unrewarded_friends:
+								await asyncio.sleep(random.randint(1, 2))
+								if await self.friend_reward(friend=friend):
+									log.success(f"{self.session_name} | Reward for friend {friend} claimed")
+						
+						if config.PVP_ENABLED:
+							if self.dbData:
+								league_data = None
+								selected_league = None
+								for league in self.dbData['dbNegotiationsLeague']:
+									if config.PVP_LEAGUE == 'auto':
+										if self.level >= league['requiredLevel'] and self.level <= league['maxLevel']:
+											if league_data is None or league['requiredLevel'] < league_data['requiredLevel']:
+												league_data = league
 									else:
-										break
+										if league['key'] == config.PVP_LEAGUE:
+											selected_league = league
+											if self.level >= league['requiredLevel'] and self.level <= league['maxLevel']:
+												league_data = league
+												break
 								
-					
-					# improve profit skills
-					if config.SKILLS_COUNT > 0:
-						improved_skills = 0
-						improve_data = None
-						while improved_skills < config.SKILLS_COUNT:
-							skill = calculate_best_skill(skills=self.dbs['dbSkills'], ignored_skills=config.IGNORED_SKILLS, profile=full_profile, level=self.level, balance=self.balance, improve=improve_data)
-							if skill is not None:
+								# if the current league is no longer available, select the next league
+								if config.PVP_LEAGUE != 'auto' and league_data is None:
+									if selected_league:
+										if config.PVP_UPGRADE_LEAGUE:
+											for league in self.dbData['dbNegotiationsLeague']:
+												if league['requiredLevel'] > selected_league['requiredLevel'] and self.level >= league['requiredLevel']:
+													league_data = league
+													break
+											log.info(f"{self.session_name} | Selected league is no longer available. New league: {league_data['key']}.")
+										else:
+											config.PVP_ENABLED = False
+											log.warning(f"{self.session_name} | Selected league is no longer available. PvP negotiations disabled.")
+									else:
+										config.PVP_ENABLED = False
+										log.warning(f"{self.session_name} | PVP_LEAGUE param is invalid. PvP negotiations disabled.")
+
+								if league_data is not None:
+									self.strategies = [strategy['key'] for strategy in self.dbData['dbNegotiationsStrategy']]
+									if config.PVP_STRATEGY == 'random' or config.PVP_STRATEGY in self.strategies:
+										await asyncio.sleep(random.randint(2, 4))
+										await self.perform_pvp(league=league_data, strategy=config.PVP_STRATEGY, count=config.PVP_COUNT)
+									else:
+										config.PVP_ENABLED = False
+										log.warning(f"{self.session_name} | PVP_STRATEGY param is invalid. PvP negotiations disabled.")
+							else:
+								log.warning(f"{self.session_name} | Database is missing. PvP negotiations will be skipped this time.")
+
+						# Daily quiz and rebus
+						quiz_key = ''
+						quiz_answer = ''
+						quiz_req_level = 0
+						rebus_key = ''
+						rebus_answer = ''
+						rebus_req_level = 0
+						for quest in self.dbData['dbQuests']:
+							if quest['isArchived']: continue
+							date_start = datetime.strptime(quest['dateStart'], '%Y-%m-%d %H:%M:%S') if quest.get('dateStart') else None
+							date_end = datetime.strptime(quest['dateEnd'], '%Y-%m-%d %H:%M:%S') if quest.get('dateEnd') else None
+							if date_start: date_start = date_start.replace(tzinfo=self.gmt_timezone)
+							if date_end: date_end = date_end.replace(tzinfo=self.gmt_timezone)
+							if date_start and date_end and not (date_start <= cur_time_gmt <= date_end): continue
+							if 'riddle' in quest['key']:
+								quiz_key = quest['key']
+								quiz_answer = quest['checkData']
+								quiz_req_level = int(quest['requiredLevel'] or 0)
+							if 'rebus' in quest['key']:
+								rebus_key = quest['key']
+								rebus_answer = quest['checkData']
+								rebus_req_level = int(quest['requiredLevel']  or 0)
+						
+						need_quiz = bool(quiz_key and quiz_answer) and not any(quiz_key in quest['key'] for quest in full_profile['quests'])
+						need_rebus = bool(rebus_key and rebus_answer) and not any(rebus_key in quest['key'] for quest in full_profile['quests'])
+						
+						if need_quiz:
+							day_end = time(random.randint(22, 23), random.randint(0, 59))
+							log.info(f"{self.session_name} | Today the night period will begin at {str(day_end)}")
+							if self.level >= quiz_req_level:
+								await asyncio.sleep(random.randint(2, 4))
+								if await self.complete_quest(quest=quiz_key, code=quiz_answer):
+									need_quiz = False
+									log.success(f"{self.session_name} | Reward for daily quiz claimed")
+						if need_rebus:
+							day_start = time(random.randint(8, 9), random.randint(0, 59))
+							log.info(f"{self.session_name} | Tomorrow the daytime period will begin at {str(day_start)}")
+							if self.level >= rebus_req_level:
+								await asyncio.sleep(random.randint(2, 4))
+								if await self.complete_quest(quest=rebus_key, code=rebus_answer):
+									need_rebus = False
+									log.success(f"{self.session_name} | Reward for daily rebus claimed")
+						
+						# Invest with external data for combo
+						helper = await self.get_helper()
+						if cur_time_gmt >= new_day_gmt and cur_time_gmt_s in helper:
+							helper = helper[cur_time_gmt_s]
+							if 'funds' in helper:
+								current_invest = await self.get_funds_info()
+								await asyncio.sleep(random.randint(4, 8))
+								if 'funds' in current_invest and not current_invest['funds']:
+									for fund in helper['funds']:
+										await asyncio.sleep(random.randint(2, 4))
+										await self.invest(fund=fund, amount=calculate_bet(level=self.level, mph=self.mph, balance=self.balance))
+
+						# improve mining skills (+1 level to each per cycle)
+						if config.MINING_SKILLS_LEVEL > 0:
+							my_skills = full_profile['skills']
+							friends_count = int(full_profile['profile']['friends'] or 0)
+							for skill in self.dbData['dbSkills']:
+								if skill['category'] != 'mining': continue
+								if skill['key'] in my_skills:
+									if my_skills[skill['key']]['level'] >= config.MINING_SKILLS_LEVEL: continue
+								possible_skill = improve_possible(skill, my_skills, self.level, self.balance, friends_count)
+								if possible_skill is not None:
+									if self.balance - possible_skill['price'] >= config.PROTECTED_BALANCE:
+										await asyncio.sleep(random.randint(1, 2))
+										improve_data = await self.improve_skill(skill=possible_skill['key'])
+										if improve_data is not None:
+											log.success(f"{self.session_name} | Mining skill {possible_skill['key']} improved to level {possible_skill['newlevel']}")
+										else:
+											break
+						
+						# improve profit skills
+						if config.SKILLS_COUNT > 0:
+							improved_skills = 0
+							improve_data = None
+							while improved_skills < config.SKILLS_COUNT:
+								skill = calculate_best_skill(skills=self.dbData['dbSkills'], ignored_skills=config.IGNORED_SKILLS, profile=full_profile, level=self.level, balance=self.balance, improve=improve_data)
+								if skill is None: break
 								if self.balance - skill['price'] < config.PROTECTED_BALANCE:
 									log.warning(f"{self.session_name} | Skill improvement stopped (balance protection)")
 									break
+								await asyncio.sleep(random.randint(2, 4))
 								improve_data = await self.improve_skill(skill=skill['key'])
-								if improve_data is not None:
-									improved_skills += 1
-									log.success(f"{self.session_name} | Skill {skill['key']} improved to level {skill['newlevel']}")
-									await asyncio.sleep(random.randint(2, 5))
-								else:
-									break
-									
-					log.info(f"{self.session_name} | Level: {self.level} | "
-								f"Balance: {number_short(value=self.balance)} | "
-								f"Profit per hour: +{number_short(value=self.mph)}")
+								if improve_data is None: break
+								improved_skills += 1
+								log.success(f"{self.session_name} | Skill {skill['key']} improved to level {skill['newlevel']}")
+						
+						await asyncio.sleep(random.randint(2, 4))
+						profile = await self.get_profile(full=False)
+						self.update_level(level=int(profile['hero']['level'] or 0))
+						self.balance = int(profile['hero']['money'] or 0)
+						self.mph = int(profile['hero']['moneyPerHour'] or 0)
+						log.info(f"{self.session_name} | Level: {self.level} | "
+									f"Balance: {number_short(value=self.balance)} | "
+									f"Profit per hour: +{number_short(value=self.mph)}")
 					
-					log.info(f"{self.session_name} | Sleep 1 hour")
-					await asyncio.sleep(3600)
-					self.authorized = False
+						main_actions = False
+						sum_delay = 0
+					
+					if config.TAPS_ENABLED:
+						per_tap = int(profile['hero']['earns']['task']['moneyPerTap'] or 0)
+						max_energy = int(profile['hero']['earns']['task']['limit'] or 0)
+						energy = int(profile['hero']['earns']['task']['energy'] or 0)
+						energy_recovery = int(profile['hero']['earns']['task']['recoveryPerSecond'] or 1)
+						bonus_chance = float(profile['hero']['earns']['task']['bonusChance'] or 0)
+						bonus_mult = float(profile['hero']['earns']['task']['bonusMultiplier'] or 0)
+						if energy == max_energy and not self.taps_limit:
+							await asyncio.sleep(random.randint(2, 4))
+							await self.perform_taps(per_tap=per_tap, energy=energy, bonus_chance=bonus_chance, bonus_mult=bonus_mult)
+							await asyncio.sleep(random.randint(2, 4))
+							profile = await self.get_profile(full=False)
+							max_energy = int(profile['hero']['earns']['task']['limit'] or 0)
+							energy = int(profile['hero']['earns']['task']['energy'] or 0)
+							energy_recovery = int(profile['hero']['earns']['task']['recoveryPerSecond'] or 1)
+
+						energy_recovery_time = (max_energy - energy) / energy_recovery
+						
+						# Reset taps limit
+						if cur_time_gmt >= new_day_gmt and cur_time_gmt_s != self.taps_limit_date:
+							self.taps_limit = False
+							self.taps_limit_date = ''
+					
+					now = datetime.now().time()
+					if day_start <= now <= day_end:
+						log_end = '(daytime main delay)'
+						main_delay = 3600 # 1 hour delay during daytime
+						if config.TAPS_ENABLED and not self.taps_limit:
+							log_end = '(waiting for energy recovery)'
+							sleep_time = energy_recovery_time
+							sum_delay += sleep_time
+							if sum_delay > main_delay:
+								main_actions = True
+						else:
+							sleep_time = main_delay
+					else:
+						log_end = '(night main delay)'
+						main_delay = 10800 # 3 hours delay at night
+						sleep_time = main_delay
+						main_actions = True
+						sum_delay = 0
+					
+					random_sleep = random.randint(120, 300) # randomize delay within 5 minutes
+					sleep_time += random_sleep
+					sum_delay += random_sleep
+					if sleep_time > 1800: self.authorized = False
+					
+					hours, minutes = divmod(sleep_time, 3600)
+					minutes //= 60
+					log.info(f"{self.session_name} | Sleep {int(hours)} hours {int(minutes)} minutes {log_end}")
+					await asyncio.sleep(sleep_time)
 					
 				except RuntimeError as error:
 					raise error

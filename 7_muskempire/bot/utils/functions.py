@@ -2,6 +2,9 @@ import random
 from time import time
 from datetime import datetime, timezone
 
+from bot.utils.logger import log
+from bot.config import config
+
 ########## SKILLS ##########
 
 # functions from game js
@@ -105,13 +108,19 @@ def calculate_best_skill(skills: list, ignored_skills: list, profile: dict, leve
 	possible_skills = []
 	for skill in skills:
 		if skill['key'] in ignored_skills: continue
+		if skill['profitBasic'] == 0: continue
 		possible_skill = improve_possible(skill, my_skills, level, balance, friends)
 		if possible_skill is not None:
 			possible_skills.append(possible_skill)
 	
 	if possible_skills:
-		best_skill = sorted(possible_skills, key=lambda x: x["ratio"])[-1]
-		if len(best_skill) > 0: return best_skill
+		possible_skills = sorted(possible_skills, key=lambda x: x["ratio"], reverse=True)
+		if config.DEBUG_MODE:
+			log.debug(f"Possible skills for improve:")
+			for skill in possible_skills:
+				print(f"{skill['key']:35} | price: {number_short(skill['price']):>7} | profit: {number_short(skill['profit']):>7}")
+		best_skill = possible_skills[0]
+		return best_skill
 	return None
 
 def improve_possible(skill: dict, my_skills: dict | list, level: int, balance: int, friends: int) -> dict | None:
@@ -120,9 +129,10 @@ def improve_possible(skill: dict, my_skills: dict | list, level: int, balance: i
 	if isinstance(my_skills, dict) and skill['key'] in my_skills:
 		my_skill = my_skills[skill['key']]
 		if skill['maxLevel'] <= my_skill['level']: return None
-		if type(my_skill['finishUpgradeDate']) is str:
+		if isinstance(my_skill['finishUpgradeDate'], str):
 			my_skill["finishUpgradeDate"] = datetime.strptime(my_skill['finishUpgradeDate'], '%Y-%m-%d %H:%M:%S').replace(tzinfo=timezone.utc).timestamp()
-		if my_skill['finishUpgradeDate'] is int and my_skill['finishUpgradeDate'] > time(): return None
+		if isinstance(my_skill['finishUpgradeDate'], (int, float)) and my_skill['finishUpgradeDate'] > time():
+			return None
 		skill_price = get_price(skill, my_skill['level'] + 1)
 		current_profit = get_profit(skill, my_skill['level'])
 		next_profit = get_profit(skill, my_skill['level'] + 1)
@@ -237,7 +247,7 @@ def number_short(value: int, round_value: bool = False) -> str:
 		result = value / 1e12
 		return f"{(round(result) if round_value or result % 1 == 0 else int(result * 10) / 10)}T"
 
-def calculate_tap_power(per_tap : int, energy: int, bonus_chance: int, bonus_mult: int):
+def calculate_tap_power(per_tap : int, energy: int, bonus_chance: float, bonus_mult: float):
 	if per_tap < energy:
 		gain = False
 		if per_tap * bonus_mult <= energy:
