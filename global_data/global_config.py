@@ -2,9 +2,22 @@ API_ID = 111111111
 API_HASH = 'adf124h2j342x4u232sn'
 
 ACC_DELAY = [60, 180] # delay between connections to accounts in seconds
-
 USE_PROXY = False
 PROXY_TYPE = "socks5" # http/socks5
+
+# if you want to turn off the bot, select False in the corresponding line
+CONECTED_BOTS = {
+    "./1_blum" : True,
+    "./2_cryptorank" : True,
+    "./3_yescoin" : True,
+    "./4_tapswap" : True,
+    "./5_dotcoin" : True,
+    "./6_pocketfi" : True,
+    "./7_muskempire" : True,
+    "./8_hamsterkombat" : True,
+    "./9_okxracer" : True,
+    "./10_lostdogs" : True,
+}
 
 USE_TG_BOT = False
 CHAT_ID = '237856'

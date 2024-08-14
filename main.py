@@ -86,7 +86,7 @@ async def run_script(script_name):
 async def process():
     print(message)
     while True:
-        operation = int(input("Select an action:\n1 -> Actions with sessions\n2 -> Actions with proxies\n3 -> Actions with bots\n4 -> Exit\n"))
+        operation = int(input("Select an action:\n1 -> Actions with sessions\n2 -> Actions with proxies\n3 -> Run bots\n4 -> Exit\n"))
 
         if (operation == 1):
             sessionOperation = int(input("Select an action with sessions: \n1 -> Add one session from ./global_data/sessions/\n2 -> Add all sessions from ./global_data/sessions/\n3 -> Remove one session from all ./tapalka/sessions\n4 -> Remove all sessions from all ./tapalka/sessions\n5 -> Create new session\n6 -> Exit\n"))
@@ -220,19 +220,8 @@ async def process():
             else: continue
 
         elif (operation == 3):
-            botsOperation = int(input("Select an action with bots: \n0 -> Run all bots\nAny other number -> Run a bot that starts with this number\n52 -> Exit\n"))
-
-            if (botsOperation == 0):
-                folders = [f'{path}' for path in petyaPaths+shamhiPaths]
-                await asyncio.gather(*(run_script(folder) for folder in folders))
-            
-            elif (botsOperation != 52):
-                folders = []
-                for path in petyaPaths+shamhiPaths:
-                    if (str(botsOperation)+'_' in path): folders.append(path)
-                await asyncio.gather(*(run_script(folder) for folder in folders))
-
-            else: continue
+            folders = [f'{path}' for path in petyaPaths+shamhiPaths if global_config.CONECTED_BOTS[path] == True]
+            await asyncio.gather(*(run_script(folder) for folder in folders))
 
         else: break
 
