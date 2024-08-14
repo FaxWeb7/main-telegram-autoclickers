@@ -13,14 +13,18 @@ from pyrogram.raw.functions.messages import RequestWebView
 from bot.exceptions import InvalidSession
 from bot.utils.logger import logger
 from bot.utils.proxy import get_proxy_dict
+from bot.config.config import settings
 
 
 async def get_tg_web_data(
     tg_client: Client, proxy: str | None, session_name: str
 ) -> str:
-    proxy_dict = get_proxy_dict(proxy)
+    if (settings.USE_PROXY):
+        proxy_dict = get_proxy_dict(proxy)
+        tg_client.proxy = proxy_dict
+    else:
+        tg_client.proxy = None
 
-    tg_client.proxy = proxy_dict
 
     try:
         if not tg_client.is_connected:
