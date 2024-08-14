@@ -43,6 +43,23 @@
      USE_PROXY = True  # or False
      PROXY_TYPE = "socks5" # or http
      ```
+     
+   - If you want to turn off some bots, you can do it by select False in the corresponding line in CONNECTED_BOTS, for example:
+     ```python
+     CONECTED_BOTS = {
+        "./1_blum" : True,
+        "./2_cryptorank" : False,
+        "./3_yescoin" : True,
+        "./4_tapswap" : True,
+        "./5_dotcoin" : False,
+        "./6_pocketfi" : True,
+        "./7_muskempire" : False,
+        "./8_hamsterkombat" : True,
+        "./9_okxracer" : False,
+        "./10_lostdogs" : True,
+     }
+
+     ```
 
    - if you want to receive logs from each of the bots, set `USE_TG_BOT = True`, specify your `CHAT_ID`, and specify a token from `@BotFather` for each of the bots:
      ```python
@@ -88,11 +105,9 @@
 
 ## Usage
 
-Launch all or one bot
+Launch bots selected in ```global_data/global_config.py```
 1. Run `python3.11 main.py`
-2. Choose `3` -> Actions with bots
-3. Choose `0` if you need to launch all bots, or the number of one bot you need to launch
-
+2. Choose `3` -> Run bots
 
 ## Important Notes
 
