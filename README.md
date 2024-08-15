@@ -37,6 +37,11 @@
      ```python
      ACC_DELAY = [minDelay, maxDelay]
      ```
+     
+   - Set random delay between ```while True``` iterations in bots, in seconds
+     ```python
+     BIG_SLEEP = [minDelay, maxDelay]
+     ```
 
    - If you want to use a proxy, set `USE_PROXY` to `True` and set your `PROXY_TYPE`, otherwise set it to `False`:
      ```python
