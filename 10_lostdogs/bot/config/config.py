@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     CHAT_ID: str = global_config.CHAT_ID # Your telegram id
 
     ACC_DELAY: list[int] = global_config.ACC_DELAY
-    SLEEP_TIME: list[int] = [14400, 21600]
+    SLEEP_TIME: list[int] = global_config.BIG_SLEEP
     AUTO_TASK: bool = True
     RANDOM_CARD: bool = True
     CARD_NUMBER: int = 1

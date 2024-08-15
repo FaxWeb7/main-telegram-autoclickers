@@ -83,12 +83,10 @@ class Blum:
                 elif start_time is not None and end_time is not None and timestamp >= end_time:
                     timestamp, balance = await self.claim()
                     logger.success(f"main | Thread {self.thread} | {self.name} | Claimed reward! Balance: {balance}")
-                else:
-                    add_sleep = random.randint(*config.SLEEP_8HOURS)
-                    logger.info(f"main | Thread {self.thread} | {self.name} | Sleep {(end_time-timestamp+add_sleep)} seconds!")
-                    await asyncio.sleep(end_time-timestamp+add_sleep)
-                    await self.login()
-                await asyncio.sleep(random.randint(*config.MINI_SLEEP))
+                big_sleep = random.randint(*config.BIG_SLEEP)
+                logger.info(f"main | Thread {self.thread} | {self.name} | Sleep {big_sleep} seconds!")
+                await asyncio.sleep(big_sleep)
+                await self.login()
             except Exception as err:
                 logger.error(f"main | Thread {self.thread} | {self.name} | {err}")
                 if err != "Server disconnected":

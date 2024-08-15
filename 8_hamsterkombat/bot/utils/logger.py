@@ -14,7 +14,7 @@ def process_queue():
         if message is None:
             break
         try:
-            time.sleep(3)
+            time.sleep(6)
             response = requests.post(TELEGRAM_API_URL, data={'chat_id': settings.CHAT_ID, 'text': message})
             if response.status_code != 200:
                 logger.error(f"Failed to send log to Telegram: {response.text}")

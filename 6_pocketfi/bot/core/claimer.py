@@ -201,6 +201,9 @@ class Claimer:
 
                             logger.info(f"{self.session_name} | Retry <y>{retry}</y> of <e>{targetRetry}</e>")
                             retry += 1
+                    big_sleep = randint(settings.BIG_SLEEP[0], settings.BIG_SLEEP[1])
+                    logger.info(f"{self.session_name} | Sleep <y>{big_sleep}</y>s")
+                    await asyncio.sleep(delay=big_sleep)
 
                 except InvalidSession as error:
                     raise error

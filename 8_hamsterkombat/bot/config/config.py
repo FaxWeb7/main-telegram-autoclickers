@@ -44,6 +44,7 @@ class Settings(BaseSettings):
     USE_RANDOM_DELAY_IN_RUN: bool = True
     RANDOM_DELAY_IN_RUN: list[int] = global_config.ACC_DELAY
 
+    BIG_SLEEP: list[int] = global_config.BIG_SLEEP
     USE_RANDOM_MINI_GAME_KEY: bool = True
 
     USE_RANDOM_USERAGENT: bool = True

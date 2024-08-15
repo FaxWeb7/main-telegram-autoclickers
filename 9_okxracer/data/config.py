@@ -28,7 +28,7 @@ WORKDIR = "sessions/"
 USE_PROXY = global_config.USE_PROXY
 
 # задержка между кругом
-BIG_SLEEP = [3600,10000]
+BIG_SLEEP = global_config.BIG_SLEEP
 
 MINI_SLEEP = [10,30]
 

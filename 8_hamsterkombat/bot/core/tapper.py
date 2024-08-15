@@ -460,6 +460,10 @@ class Tapper:
                 logger.info(f"Sleep <lw>{sleep_between_clicks}s</lw>")
                 await asyncio.sleep(delay=sleep_between_clicks)
 
+            big_sleep = randint(a=settings.BIG_SLEEP[0], b=settings.BIG_SLEEP[1])
+            logger.info(f"Big sleep <lw>{big_sleep}s</lw>")
+            await asyncio.sleep(delay=big_sleep)
+
 
 async def run_tapper(tg_client: Client, proxy: str | None):
     try:

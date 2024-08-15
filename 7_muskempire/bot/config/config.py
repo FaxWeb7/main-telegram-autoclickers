@@ -31,6 +31,7 @@ class Settings(BaseSettings):
     IGNORED_SKILLS: list[str] = []
     MINING_SKILLS_LEVEL: int = 10
     PROTECTED_BALANCE: int = 3000000
+    BIG_SLEEP: list[int] = global_config.BIG_SLEEP
 
     DEBUG_MODE: bool = False
     SLEEP_BETWEEN_START: list[int] = global_config.ACC_DELAY

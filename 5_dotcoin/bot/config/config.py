@@ -29,6 +29,7 @@ class Settings(BaseSettings):
 
     RANDOM_TAPS_COUNT: list[int] = [50, 200]
     SLEEP_BETWEEN_TAP: list[int] = [10, 25]
+    BIG_SLEEP: list[int] = global_config.BIG_SLEEP
 
     USE_PROXY_FROM_FILE: bool = global_config.USE_PROXY
 

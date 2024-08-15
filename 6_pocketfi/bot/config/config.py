@@ -24,6 +24,7 @@ class Settings(BaseSettings):
 
     CLAIM_RETRY: list[int] = [2, 5]
     SLEEP_BETWEEN_CLAIM: list[int] = [180, 360]
+    BIG_SLEEP: list[int] = global_config.BIG_SLEEP
 
     USE_PROXY_FROM_FILE: bool = global_config.USE_PROXY
 

@@ -66,6 +66,10 @@ async def start(thread: int, session_name: str, phone_number: str, proxy: [str, 
 
                 await asyncio.sleep(random.uniform(*config.DELAYS['CLICKS']))
 
+                big_sleep = random.randint(*config.DELAYS['BIG_SLEEP'])
+                logger.success(f"Thread {thread} | {account} | Sleep {big_sleep}s")
+                await asyncio.sleep(big_sleep)
+
             except ContentTypeError as e:
                 logger.error(f"Thread {thread} | {account} | Error: {e}")
                 await asyncio.sleep(120)

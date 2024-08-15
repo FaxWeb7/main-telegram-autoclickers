@@ -70,7 +70,7 @@ class CryptoRank:
                 if random.randint(0,4) == 1:
                     await self.do_tasks()
                 await self.claim_task(id="e7dae272-7d17-4543-9a30-92f071439210")
-                sleep = random.randint(6*60*60,8*60*60)
+                sleep = random.randint(config.BIG_SLEEP[0], config.BIG_SLEEP[1])
                 logger.info(f"main | Thread {self.thread} | {self.name} | Задержка {sleep} сек")
                 await asyncio.sleep(sleep)
             except Exception as err:

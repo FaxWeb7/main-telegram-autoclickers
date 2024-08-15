@@ -844,12 +844,14 @@ class CryptoBot:
 					random_sleep = random.randint(120, 300) # randomize delay within 5 minutes
 					sleep_time += random_sleep
 					sum_delay += random_sleep
-					if sleep_time > 1800: self.authorized = False
 					
 					hours, minutes = divmod(sleep_time, 3600)
 					minutes //= 60
-					log.info(f"{self.session_name} | Sleep {int(hours)} hours {int(minutes)} minutes {log_end}")
-					await asyncio.sleep(sleep_time)
+					# log.info(f"{self.session_name} | Sleep {int(hours)} hours {int(minutes)} minutes {log_end}")
+					big_sleep = random.randint(config.BIG_SLEEP[0], config.BIG_SLEEP[1])
+					if big_sleep > 1800: self.authorized = False
+					log.info(f"{self.session_name} | Sleep {big_sleep}s")
+					await asyncio.sleep(big_sleep)
 					
 				except RuntimeError as error:
 					raise error

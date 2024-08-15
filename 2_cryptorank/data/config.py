@@ -19,6 +19,7 @@ CHAT_ID = global_config.CHAT_ID # Your telegram id
 
 # задержка между подключениями к аккаунтам
 ACC_DELAY = global_config.ACC_DELAY
+BIG_SLEEP = global_config.BIG_SLEEP
 
 # тип прокси
 PROXY_TYPE = global_config.PROXY_TYPE # http/socks5

@@ -371,6 +371,9 @@ class Tapper:
                         await asyncio.sleep(delay=random_sleep)
 
                         access_token_created_time = 0
+                big_sleep = randint(settings.BIG_SLEEP[0], settings.BIG_SLEEP[1])
+                logger.info(f"{self.session_name} | Sleep {big_sleep}s")
+                await asyncio.sleep(delay=big_sleep)
 
             except InvalidSession as error:
                 raise error

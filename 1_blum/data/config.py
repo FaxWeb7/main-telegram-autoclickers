@@ -41,5 +41,4 @@ SLEEP_GAME_TIME = [60,180] #[min,max]
 # мини задержки
 MINI_SLEEP = [20,80] #[min,max]
 
-# доп задержка после 8часов 
-SLEEP_8HOURS = [60*60,60*240] #[min,max] seconds
+BIG_SLEEP = global_config.BIG_SLEEP
