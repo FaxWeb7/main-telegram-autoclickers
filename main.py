@@ -175,6 +175,7 @@ async def process():
                         file.close()
                     with open(f'{path}/bot/config/proxies.txt', 'a') as file:
                         for proxy in proxies.split('\n'):
+                            if (proxy == '' or proxy == '\n'): continue
                             proxy = proxy.split(' ')[0].split(':')
                             file.write(f'{global_config.PROXY_TYPE}://{proxy[2]}:{proxy[3]}@{proxy[0]}:{proxy[1]}\n')
                         file.close()
