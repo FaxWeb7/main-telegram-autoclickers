@@ -18,6 +18,7 @@ CONECTED_BOTS = {
     "./8_hamsterkombat" : True,
     "./9_okxracer" : True,
     "./10_lostdogs" : True,
+    "./11_major" : True,
 }
 
 USE_TG_BOT = False
@@ -33,6 +34,7 @@ MUSKEMPIRE_BOT_TOKEN = '87265743:JKFDHad'
 HAMSTERKOMBAT_BOT_TOKEN = '87265743:JKFDHad'
 OKXRACER_BOT_TOKEN = '87265743:JKFDHad'
 LOSTDOGS_BOT_TOKEN = '87265743:JKFDHad'
+MAJOR_BOT_TOKEN = '87265743:JKFDHad'
 
 # don't change
 message = """
@@ -49,7 +51,8 @@ petyaPaths = [
     './2_cryptorank',
     './3_yescoin',
     './8_hamsterkombat',
-    './9_okxracer'
+    './9_okxracer',
+    './11_major',
 ]
 shamhiPaths = [
     './4_tapswap',
