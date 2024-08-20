@@ -41,4 +41,4 @@ SLEEP_GAME_TIME = [60,180] #[min,max]
 # мини задержки
 MINI_SLEEP = [20,80] #[min,max]
 
-BIG_SLEEP = global_config.BIG_SLEEP
+BIG_SLEEP_ADD = [1800, 3600]

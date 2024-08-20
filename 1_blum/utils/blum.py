@@ -83,7 +83,7 @@ class Blum:
                 elif start_time is not None and end_time is not None and timestamp >= end_time:
                     timestamp, balance = await self.claim()
                     logger.success(f"main | Thread {self.thread} | {self.name} | Claimed reward! Balance: {balance}")
-                big_sleep = random.randint(*config.BIG_SLEEP)
+                big_sleep = 8 * 60 * 60 + random.randint(*config.BIG_SLEEP_ADD)
                 logger.info(f"main | Thread {self.thread} | {self.name} | Sleep {big_sleep} seconds!")
                 await asyncio.sleep(big_sleep)
                 await self.login()
