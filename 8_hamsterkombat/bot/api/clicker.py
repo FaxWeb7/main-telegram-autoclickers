@@ -6,7 +6,21 @@ import aiohttp
 from bot.api.http import make_request
 
 
-async def get_config(
+async def get_version_config(
+        http_client: aiohttp.ClientSession, config_version: str
+) -> dict[Any, Any] | Any:
+    response_json = await make_request(
+        http_client,
+        'GET',
+        f'https://api.hamsterkombatgame.io/clicker/config/{config_version}',
+        {},
+        'getting Version Config',
+    )
+
+    return response_json
+
+
+async def get_game_config(
         http_client: aiohttp.ClientSession,
 ) -> dict[Any, Any] | Any:
     response_json = await make_request(
@@ -14,7 +28,7 @@ async def get_config(
         'POST',
         'https://api.hamsterkombatgame.io/clicker/config',
         {},
-        'getting Config',
+        'getting Game Config',
     )
 
     return response_json
@@ -62,6 +76,19 @@ async def get_account_info(
     return response_json
 
 
+async def get_skins(
+        http_client: aiohttp.ClientSession
+) -> dict:
+    response_json = await make_request(
+        http_client,
+        'POST',
+        'https://api.hamsterkombatgame.io/clicker/get-skin',
+        {},
+        'getting Skins',
+    )
+    return response_json
+
+
 async def send_taps(
         http_client: aiohttp.ClientSession, available_energy: int, taps: int
 ) -> dict[Any, Any] | Any:
@@ -78,6 +105,6 @@ async def send_taps(
         ignore_status=422,
     )
 
-    player_data = response_json.get('clickerUser') or response_json.get('found', {}).get('clickerUser', {})
+    profile_data = response_json.get('clickerUser') or response_json.get('found', {}).get('clickerUser', {})
 
-    return player_data
+    return profile_data

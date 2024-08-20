@@ -35,7 +35,16 @@ class Settings(BaseSettings):
 
     MAX_COMBO_PRICE: int = 4000000
 
+    APPLY_COMBO: bool = True
+    APPLY_PROMO_CODES: bool = True
+    APPLY_DAILY_CIPHER: bool = True
+    APPLY_DAILY_REWARD: bool = True
     APPLY_DAILY_ENERGY: bool = True
+    APPLY_DAILY_MINI_GAME: bool = True
+    APPLY_DAILY_ENERGY: bool = True
+
+    USE_RANDOM_MINI_GAME_KEY: bool = True
+    AUTO_COMPLETE_TASKS: bool = True
 
     USE_TAPS: bool = True
     RANDOM_TAPS_COUNT: list[int] = [50, 200]
@@ -45,7 +54,6 @@ class Settings(BaseSettings):
     RANDOM_DELAY_IN_RUN: list[int] = global_config.ACC_DELAY
 
     BIG_SLEEP: list[int] = global_config.BIG_SLEEP
-    USE_RANDOM_MINI_GAME_KEY: bool = True
 
     USE_RANDOM_USERAGENT: bool = True
 
