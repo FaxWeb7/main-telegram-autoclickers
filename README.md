@@ -8,7 +8,7 @@
 |:------:|-------------------------------------------------|
 |   ✅   | **Blum, CryptoRank, YesCoin, TapSwap, DotCoin**       |
 |   ✅   | **PocketFi, MuskEmpire, HamsterKombat, DOGS**       |
-|   ✅   | **OKX Racer, Lost Dogs**                       |
+|   ✅   | **OKX Racer, Lost Dogs, Major**                       |
 |   ⌛   |                        |
 
 
