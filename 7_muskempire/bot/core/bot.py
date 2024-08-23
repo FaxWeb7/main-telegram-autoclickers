@@ -464,12 +464,22 @@ class CryptoBot:
 		log.info(f"{self.session_name} | PvP negotiations finished. {money_str}")
 
 	async def get_helper(self) -> dict:
-		url = 'https://alexell.pro/crypto/x-empire/data.json'
-		response = await self.http_client.get(url)
-		if response.status == 200:
-			response_json = await response.json()
-			return response_json
-		else: return {}
+		url = 'https://alexell.pro/crypto/x-empire/data/'
+		try:
+			json_data = {'data': 'alexell'}
+			await self.set_sign_headers(data=json_data)
+			response = await self.http_client.post(url, json=json_data)
+			if response.status in [200, 400, 401, 403]:
+				response_json = await response.json()
+				success = response_json.get('success', False)
+				if success:
+					return response_json.get('result', {})
+				else:
+					log.error(f"{self.session_name} | Get helper error: {response.status} {response_json.get('message', '')}")
+					return {}
+		except Exception as error:
+			log.error(f"{self.session_name} | Get helper error: {str(error)}")
+			return {}
 
 	async def get_funds_info(self) -> dict:
 		url = self.api_url + '/fund/info'
