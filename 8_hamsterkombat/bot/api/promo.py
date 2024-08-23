@@ -2,6 +2,20 @@ from typing import Any
 import aiohttp
 from bot.api.http import make_request
 
+async def get_apps_info(
+        http_client: aiohttp.ClientSession,
+) -> list[dict[str, Any]]:
+    response_json = await make_request(
+        http_client,
+        'GET',
+        'https://api21.datavibe.top/api/Games',
+        {},
+        'getting Apps Info'
+    )
+
+    return response_json
+
+
 async def get_promos(
         http_client: aiohttp.ClientSession
 ) -> dict[str, Any]:
