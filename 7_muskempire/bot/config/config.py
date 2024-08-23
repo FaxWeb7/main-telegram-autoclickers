@@ -20,6 +20,9 @@ class Settings(BaseSettings):
     BOT_TOKEN: str = global_config.MUSKEMPIRE_BOT_TOKEN
     CHAT_ID: str = global_config.CHAT_ID
 
+    SKILLS_MODE: str = 'profitness'
+    REF_CODE: str = 'hero6046075760'
+
     TAPS_ENABLED: bool = True
     TAPS_PER_SECOND: list[int] = [10, 30] # tested with 4 fingers
     PVP_ENABLED: bool = False
