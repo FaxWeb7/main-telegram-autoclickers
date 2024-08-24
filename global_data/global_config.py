@@ -11,14 +11,13 @@ CONECTED_BOTS = {
     "./1_blum" : True,
     "./2_cryptorank" : True,
     "./3_yescoin" : True,
-    "./4_tapswap" : True,
-    "./5_dotcoin" : True,
-    "./6_pocketfi" : True,
-    "./7_muskempire" : True,
-    "./8_hamsterkombat" : True,
-    "./9_okxracer" : True,
-    "./10_lostdogs" : True,
-    "./11_major" : True,
+    "./4_dotcoin" : True,
+    "./5_pocketfi" : True,
+    "./6_muskempire" : True,
+    "./7_hamsterkombat" : True,
+    "./8_okxracer" : True,
+    "./9_lostdogs" : True,
+    "./10_major" : True,
 }
 
 USE_TG_BOT = False
@@ -27,7 +26,6 @@ CHAT_ID = '237856'
 BLUM_BOT_TOKEN = '87265743:JKFDHad'
 CRYPTORANK_BOT_TOKEN = '87265743:JKFDHad'
 YESCOIN_BOT_TOKEN = '87265743:JKFDHad'
-TAPSWAP_BOT_TOKEN = '87265743:JKFDHad'
 DOTCOIN_BOT_TOKEN = '87265743:JKFDHad'
 POCKETFI_BOT_TOKEN = '87265743:JKFDHad'
 MUSKEMPIRE_BOT_TOKEN = '87265743:JKFDHad'
@@ -50,14 +48,13 @@ petyaPaths = [
     './1_blum',
     './2_cryptorank',
     './3_yescoin',
-    './8_hamsterkombat',
-    './9_okxracer',
-    './11_major',
+    './7_hamsterkombat',
+    './8_okxracer',
+    './10_major',
 ]
 shamhiPaths = [
-    './4_tapswap',
-    './5_dotcoin',
-    './6_pocketfi',
-    './7_muskempire',
-    './10_lostdogs',
+    './4_dotcoin',
+    './5_pocketfi',
+    './6_muskempire',
+    './9_lostdogs',
 ]
