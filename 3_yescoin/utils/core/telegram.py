@@ -42,16 +42,12 @@ class Accounts:
                 })
 
         else:
-            accounts_from_json = load_from_json('sessions/accounts.json')
-
-            if not accounts_from_json:
-                raise ValueError("Have not account's in sessions/accounts.json")
-
             for session in sessions:
-                for saved_account in accounts_from_json:
-                    if saved_account['session_name'] == session:
-                        available_accounts.append(saved_account)
-                        break
+                available_accounts.append({
+                    'session_name': session,
+                    'phone_number': '+0',
+                    'proxy': None
+                })
 
         return available_accounts
 

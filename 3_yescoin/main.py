@@ -29,9 +29,6 @@ async def main():
     if action == 3:
         await Accounts().create_sessions()
 
-    if action == 2:
-        await stats()
-
     if action == 1:
         accounts = await Accounts().get_accounts()
 
