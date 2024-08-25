@@ -45,6 +45,13 @@ class Accounts:
                     'phone_number': '+0',
                     'proxy': prox if prox else None
                 })
+        else:
+            for session in sessions:
+                available_accounts.append({
+                    'session_name': session,
+                    'phone_number': '+0',
+                    'proxy': None
+                })
 
         return available_accounts
 
