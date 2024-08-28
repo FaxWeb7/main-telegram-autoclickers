@@ -110,8 +110,7 @@
 ## Usage
 
 Launch bots selected in ```global_data/global_config.py```
-1. Run `python3.11 main.py`
-2. Choose `3` -> Run bots
+1. Run `python3.11 main.py -a 3`
 
 ## Important Notes
 
