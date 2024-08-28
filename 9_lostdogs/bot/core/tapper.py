@@ -93,9 +93,9 @@ class Tapper:
 
     async def get_info_data(self, http_client: aiohttp.ClientSession):
         try:
-            url = ('https://api.getgems.io/graphql?operationName=lostDogsWayUserInfo&variables=%7B%7D&extensions='
+            url = ('https://api.getgems.io/graphql?operationName=getHomePage&variables=%7B%7D&extensions='
                    '%7B%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22sha256Hash'
-                   '%22%3A%22a17a9e148547c1c0ab250cca329a3ca237d46b615365dbd217e32aa7c068d10f%22%7D%7D')
+                   '%22%3A%22d89d3ccd8d9fd69d37d181e2e8303ee78b80e6a26e4500c42e6d9f695257f9be%22%7D%7D')
             await http_client.options(url=url)
 
             response = await http_client.get(url=url)
@@ -289,17 +289,6 @@ class Tapper:
             logger.error(f"{self.session_name} | Unknown error when getting done tasks: {error}")
             await asyncio.sleep(delay=3)
 
-    async def get_game_status(self, http_client: aiohttp.ClientSession):
-        try:
-            response = await http_client.get(f'https://api.getgems.io/graphql?operationName=lostDogsWayGameStatus&variables='
-                                             f'%7B%7D&extensions=%7B%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22sha256Hash'
-                                             f'%22%3A%22f706c4cd57a87632bd4360b5458e65f854b07e690cf7f8b9f96567fe072148c1%22%7D%7D')
-            response_json = await response.json()
-            return response_json['data']['lostDogsWayGameStatus']
-        except Exception as error:
-            logger.error(f"{self.session_name} | Unknown error when getting game status: {error}")
-            await asyncio.sleep(delay=3)
-
     async def view_prev_round(self, http_client: aiohttp.ClientSession):
         try:
             json_data = {
@@ -449,7 +438,7 @@ class Tapper:
                         logger.info(
                             f"{self.session_name} | Voted card: <y>{card}</y> | Spend Bones: <e>{spend_bones}</e>")
 
-                    game_status = await self.get_game_status(http_client=http_client)
+                    game_status = user_info['data']['lostDogsWayGameStatus']
                     game_end_at = datetime.fromtimestamp(int(game_status['gameState']['gameEndsAt']))
                     round_end_at = max(game_status['gameState']['roundEndsAt'] - time(), 0)
                     logger.info(
