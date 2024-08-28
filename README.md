@@ -9,7 +9,7 @@
 |   ✅   | **Blum, CryptoRank, YesCoin, DotCoin**       |
 |   ✅   | **PocketFi, MuskEmpire, HamsterKombat**       |
 |   ✅   | **OKX Racer, Lost Dogs, Major**                       |
-|   ✅   | **Nomis**                      |
+|   ✅   | **Nomis, Cats**                      |
 |   ⌛   |                               |
 
 ## Requirements
@@ -51,38 +51,37 @@
      
    - If you want to turn off some bots, you can do it by select False in the corresponding line in CONNECTED_BOTS, for example:
      ```python
-     CONECTED_BOTS = {
-        "./1_blum" : True,
-        "./2_cryptorank" : False,
-        "./3_yescoin" : True,
-        "./4_tapswap" : True,
-        "./5_dotcoin" : False,
-        "./6_pocketfi" : True,
-        "./7_muskempire" : False,
-        "./8_hamsterkombat" : True,
-        "./9_okxracer" : False,
-        "./10_lostdogs" : True,
-     }
+      CONECTED_BOTS = {
+          "./1_blum" : True,
+          "./2_cryptorank" : False
+          "./3_yescoin" : True,
+          "./4_dotcoin" : False,
+          "./5_pocketfi" : True,
+          "./6_muskempire" : False,
+          "./7_hamsterkombat" : True,
+          "./8_okxracer" : True,
+          "./9_lostdogs" : False,
+          "./10_major" : False,
+          "./11_nomis" : False,
+          "./12_cats" : True,
+      }
 
      ```
 
    - if you want to receive logs from each of the bots, set `USE_TG_BOT = True`, specify your `CHAT_ID`, and specify a token from `@BotFather` for each of the bots:
      ```python
-     USE_TG_BOT = False
-     CHAT_ID = '237856'
-     # api tokens for tg bots, if USE_TH_BOT=True (get in @BotFather)
-     BLUM_BOT_TOKEN = '87265743:JKFDHad'
-     ONEWIN_BOT_TOKEN = '87265743:JKFDHad'
-     CRYPTORANK_BOT_TOKEN = '87265743:JKFDHad'
-     YESCOIN_BOT_TOKEN = '87265743:JKFDHad'
-     TAPSWAP_BOT_TOKEN = '87265743:JKFDHad'
-     DOTCOIN_BOT_TOKEN = '87265743:JKFDHad'
-     POCKETFI_BOT_TOKEN = '87265743:JKFDHad'
-     MUSKEMPIRE_BOT_TOKEN = '87265743:JKFDHad'
-     HAMSTERKOMBAT_BOT_TOKEN = '87265743:JKFDHad'
-     DOGSHOUSE_BOT_TOKEN = '87265743:JKFDHad'
-     OKXRACER_BOT_TOKEN = '87265743:JKFDHad'
-     LOSTDOGS_BOT_TOKEN = '87265743:JKFDHad'
+      BLUM_BOT_TOKEN = '87265743:JKFDHad'
+      CRYPTORANK_BOT_TOKEN = '87265743:JKFDHad'
+      YESCOIN_BOT_TOKEN = '87265743:JKFDHad'
+      DOTCOIN_BOT_TOKEN = '87265743:JKFDHad'
+      POCKETFI_BOT_TOKEN = '87265743:JKFDHad'
+      MUSKEMPIRE_BOT_TOKEN = '87265743:JKFDHad'
+      HAMSTERKOMBAT_BOT_TOKEN = '87265743:JKFDHad'
+      OKXRACER_BOT_TOKEN = '87265743:JKFDHad'
+      LOSTDOGS_BOT_TOKEN = '87265743:JKFDHad'
+      MAJOR_BOT_TOKEN = '87265743:JKFDHad'
+      NOMIS_BOT_TOKEN = '87265743:JKFDHad'
+      CATS_BOT_TOKEN = '87265743:JKFDHad'
      ```
 
 4. Creating proxies:
