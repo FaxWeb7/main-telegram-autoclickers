@@ -1,5 +1,6 @@
 import os
 import asyncio
+import argparse
 import pyrogram
 import subprocess
 from contextlib import suppress
@@ -85,8 +86,15 @@ async def run_script(script_name):
 
 async def process():
     print(message)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-a', '--action', type=str, help='Action')
+    startOperation = parser.parse_args().action
+
     while True:
-        operation = int(input("Select an action:\n1 -> Actions with sessions\n2 -> Actions with proxies\n3 -> Run bots\n4 -> Exit\n"))
+        if (startOperation != None): 
+            operation = startOperation
+            startOperation = None
+        else: operation = int(input("Select an action:\n1 -> Actions with sessions\n2 -> Actions with proxies\n3 -> Run bots\n4 -> Exit\n"))
 
         if (operation == 1):
             sessionOperation = int(input("Select an action with sessions: \n1 -> Add one session from ./global_data/sessions/\n2 -> Add all sessions from ./global_data/sessions/\n3 -> Remove one session from all ./tapalka/sessions\n4 -> Remove all sessions from all ./tapalka/sessions\n5 -> Create new session\n6 -> Exit\n"))
