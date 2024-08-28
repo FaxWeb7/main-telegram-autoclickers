@@ -19,6 +19,7 @@ CONECTED_BOTS = {
     "./9_lostdogs" : True,
     "./10_major" : True,
     "./11_nomis" : True,
+    "./12_cats" : True,
 }
 
 USE_TG_BOT = False
@@ -35,6 +36,7 @@ OKXRACER_BOT_TOKEN = '87265743:JKFDHad'
 LOSTDOGS_BOT_TOKEN = '87265743:JKFDHad'
 MAJOR_BOT_TOKEN = '87265743:JKFDHad'
 NOMIS_BOT_TOKEN = '87265743:JKFDHad'
+CATS_BOT_TOKEN = '87265743:JKFDHad'
 
 # don't change
 message = """
@@ -54,6 +56,7 @@ petyaPaths = [
     './8_okxracer',
     './10_major',
     './11_nomis',
+    './12_cats',
 ]
 shamhiPaths = [
     './4_dotcoin',
