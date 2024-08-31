@@ -89,7 +89,7 @@ async def process():
     parser = argparse.ArgumentParser()
     parser.add_argument('-a', '--action', type=str, help='Action')
     startOperation = parser.parse_args().action
-
+    if (startOperation): startOperation = int(startOperation)
     while True:
         if (startOperation != None): 
             operation = startOperation
