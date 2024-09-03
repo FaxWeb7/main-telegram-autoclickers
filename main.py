@@ -75,7 +75,8 @@ async def run_script(script_name):
             if not line:
                 break
             pref = f'{Fore.GREEN}[{prefix}]'
-            print(f'{pref:<{23}} | {Style.RESET_ALL}{line.decode().rstrip()}')
+            if os.name == "nt": print(f'{pref:<{23}} | {Style.RESET_ALL}{line.decode("cp1251").rstrip()}')
+            else: print(f'{pref:<{23}} | {Style.RESET_ALL}{line.decode().rstrip()}')
     
     await asyncio.gather(
         read_stream(process.stdout, script_name.upper()[2:]),
