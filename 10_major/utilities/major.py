@@ -126,7 +126,7 @@ class MajorBot:
                         print("e = ", e)
                     await self.client.disconnect()
                     
-                await asyncio.sleep(1)
+                await asyncio.sleep(randint(10, 20))
             json_data = {
                 'task_id': task['id']
             }
@@ -135,7 +135,7 @@ class MajorBot:
                 resp_json = resp.json()
                 if 'task_id' in resp_json:
                     logger.info(f"Thread {self.thread} | {self.account} | Try task {resp_json['task_id']}")
-                    await asyncio.sleep(2)
+                    await asyncio.sleep(randint(10, 30))
             else:
                 logger.error(f"Thread {self.thread} | {self.account} | Error {resp.status_code}")
     
@@ -154,6 +154,21 @@ class MajorBot:
 
         except Exception as e:
             logger.error(f"Thread {self.thread} | {self.account} | Holding coin error: {e}")
+    async def claim_swipe_coins(self, headers):
+        try:
+            response = await self.session.get('https://major.glados.app/api/swipe_coin/', headers=headers)
+            if response and response.get('success') is True:
+                logger.info(f"Thread {self.thread} | {self.account} | Swiping coin...")
+                coins = randint(500, 700)
+                payload = {"coins": coins }
+                await asyncio.sleep(55)
+                response = await self.session.pos('https://major.glados.app/api/swipe_coin/', headers=headers, json=payload)
+                if response and response.get('success') is True:
+                    logger.success(f"Thread {self.thread} | {self.account} | Swipe coin success: +{coins}")
+        
+        except Exception as e:
+            logger.error(f"Thread {self.thread} | {self.account} | Swipe coin error: {e}")
+        
     async def login(self):
         query = await self.get_tg_web_data()
         headers = {
@@ -168,6 +183,7 @@ class MajorBot:
             'Accept': 'application/json, text/plain, */*',
             'Content-Type': 'application/json',
             'Origin': 'https://major.glados.app',
+            'Referer': 'https://major.glados.app/',
             'Sec-Fetch-Site': 'same-origin',
             'Sec-Fetch-Mode': 'cors',
             'Sec-Fetch-Dest': 'empty',
@@ -179,7 +195,7 @@ class MajorBot:
             'init_data': query
         }
         # print(f'query {self.account} :', query)
-        await asyncio.sleep(2)
+        await asyncio.sleep(randint(10, 20))
         resp = await self.session.post('https://major.glados.app/api/auth/tg/', json=json_data, headers=headers)
         resp_json = resp.json()
         user_id = ''
@@ -191,38 +207,42 @@ class MajorBot:
 
         resp = await self.session.post('https://major.glados.app/api/user-visits/visit/?', headers=headers)
         resp_json = resp.json()
-        await asyncio.sleep(3)
+        await asyncio.sleep(randint(10, 20))
 
         resp = await self.session.get("https://major.glados.app/api/tasks/?is_daily=true", headers=headers)
         resp_json_daily = resp.json()
         logger.info(f"Thread {self.thread} | {self.account} | Daily tasks, {[task['title'] for task in resp_json_daily]}")
-        await asyncio.sleep(10)
+        await asyncio.sleep(randint(10, 20))
         await self.make_task(resp_json_daily, headers)
 
         resp_json_daily = resp.json()
         logger.info(f"Thread {self.thread} | {self.account} | Repeat Daily tasks, {[task['title'] for task in resp_json_daily]}")
-        await asyncio.sleep(10)
+        await asyncio.sleep(randint(10, 20))
         await self.make_task(resp_json_daily, headers)
 
         resp = await self.session.get("https://major.glados.app/api/tasks/?is_daily=false", headers=headers)
         resp_json_not_daily = resp.json()
         logger.info(f"Thread {self.thread} | {self.account} | Not Daily tasks, {[task['title'] for task in resp_json_not_daily]}")
-        await asyncio.sleep(1)
+        await asyncio.sleep(randint(10, 20))
         await self.make_task(resp_json_not_daily, headers)
 
         resp = await self.session.post("https://major.glados.app/api/roulette?", headers=headers)
         resp_json_not_daily = resp.json()
         logger.success(f"Thread {self.thread} | {self.account} | Roulette done")
-        await asyncio.sleep(1)
+        await asyncio.sleep(randint(10, 20))
 
         await self.hold_coin_task(headers)
 
-        await asyncio.sleep(1)
+        await asyncio.sleep(randint(10, 20))
+
+        await self.claim_swipe_coins(headers)
+
+        await asyncio.sleep(randint(10, 20))
         try:
             resp = await self.session.get(f'https://major.glados.app/api/users/{user_id}/', headers=headers)
             resp_json = resp.json()
             rating = resp_json['rating']
-            await asyncio.sleep(1)
+            await asyncio.sleep(randint(10, 20))
             resp = await self.session.get(f'https://major.glados.app/api/users/top/position/{user_id}/?', headers=headers)
             resp_json = resp.json()
             position = resp_json['position']
