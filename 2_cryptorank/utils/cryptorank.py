@@ -93,7 +93,7 @@ class CryptoRank:
             resp = await self.session.get('https://api.cryptorank.io/v0/tma/account/tasks',proxy=self.proxy)
             tasks = await resp.json()
             for task in tasks:
-                if task['isRepeatable'] == False and task['lastClaim'] != None:
+                if task['isDone'] == True:
                     continue
                 if task['id'] == 'e7dae272-7d17-4543-9a30-92f071439210':
                     continue
