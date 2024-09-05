@@ -43,6 +43,11 @@ class Settings(BaseSettings):
     APPLY_DAILY_MINI_GAME: bool = True
     APPLY_DAILY_ENERGY: bool = True
 
+    SLEEP_MINI_GAME_TILES: list[int] = [600, 900]
+    SCORE_MINI_GAME_TILES: list[int] = [300, 500]
+    GAMES_COUNT: list[int] = [1, 10]
+    MIN_PROFIT: int = 1000
+
     USE_RANDOM_MINI_GAME_KEY: bool = True
     AUTO_COMPLETE_TASKS: bool = True
 
