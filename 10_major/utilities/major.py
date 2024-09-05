@@ -143,7 +143,7 @@ class MajorBot:
         try:
             resp = await self.session.get('https://major.glados.app/api/bonuses/coins/', headers=headers)
             resp_json = resp.json()
-            if resp_json['is_available'] == True:
+            if resp_json['success'] == True:
                 logger.info(f"Thread {self.thread} | {self.account} | Holding coin...")
                 await asyncio.sleep(60)
                 coinsNum = randint(700, 830)
@@ -157,13 +157,15 @@ class MajorBot:
     async def claim_swipe_coins(self, headers):
         try:
             response = await self.session.get('https://major.glados.app/api/swipe_coin/', headers=headers)
-            if response and response.get('success') is True:
+            resp_json = response.json()
+            if resp_json['success'] == True:
                 logger.info(f"Thread {self.thread} | {self.account} | Swiping coin...")
                 coins = randint(500, 700)
                 payload = {"coins": coins }
                 await asyncio.sleep(55)
-                response = await self.session.pos('https://major.glados.app/api/swipe_coin/', headers=headers, json=payload)
-                if response and response.get('success') is True:
+                response = await self.session.post('https://major.glados.app/api/swipe_coin/', headers=headers, json=payload)
+                resp_json = response.json()
+                if resp_json['success'] == True:
                     logger.success(f"Thread {self.thread} | {self.account} | Swipe coin success: +{coins}")
         
         except Exception as e:
