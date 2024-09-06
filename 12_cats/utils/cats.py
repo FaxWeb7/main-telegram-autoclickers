@@ -132,39 +132,55 @@ class Cats:
         resp_json = await resp.json()
         try:
             for task in resp_json['tasks']:
-                if task['id'] in [36,45,5,4,3,2,49]:
+                if task['id'] in [5,4,3,2,57]:
                     continue
                 if not task['completed']:
                     if task['type'] == 'SUBSCRIBE_TO_CHANNEL':
                         link = task['params']['channelUrl']
+                        if 'https://t.me/+' in link:
+                            continue
                         async with self.client:
                             try:
-                                await self.client.join_chat(link)
+                                await self.client.join_chat(task)
                             except:
                                 await self.client.join_chat(link.replace('https://t.me/',''))
                             await asyncio.sleep(random.uniform(*config.MINI_SLEEP))
                             
-                            response = await self.session.post(f'https://cats-backend-cxblew-prod.up.railway.app/tasks/{task["id"]}/check', proxy=self.proxy)
-                            response = await self.session.post(f'https://cats-backend-cxblew-prod.up.railway.app/tasks/{task["id"]}/complete', proxy=self.proxy)
-                            logger.success(f"do_task | Thread {self.thread} | {self.name} | Claim task {task['title']}")
-                            await asyncio.sleep(random.uniform(*config.TASK_SLEEP))
+                            try:
+                                response = await self.session.post(f'https://cats-backend-cxblew-prod.up.railway.app/tasks/{task["id"]}/check', proxy=self.proxy)
+                                json_data = {}
+                                response = await self.session.post(f'https://cats-backend-cxblew-prod.up.railway.app/tasks/{task["id"]}/complete', proxy=self.proxy, json=json_data)
+                                response = await response.json()
+                                if response['success']:
+                                    logger.success(f"do_task | Thread {self.thread} | {self.name} | Claim task {task['title']}")
+                                await asyncio.sleep(random.uniform(*config.TASK_SLEEP))
+                            except Exception as err:
+                                logger.error(f"tasks | Thread {self.thread} | {self.name} | {err}")
                     else:
-                        response = await self.session.post(f'https://cats-backend-cxblew-prod.up.railway.app/tasks/{task["id"]}/complete', proxy=self.proxy)
-                        resp = await response.json()
-                        if resp['success']:
-                            logger.success(f"do_task | Thread {self.thread} | {self.name} | Claim task {task['title']}")
+                        try:
+                            json_data = {}
+                            response = await self.session.post(f'https://cats-backend-cxblew-prod.up.railway.app/tasks/{task["id"]}/complete', proxy=self.proxy, json=json_data)
+                            resp = await response.json()
+                            if resp['success']:
+                                logger.success(f"do_task | Thread {self.thread} | {self.name} | Claim task {task['title']}")
+                        except Exception as err:
+                            logger.error(f"tasks | Thread {self.thread} | {self.name} | {err}")
                         await asyncio.sleep(random.uniform(*config.TASK_SLEEP))
                 tasks = await self.session.get('https://cats-backend-cxblew-prod.up.railway.app/tasks/user?group=bitget',proxy=self.proxy)
                 tasks = (await tasks.json())['tasks']
                 for task in tasks:
                     if not task['completed']:
-                        response = await self.session.post(f'https://cats-backend-cxblew-prod.up.railway.app/tasks/{task["id"]}/complete', proxy=self.proxy)
-                        response = (await response.json())
+                        try:
+                            json_data = {}
+                            response = await self.session.post(f'https://cats-backend-cxblew-prod.up.railway.app/tasks/{task["id"]}/complete', proxy=self.proxy, json=json_data)
+                            response = (await response.json())
+                        except Exception as err:
+                            logger.error(f"tasks | Thread {self.thread} | {self.name} | {err}")
                         if response['success']:
                             logger.success(f"do_task | Thread {self.thread} | {self.name} | Claim task {task['title']}")
                         await asyncio.sleep(random.uniform(*config.TASK_SLEEP))
                         
         except Exception as err:
-            logger.error(f"tasks | Thread {self.thread} | {self.name} | {err}")
+            logger.error(f"tasks | Thread {self.thread} | {self.name} | {err} {task}")
     
  
