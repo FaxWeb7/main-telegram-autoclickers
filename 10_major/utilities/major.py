@@ -138,6 +138,7 @@ class MajorBot:
                     await asyncio.sleep(randint(10, 30))
             else:
                 logger.error(f"Thread {self.thread} | {self.account} | Error {resp.status_code}")
+            await asyncio.sleep(randint(80, 200))
     
     async def hold_coin_task(self, headers):
         try:
