@@ -16,6 +16,7 @@ spec.loader.exec_module(modu)
 import global_config
 
 def get_proxy_dict(proxy: str):
+    if (not global_config.USE_PROXY): return None
     try:
         proxy = Proxy.from_str(proxy=proxy.strip())
 
