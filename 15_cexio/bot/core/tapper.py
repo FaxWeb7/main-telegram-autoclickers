@@ -1,31 +1,63 @@
 import asyncio
-from urllib.parse import unquote
+from datetime import datetime
+from time import time
+from urllib.parse import unquote, quote
 
 import aiohttp
+import pytz
 from aiocfscrape import CloudflareScraper
 from aiohttp_proxy import ProxyConnector
 from better_proxy import Proxy
 from pyrogram import Client
 from pyrogram.errors import Unauthorized, UserDeactivated, AuthKeyUnregistered, FloodWait
+from pyrogram.raw import functions
 from pyrogram.raw.functions.messages import RequestWebView
-
 from fake_useragent import UserAgent
 from bot.config import settings
+
 from bot.utils import logger
 from bot.exceptions import InvalidSession
 from .headers import headers
-from datetime import datetime, timedelta, timezone
-from random import shuffle, randint
-import json
 
+from random import randint, uniform
+import traceback
+
+# api endpoint
+api_profile = 'https://cexp.cex.io/api/v2/getUserInfo/'  # POST
+api_convert = 'https://cexp.cex.io/api/v2/convert/'  # POST
+api_claimBTC = 'https://cexp.cex.io/api/v2/claimCrypto/'  # POST
+api_tap = 'https://cexp.cex.io/api/v2/claimMultiTaps'  # POST
+api_data = 'https://cexp.cex.io/api/v2/getGameConfig'  # post
+api_priceData = 'https://cexp.cex.io/api/v2/getConvertData'  # post
+api_claimRef = 'https://cexp.cex.io/api/v2/claimFromChildren'  # post
+api_checkref = 'https://cexp.cex.io/api/v2/getChildren'  # post
+api_startTask = 'https://cexp.cex.io/api/v2/startTask'  # post
+api_checkTask = 'https://cexp.cex.io/api/v2/checkTask'  # post
+api_claimTask = 'https://cexp.cex.io/api/v2/claimTask'  # post
+api_checkCompletedTask = 'https://cexp.cex.io/api/v2/getUserTasks' # post
+api_getUserCard = 'https://cexp.cex.io/api/v2/getUserCards' #post
+api_buyUpgrade = 'https://cexp.cex.io/api/v2/buyUpgrade' #post
 
 class Tapper:
     def __init__(self, tg_client: Client):
-        self.session_name = tg_client.name
         self.tg_client = tg_client
-        self.user_id = 0
+        self.session_name = tg_client.name
+        self.first_name = ''
+        self.last_name = ''
+        self.user_id = ''
+        self.Total_Point_Earned = 0
+        self.Total_Game_Played = 0
+        self.btc_balance = 0
+        self.coin_balance = 0
+        self.task = None
+        self.card = None
+        self.startedTask = []
+        self.skip = ['register_on_cex_io']
+        self.card1 = None
+        self.potential_card = {}
 
     async def get_tg_web_data(self, proxy: str | None) -> str:
+        logger.info(f"Getting data for {self.session_name}")
         if proxy:
             proxy = Proxy.from_str(proxy)
             proxy_dict = dict(
@@ -41,21 +73,10 @@ class Tapper:
         self.tg_client.proxy = proxy_dict
 
         try:
-            with_tg = True
-
             if not self.tg_client.is_connected:
-                with_tg = False
                 try:
                     await self.tg_client.connect()
-                    start_command_found = False
 
-                    async for message in self.tg_client.get_chat_history('cexio_tap_bot'):
-                        if (message.text and message.text.startswith('/start')) or (message.caption and message.caption.startswith('/start')):
-                            start_command_found = True
-                            break
-
-                    if not start_command_found:
-                        await self.tg_client.send_message("cexio_tap_bot", f"/start 1724345287669959")
                 except (Unauthorized, UserDeactivated, AuthKeyUnregistered):
                     raise InvalidSession(self.session_name)
 
@@ -66,8 +87,8 @@ class Tapper:
                 except FloodWait as fl:
                     fls = fl.value
 
-                    logger.warning(f"{self.session_name} | FloodWait {fl}")
-                    logger.info(f"{self.session_name} | Sleep {fls}s")
+                    logger.warning(f"<light-yellow>{self.session_name}</light-yellow> | FloodWait {fl}")
+                    logger.info(f"<light-yellow>{self.session_name}</light-yellow> | Sleep {fls}s")
 
                     await asyncio.sleep(fls + 3)
 
@@ -76,226 +97,30 @@ class Tapper:
                 bot=peer,
                 platform='android',
                 from_bot_menu=False,
-                url='https://cexp.cex.io/'
+                start_param='1724345287669959',
+                url="https://cexp2.cex.io/",
             ))
 
             auth_url = web_view.url
             tg_web_data = unquote(
-                string=unquote(
-                    string=auth_url.split('tgWebAppData=', maxsplit=1)[1].split('&tgWebAppVersion', maxsplit=1)[0]))
+                string=unquote(string=auth_url.split('tgWebAppData=')[1].split('&tgWebAppVersion')[0]))
 
-            self.user_id = (await self.tg_client.get_me()).id
+            self.user_id = tg_web_data.split('"id":')[1].split(',"first_name"')[0]
+            self.first_name = tg_web_data.split('"first_name":"')[1].split('","last_name"')[0]
+            self.last_name = tg_web_data.split('"last_name":"')[1].split('","username"')[0]
 
-            if with_tg is False:
+            if self.tg_client.is_connected:
                 await self.tg_client.disconnect()
 
-            return tg_web_data
+            return unquote(string=auth_url.split('tgWebAppData=')[1].split('&tgWebAppVersion')[0])
 
         except InvalidSession as error:
             raise error
 
         except Exception as error:
-            logger.error(f"{self.session_name} | Unknown error during Authorization: {error}")
+            logger.error(f"<light-yellow>{self.session_name}</light-yellow> | Unknown error during Authorization: "
+                         f"{error}")
             await asyncio.sleep(delay=3)
-
-    async def startTasks(self, http_client: aiohttp.ClientSession, task_list, tg_web_data: str):
-        try:
-            shuffle(task_list)
-            results = []
-            for task_id in task_list:
-                response = await http_client.post(url='https://cexp.cex.io/api/startTask',
-                                                  json={'authData': tg_web_data, 'devAuthData': self.user_id,
-                                                        'data': {'taskId': task_id}})
-                response_text = await response.text()
-                response.raise_for_status()
-                data = json.loads(response_text)
-                if data["status"] == "ok":
-                    results.append(True)
-                else:
-                    logger.info(f'{self.session_name} | Непредвиденная ошибка')
-                    results.append(False)
-            return results
-        except Exception as error:
-            logger.error(f"{self.session_name} | Unknown error when starting tasks, {error}")
-            await asyncio.sleep(delay=3)
-            return [error] * len(task_list)
-
-    async def checkTasks(self, http_client: aiohttp.ClientSession, task_list, tg_web_data: str):
-        try:
-            shuffle(task_list)
-            results = []
-            for task_id in task_list:
-                response = await http_client.post(url='https://cexp.cex.io/api/checkTask',
-                                                  json={'authData': tg_web_data, 'devAuthData': self.user_id,
-                                                        'data': {'taskId': task_id}})
-                response_text = await response.text()
-                response.raise_for_status()
-                data = json.loads(response_text)
-                if data["status"] == "ok":
-                    results.append(True)
-                else:
-                    logger.info(f'{self.session_name} | Непредвиденная ошибка')
-                    results.append(False)
-            return results
-        except Exception as error:
-            logger.error(f"{self.session_name} | Unknown error when claiming tasks, {error}")
-            await asyncio.sleep(delay=3)
-            return [error] * len(task_list)
-
-    async def claimTasks(self, http_client: aiohttp.ClientSession, task_list, tg_web_data: str):
-        try:
-            shuffle(task_list)
-            results = []
-            for task_id in task_list:
-                response = await http_client.post(url='https://cexp.cex.io/api/claimTask',
-                                                  json={'authData': tg_web_data, 'devAuthData': self.user_id,
-                                                        'data': {'taskId': task_id}})
-                response_text = await response.text()
-                response.raise_for_status()
-                data = json.loads(response_text)
-                if data["status"] == "ok":
-                    results.append(True)
-                else:
-                    logger.info(f'{self.session_name} | Непредвиденная ошибка')
-                    results.append(False)
-            return results
-        except Exception as error:
-            logger.error(f"{self.session_name} | Unknown error when claiming tasks, {error}")
-            await asyncio.sleep(delay=3)
-            return [error] * len(task_list)
-
-    async def getTasks(self, http_client: aiohttp.ClientSession, tg_web_data: str):
-        try:
-            none_tasks = []
-            ready_to_check_tasks = []
-            response = await http_client.post(url='https://cexp.cex.io/api/getUserInfo',
-                                              json={'authData': tg_web_data, 'devAuthData': int(self.user_id),
-                                                    'data': {}, 'platform': 'ios'})
-            response_text = await response.text()
-            response.raise_for_status()
-            data = json.loads(response_text)
-            if data["status"] == "ok":
-                response_text = response_text.replace('\n', '')
-                tasks = json.loads(response_text).get("data", {}).get("tasks", {})
-                for task_id, task_info in tasks.items():
-                    priority = task_info.get("priority", 0)
-                    state = task_info.get("state", "")
-
-                    if 13 <= priority <= 30:
-                        if state == "NONE":
-                            none_tasks.append(task_id)
-                        elif state == "ReadyToCheck":
-                            ready_to_check_tasks.append(task_id)
-                return none_tasks, ready_to_check_tasks
-            else:
-                logger.info(f'{self.session_name} | Непредвиденная ошибка')
-                return [], []
-        except Exception as error:
-            logger.error(f"{self.session_name} | Unknown error when getting tasks, {error}")
-            await asyncio.sleep(delay=3)
-            return [], []
-
-    async def claim_ref(self, http_client: aiohttp.ClientSession, part, tg_web_data: str):
-        try:
-            if part == 1:
-                response = await http_client.post(url='	https://cexp.cex.io/api/getChildren',
-                                              json={'authData': tg_web_data, 'devAuthData': self.user_id,
-                                                    'data': {}})
-                response_text = await response.text()
-                response.raise_for_status()
-                data = json.loads(response_text)
-                return data
-            elif part == 2:
-                response = await http_client.post(url='	https://cexp.cex.io/api/claimFromChildren',
-                                                  json={'authData': tg_web_data, 'devAuthData': self.user_id,
-                                                        'data': {}})
-                response_text = await response.text()
-                response.raise_for_status()
-                data = json.loads(response_text)
-                status = data['status']
-                return data
-        except Exception as error:
-            logger.error(f"{self.session_name} | Unknown error when claiming squad awards, {error}")
-            await asyncio.sleep(delay=3)
-
-            return error
-
-    async def claim_taps(self, http_client: aiohttp.ClientSession, taps, tg_web_data: str) -> bool:
-        try:
-            response = await http_client.post(url='https://cexp.cex.io/api/claimTaps',
-                                              json={'authData': tg_web_data, 'devAuthData': self.user_id,
-                                                    'data': {'taps': taps}})
-            response_text = await response.text()
-            response.raise_for_status()
-            data = json.loads(response_text)
-            if data["status"] == "ok":
-                return True
-            else:
-                logger.info(f'{self.session_name} | Непредвиденная ошибка')
-                return False
-        except Exception as error:
-            logger.error(f"{self.session_name} | Unknown error when claim taps, {error}")
-            await asyncio.sleep(delay=3)
-
-            return False
-
-    async def start_farm(self, http_client: aiohttp.ClientSession, tg_web_data: str) -> bool:
-        try:
-            response = await http_client.post(url='https://cexp.cex.io/api/startFarm',
-                                              json={'authData': tg_web_data, 'devAuthData': self.user_id,
-                                                    'data': {}})
-            response_text = await response.text()
-            response.raise_for_status()
-            data = json.loads(response_text)
-            if data["status"] == "ok":
-                return True
-            else:
-                logger.info(f'{self.session_name} | Непредвиденная ошибка')
-                return False
-        except Exception as error:
-            logger.error(f"{self.session_name} | Unknown error when starting farm, {error}")
-            await asyncio.sleep(delay=3)
-
-            return False
-
-    async def claim_farm(self, http_client: aiohttp.ClientSession, tg_web_data: str):
-        try:
-            response = await http_client.post(url='https://cexp.cex.io/api/claimFarm',
-                                              json={'authData': tg_web_data, 'devAuthData': self.user_id,
-                                                    'data': {}})
-            response_text = await response.text()
-            response.raise_for_status()
-            data = json.loads(response_text)
-            if data["status"] == "ok":
-                return "ok"
-            elif data["status"] == "error":
-                return data["data"]["reason"]
-            else:
-                logger.info(f'{self.session_name} | Непредвиденная ошибка')
-                return False
-        except Exception as error:
-            logger.error(f"{self.session_name} | Unknown error when claiming farm, {error}")
-            await asyncio.sleep(delay=3)
-
-            return error
-
-    async def profile_data(self, http_client: aiohttp.ClientSession, tg_web_data: str):
-        try:
-            response = await http_client.post(url='https://cexp.cex.io/api/getUserInfo',
-                                              json={'authData': tg_web_data, 'devAuthData': int(self.user_id),
-                                                    'data': {}, 'platform': 'ios'})
-            response_text = await response.text()
-            response.raise_for_status()
-            data = json.loads(response_text)
-            if data:
-                return data
-            else:
-                logger.error('Data error get')
-        except Exception as error:
-            logger.error(f"{self.session_name} | Unknown error when getting data, {error}")
-            await asyncio.sleep(delay=3)
-
-            return error
 
     async def check_proxy(self, http_client: aiohttp.ClientSession, proxy: Proxy) -> None:
         try:
@@ -305,119 +130,408 @@ class Tapper:
         except Exception as error:
             logger.error(f"{self.session_name} | Proxy: {proxy} | Error: {error}")
 
+    async def get_user_info(self, http_client: aiohttp.ClientSession, authToken):
+        data = {
+            "devAuthData": int(self.user_id),
+            "authData": str(authToken),
+            "platform": "android",
+            "data": {}
+        }
+        response = await http_client.post(api_profile, json=data)
+        if response.status == 200:
+            try:
+                json_response = await response.json()
+                data_response = json_response['data']
+                self.coin_balance = data_response['balance_USD']
+                logger.info(
+                    f"Account name: {data_response['first_name']} - Balance: <yellow>{data_response['balance_USD']}</yellow> - Btc balance: <yellow>{int(data_response['balance_BTC']) / 100000}</yellow> - Power: <yellow>{data_response['balance_CEXP']}</yellow> CEXP")
+            except Exception as e:
+                logger.error(f"Error while getting user data: {e} .Try again after 30s")
+                await asyncio.sleep(30)
+                return
+        else:
+            json_response = await response.json()
+            print(json_response)
+            logger.error(f"Error while getting user data. Response {response.status}. Try again after 30s")
+            await asyncio.sleep(30)
+
+    async def tap(self, http_client: aiohttp.ClientSession, authToken, taps):
+        time_unix = int((time()) * 1000)
+        data = {
+            "devAuthData": int(self.user_id),
+            "authData": str(authToken),
+            "platform": "android",
+            "data": {
+                "tapsEnergy": "1000",
+                "tapsToClaim": str(taps),
+                "tapsTs": time_unix
+            }
+        }
+        # print(int((time()) * 1000) - time_unix)
+        response = await http_client.post(api_tap, json=data)
+        if response.status == 200:
+            json_response = await response.json()
+            data_response = json_response['data']
+            self.coin_balance = data_response['balance_USD']
+            logger.info(f"{self.session_name} | Tapped <cyan>{taps}</cyan> times | Coin balance: <cyan>{data_response['balance_USD']}</cyan>")
+        else:
+
+            json_response = await response.json()
+            if "too slow" in json_response['data']['reason']:
+                logger.error(f'{self.session_name} | <red> Tap failed - please stop the code and open the bot in telegram then tap 1-2 times and run this code again. it should be worked!</red>')
+            else:
+                print(json_response)
+                logger.error(f'{self.session_name} | <red> Tap failed - response code: {response.status}</red>')
+
+    async def claim_crypto(self, http_client: aiohttp.ClientSession, authToken):
+        data = {
+            "devAuthData": int(self.user_id),
+            "authData": str(authToken),
+            "platform": "android",
+            "data": {}
+        }
+        response = await http_client.post(api_claimBTC, json=data)
+        if response.status == 200:
+            json_response = await response.json()
+            data_response = json_response['data']["BTC"]
+            try:
+                self.btc_balance = int(data_response['balance_BTC']) / 100000
+            except:
+                return None
+            logger.info(
+                f"{self.session_name} | Claimed <cyan>{int(data_response['claimedAmount']) / 100000}</cyan> BTC | BTC Balance: <cyan>{int(data_response['balance_BTC']) / 100000}</cyan>")
+        else:
+            logger.error(f"{self.session_name} | <red>Claim BTC failed - response code: {response.status}</red>")
+
+    async def getConvertData(self, http_client: aiohttp.ClientSession, authToken):
+        data = {
+            "devAuthData": int(self.user_id),
+            "authData": str(authToken),
+            "platform": "android",
+            "data": {}
+        }
+        response = await http_client.post(api_priceData, json=data)
+        if response.status == 200:
+            json_response = await response.json()
+            data_response = json_response['convertData']['lastPrices']
+            return data_response[-1]
+        else:
+            logger.error(f"{self.session_name} | <red> Can convert !| Error code: {response.status}")
+            return None
+
+    async def convertBTC(self, http_client: aiohttp.ClientSession, authToken):
+        price = await self.getConvertData(http_client, authToken)
+        if price:
+            data = {
+                "devAuthData": int(self.user_id),
+                "authData": str(authToken),
+                "platform": "android",
+                "data": {
+                    "fromCcy": "BTC",
+                    "toCcy": "USD",
+                    "price": str(price),
+                    "fromAmount": str(self.btc_balance)
+                }
+            }
+            response = await http_client.post(api_convert, json=data)
+            if response.status == 200:
+                json_response = await response.json()
+                data_response = json_response['convert']
+                self.coin_balance = data_response['balance_USD']
+                logger.success(
+                    f"{self.session_name} | <green> Successfully convert <yellow>{self.btc_balance}</yellow> to <yellow>{float(self.btc_balance)*float(price)}</yellow> coin - Coin balance: <yellow>{data_response['balance_USD']}</yellow></green>")
+            else:
+                logger.error(f"{self.session_name} | <red>Error code {response.status} While trying to convert...</red>")
+
+    async def checkref(self, http_client: aiohttp.ClientSession, authToken):
+        data = {
+            "devAuthData": int(self.user_id),
+            "authData": str(authToken),
+            "platform": "android",
+            "data": {}
+        }
+        response = await http_client.post(api_checkref, json=data)
+        if response.status == 200:
+            json_response = await response.json()
+            return json_response['data']['totalRewardsToClaim']
+        else:
+            return 0
+
+    async def claim_pool(self, http_client: aiohttp.ClientSession, authToken):
+        data = {
+            "devAuthData": int(self.user_id),
+            "authData": str(authToken),
+            "platform": "android",
+            "data": {}
+        }
+        response = await http_client.post(api_claimRef, json=data)
+        if response.status == 200:
+            json_response = await response.json()
+            logger.success(
+                f"{self.session_name} | Successfully Claimed <yellow>{int(json_response['data']['claimed_BTC']) / 100000}</yellow> | BTC balance: <yellow>{json_response['data']['balance_BTC']}</yellow>")
+        else:
+            logger.error(f"{self.session_name} | <red>Error code {response.status} While trying to claim from pool</red>")
+
+    async def fetch_data(self, http_client: aiohttp.ClientSession, authToken):
+        data = {
+            "devAuthData": int(self.user_id),
+            "authData": str(authToken),
+            "platform": "android",
+            "data": {}
+        }
+        response = await http_client.post(api_data, json=data)
+        if response.status == 200:
+            json_response = await response.json(content_type=None)
+            self.task = json_response['tasksConfig']
+            self.card = json_response['upgradeCardsConfig']
+        else:
+            logger.error(f"{self.session_name} | <red>Error code {response.status} While trying to get data</red>")
+
+    async def getUserTask(self, http_client: aiohttp.ClientSession, authToken):
+        data = {
+            "devAuthData": int(self.user_id),
+            "authData": str(authToken),
+            "platform": "android",
+            "data": {}
+        }
+        response = await http_client.post(api_checkCompletedTask, json=data)
+        if response.status == 200:
+            json_response = await response.json()
+            completed_task = []
+            for task in json_response['tasks']:
+                if json_response['tasks'][task]['state'] == "Claimed":
+                    completed_task.append(task)
+                elif json_response['tasks'][task]['state'] == "ReadyToCheck":
+                    self.startedTask.append(task)
+            return completed_task
+        else:
+            logger.error(f"{self.session_name} | <red>Error code {response.status} While trying to get completed task</red>")
+            return None
+
+    async def claimTask(self, http_client: aiohttp.ClientSession, authToken, taskId):
+        data = {
+            "devAuthData": int(self.user_id),
+            "authData": str(authToken),
+            "platform": "android",
+            "data": {
+                "taskId": taskId
+            }
+        }
+        response = await http_client.post(api_claimTask, json=data)
+        if response.status == 200:
+            json_response = await response.json()
+            logger.success(f"{self.session_name} | <green>Successfully claimed <yellow>{json_response['data']['claimedBalance']}</yellow> from {taskId}</green>")
+        else:
+            logger.error(f"{self.session_name} | <red>Failed to claim {taskId}. Response: {response.status}</red>")
+
+    async def checkTask(self, http_client: aiohttp.ClientSession, authToken, taskId):
+        data = {
+            "devAuthData": int(self.user_id),
+            "authData": str(authToken),
+            "platform": "android",
+            "data": {
+                "taskId": taskId
+            }
+        }
+        response = await http_client.post(api_checkTask, json=data)
+        if response.status == 200:
+            json_response = await response.json()
+            if json_response['data']['state'] == "ReadyToClaim":
+                await self.claimTask(http_client, authToken, taskId)
+            else:
+                logger.info(f"{self.session_name} | {taskId} wait for check")
+        else:
+            logger.error(f"{self.session_name} | <red>Failed to check task {taskId}. Response: {response.status}</red>")
+
+    async def startTask(self, http_client: aiohttp.ClientSession, authToken, taskId):
+        data = {
+            "devAuthData": int(self.user_id),
+            "authData": str(authToken),
+            "platform": "android",
+            "data": {
+                "taskId": taskId
+            }
+        }
+        response = await http_client.post(api_startTask, json=data)
+        if response.status == 200:
+            logger.info(f"{self.session_name} | Successfully started task {taskId}")
+        else:
+            if response.status == 500:
+                self.skip.append(taskId)
+            logger.error(f"{self.session_name} | <red>Failed to start task {taskId}. Response: {response.status}</red>")
+
+    async def getUserCard(self, http_client: aiohttp.ClientSession, authToken):
+        data = {
+            "devAuthData": int(self.user_id),
+            "authData": str(authToken),
+            "platform": "android",
+            "data": {}
+        }
+        response = await http_client.post(api_getUserCard, json=data)
+        if response.status == 200:
+            json_response = await response.json()
+            self.card1 = json_response['cards']
+        else:
+           return None
+
+    async def find_potential(self):
+        for category in self.card:
+            for card in category['upgrades']:
+                # print(card)
+                if card['upgradeId'] in self.card1:
+                    card_lvl = self.card1[card['upgradeId']]['lvl']
+                    if len(card['levels']) >= card_lvl:
+                        continue
+                    if len(card['levels']) > 0:
+                        potential = card['levels'][card_lvl][0]/card['levels'][card_lvl][2]
+                        self.potential_card.update({
+                            potential: {
+                                "upgradeId": card['upgradeId'],
+                                "cost": card['levels'][card_lvl][0],
+                                "effect": card['levels'][card_lvl][2],
+                                "categoryId": category['categoryId'],
+                                "nextLevel": card_lvl + 1,
+                                "effectCcy": "CEXP",
+                                "ccy": "USD",
+                                "dependency": card['dependency']
+                            }
+                        })
+                else:
+                    if len(card['levels']) > 0:
+                        if card['levels'][0][2] != 0:
+                            potential = card['levels'][0][0]/card['levels'][0][2]
+                            self.potential_card.update({
+                                potential: {
+                                    "upgradeId":  card['upgradeId'],
+                                    "cost": card['levels'][0][0],
+                                    "effect": card['levels'][0][2],
+                                    "categoryId": category['categoryId'],
+                                    "nextLevel": 1,
+                                    "effectCcy": "CEXP",
+                                    "ccy": "USD",
+                                    "dependency": card['dependency']
+                                }
+                            })
+
+    def checkDependcy(self, dependency):
+        if len(dependency) == 0:
+            return True
+        if dependency['upgradeId'] not in self.card1:
+            return False
+        if self.card1[dependency['upgradeId']]['lvl'] >= dependency['level']:
+            return True
+        return False
+
+    async def buyUpgrade(self, http_client: aiohttp.ClientSession, authToken, Buydata):
+        data = {
+            "devAuthData": int(self.user_id),
+            "authData": str(authToken),
+            "platform": "android",
+            "data": {
+                "categoryId": Buydata['categoryId'],
+                "ccy": Buydata['ccy'],
+                "cost": Buydata['cost'],
+                "effect": Buydata['effect'],
+                "effectCcy": Buydata['effectCcy'],
+                "nextLevel": Buydata['nextLevel'],
+                "upgradeId": Buydata['upgradeId']
+            }
+        }
+        response = await http_client.post(api_buyUpgrade, json=data)
+        if response.status == 200:
+            logger.success(f"{self.session_name} | <green>Successfully upgraded <blue>{Buydata['upgradeId']}</blue> to level <blue>{Buydata['nextLevel']}</blue></green>")
+        else:
+            logger.error(f"{self.session_name} | <red>Error while upgrade card {Buydata['upgradeId']} to {Buydata['nextLevel']}. Response code: {response.status}</red>")
+
     async def run(self, proxy: str | None) -> None:
+        access_token_created_time = 0
         proxy_conn = ProxyConnector().from_url(proxy) if proxy else None
 
-        headers['User-Agent'] = UserAgent(os='android').random
-        async with CloudflareScraper(headers=headers, connector=proxy_conn) as http_client:
-            if proxy:
-                await self.check_proxy(http_client=http_client, proxy=proxy)
+        headers["user-agent"] = UserAgent(os='android').random
+        http_client = CloudflareScraper(headers=headers, connector=proxy_conn)
 
-            tg_web_data = await self.get_tg_web_data(proxy=proxy)
+        if proxy:
+            await self.check_proxy(http_client=http_client, proxy=proxy)
+        authToken = ""
+        token_live_time = randint(3500, 3600)
+        while True:
+            try:
+                if time() - access_token_created_time >= token_live_time or authToken == "":
+                    logger.info(f"{self.session_name} | Update auth token...")
+                    tg_web_data = await self.get_tg_web_data(proxy=proxy)
+                    # print(self.user_id)
+                    authToken = tg_web_data
+                    access_token_created_time = time()
+                    token_live_time = randint(3500, 3600)
+                    await asyncio.sleep(delay=randint(10, 15))
+                logger.info(f"Session {self.first_name} {self.last_name} logged in.")
+                # print(authToken)
+                await self.get_user_info(http_client, authToken)
+                if self.card is None or self.task is None:
+                    await self.fetch_data(http_client, authToken)
+                if settings.AUTO_TASK and self.task:
+                    user_task = await self.getUserTask(http_client, authToken)
+                    if user_task:
+                        for task in self.task:
+                            # print(task)
+                            if task['taskId'] in self.skip:
+                                continue
+                            elif task['taskId'] in user_task:
+                                continue
+                            elif task['type'] != "social":
+                                continue
+                            elif task['taskId'] in self.startedTask:
+                                await self.checkTask(http_client, authToken, task['taskId'])
+                            else:
+                                await self.startTask(http_client, authToken, task['taskId'])
 
-            while True:
-                try:
-                    prof_data = await self.profile_data(http_client=http_client, tg_web_data=tg_web_data)
-                    if prof_data:
-                        pass
+                runtime = 10
+                if settings.AUTO_TAP:
+                    while runtime > 0:
+                        taps = str(randint(settings.RANDOM_TAPS_COUNT[0], settings.RANDOM_TAPS_COUNT[1]))
+                        await self.tap(http_client, authToken, taps)
+                        await asyncio.sleep(1)
+                        await self.claim_crypto(http_client, authToken)
+                        runtime -= 1
+                        await asyncio.sleep(uniform(settings.SLEEP_BETWEEN_TAPS[0], settings.SLEEP_BETWEEN_TAPS[1]))
+                    logger.info(f"{self.session_name} | resting and upgrade...")
+                else:
+                    while runtime > 0:
+                        await self.claim_crypto(http_client, authToken)
+                        runtime -= 1
+                        await asyncio.sleep(uniform(15, 25))
+                    logger.info(f"{self.session_name} | resting and upgrade...")
 
-                    cooldown = int(prof_data['data']['currentTapWindowFinishAt'])
-                    available_taps = int(prof_data['data']['availableTaps'])
-                    farm_reward = int(float(prof_data['data']['farmReward']))
-                    data = await self.claim_ref(http_client=http_client, tg_web_data=tg_web_data, part=1)
-                    none_tasks, ready_to_check_tasks = await self.getTasks(http_client=http_client,
-                                                                           tg_web_data=tg_web_data)
+                if settings.AUTO_CLAIM_SQUAD_BONUS:
+                    pool_balance = await self.checkref(http_client, authToken)
+                    if float(pool_balance) > 0:
+                        await self.claim_pool(http_client, authToken)
 
-                    if settings.CLAIM_TASKS and (none_tasks or ready_to_check_tasks):
-                        none_tasks, ready_to_check_tasks = await self.getTasks(http_client=http_client,
-                                                                               tg_web_data=tg_web_data)
+                if settings.AUTO_CONVERT and self.btc_balance >= settings.MINIMUM_TO_CONVERT:
+                    await self.convertBTC(http_client, authToken)
 
-                        statuses = None
+                if settings.AUTO_BUY_UPGRADE:
+                    await self.getUserCard(http_client, authToken)
+                    if self.card1:
+                        await self.find_potential()
+                        sorted_potential_card = dict(sorted(self.potential_card.items()))
+                        # print(sorted_potential_card)
+                        for card in sorted_potential_card:
+                            if self.checkDependcy(sorted_potential_card[card]['dependency']):
+                                if int(sorted_potential_card[card]['cost']) <= int(round(float(self.coin_balance))):
+                                    await self.buyUpgrade(http_client, authToken, sorted_potential_card[card])
+                                    break
 
-                        if none_tasks:
-                            statuses = await self.startTasks(http_client=http_client, task_list=none_tasks,
-                                                         tg_web_data=tg_web_data)
+                Sleep = randint(*settings.BIG_SLEEP)
+                logger.info(f"Sleep {Sleep} seconds...")
+                await asyncio.sleep(Sleep)
+            except InvalidSession as error:
+                raise error
 
-                        if ready_to_check_tasks:
-                            only_check = True
-
-                        if (statuses is not None and all(statuses)) or only_check:
-                            logger.success(f'{self.session_name} | Waiting before claiming, 65 s')
-                            await asyncio.sleep(delay=65)
-                            none_tasks, ready_to_check_tasks = await self.getTasks(http_client=http_client,
-                                                                                   tg_web_data=tg_web_data)
-                            status = await self.checkTasks(http_client=http_client, task_list=ready_to_check_tasks,
-                                                           tg_web_data=tg_web_data)
-                            if all(status):
-                                status = await self.claimTasks(http_client=http_client, task_list=ready_to_check_tasks,
-                                                               tg_web_data=tg_web_data)
-                                if all(status):
-                                    logger.success(f'{self.session_name} | Claimed all tasks')
-
-                    if settings.CLAIM_SQUAD_REWARD and int(float(data['data']['totalRewardsToClaim'])) != 0:
-                        data = await self.claim_ref(http_client=http_client, tg_web_data=tg_web_data, part=2)
-                        if data['status'] == "ok":
-                            logger.success(f'{self.session_name} | Claimed referrals reward, amount: '
-                                        f'{data["data"]["claimedBalance"]}')
-
-                    if farm_reward == 0 and settings.FARM_MINING_ERA:
-                        status = await self.start_farm(http_client=http_client, tg_web_data=tg_web_data)
-                        if status is True:
-                            prof_data = await self.profile_data(http_client=http_client, tg_web_data=tg_web_data)
-                            farm_reward = int(float(prof_data['data']['farmReward']))
-                            logger.success(f'{self.session_name} | Start mining era, early reward: {farm_reward}')
-
-                    if farm_reward != 0 and settings.FARM_MINING_ERA:
-                        try:
-                            farm_reward = int(float(prof_data['data']['farmReward']))
-                            current_time = datetime.now()
-                            time_conv_rn = current_time.astimezone(timezone.utc)
-                            time_conv_rn = time_conv_rn.strftime("%Y-%m-%d %H:%M:%S")
-                            farm_start = prof_data['data']['farmStartedAt']
-                            convert = datetime.strptime(farm_start, "%Y-%m-%dT%H:%M:%S.%fZ")
-                            convert += timedelta(hours=4)
-                            if time_conv_rn > str(convert):
-                                status = await self.claim_farm(http_client=http_client, tg_web_data=tg_web_data)
-                                if status == "ok":
-                                    logger.success(f'{self.session_name} | Claimed mining era, got amount: '
-                                                   f'{farm_reward}')
-                                    status = await self.start_farm(http_client=http_client, tg_web_data=tg_web_data)
-                                    if status is True:
-                                        prof_data = await self.profile_data(http_client=http_client,
-                                                                            tg_web_data=tg_web_data)
-                                        farm_reward = int(float(prof_data['data']['farmReward']))
-                                        logger.success(
-                                            f'{self.session_name} | Start mining era, early reward: {farm_reward}')
-                                else:
-                                    logger.info(f'{self.session_name} | {status}')
-                        except Exception as e:
-                            logger.error(e)
-
-                    if available_taps != 0 and settings.TAPS:
-                        rand_taps = randint(a=settings.TAPS_AMOUNT[0], b=settings.TAPS_AMOUNT[1])
-                        if available_taps < rand_taps:
-                            status = await self.claim_taps(http_client=http_client, taps=available_taps,
-                                                           tg_web_data=tg_web_data)
-                            if status is True:
-                                logger.success(f'{self.session_name} | Claimed taps, count: {available_taps}')
-                                await asyncio.sleep(delay=2)
-                        else:
-                            status = await self.claim_taps(http_client=http_client, taps=rand_taps,
-                                                       tg_web_data=tg_web_data)
-                            if status is True:
-                                logger.success(f'{self.session_name} | Claimed taps, count: {rand_taps}')
-                                await asyncio.sleep(delay=2)
-                    
-                    Sleep = randint(*settings.BIG_SLEEP)
-                    logger.info(f"Sleep {Sleep} seconds...")
-                    await asyncio.sleep(Sleep)
-
-                except InvalidSession as error:
-                    raise error
-
-                except Exception as error:
-                    logger.error(f"{self.session_name} | Unknown error: {error}")
-                    await asyncio.sleep(delay=3)
+            except Exception as error:
+                traceback.print_exc()
+                logger.error(f"{self.session_name} | Unknown error: {error}")
+                await asyncio.sleep(delay=randint(60, 120))
 
 
 async def run_tapper(tg_client: Client, proxy: str | None):

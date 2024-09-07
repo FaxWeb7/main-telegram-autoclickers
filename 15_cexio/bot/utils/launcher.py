@@ -4,7 +4,7 @@ import asyncio
 import argparse
 from itertools import cycle
 
-from pyrogram import Client, compose
+from pyrogram import Client
 from better_proxy import Proxy
 
 from bot.config import settings
@@ -15,13 +15,17 @@ from bot.core.registrator import register_sessions
 
 start_text = """
 
- ██████╗███████╗██╗  ██╗   ██╗ ██████╗     ██████╗  ██████╗ ████████╗
-██╔════╝██╔════╝╚██╗██╔╝   ██║██╔═══██╗    ██╔══██╗██╔═══██╗╚══██╔══╝
-██║     █████╗   ╚███╔╝    ██║██║   ██║    ██████╔╝██║   ██║   ██║   
-██║     ██╔══╝   ██╔██╗    ██║██║   ██║    ██╔══██╗██║   ██║   ██║   
-╚██████╗███████╗██╔╝ ██╗██╗██║╚██████╔╝    ██████╔╝╚██████╔╝   ██║   
- ╚═════╝╚══════╝╚═╝  ╚═╝╚═╝╚═╝ ╚═════╝     ╚═════╝  ╚═════╝    ╚═╝   
-                                                                     
+███████╗██╗███████╗     ██████╗ ██████╗ ██████╗ ███████╗██████╗ 
+██╔════╝██║╚══███╔╝    ██╔════╝██╔═══██╗██╔══██╗██╔════╝██╔══██╗
+███████╗██║  ███╔╝     ██║     ██║   ██║██║  ██║█████╗  ██████╔╝
+╚════██║██║ ███╔╝      ██║     ██║   ██║██║  ██║██╔══╝  ██╔══██╗
+███████║██║███████╗    ╚██████╗╚██████╔╝██████╔╝███████╗██║  ██║
+╚══════╝╚═╝╚══════╝     ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝
+
+CEX.IO AUTO BOT - V 2.0
+Prepared and Developed by: F.Davoodi
+                                                                                                                                             
+                                                                   
 Select an action:
 
     1. Run clicker
@@ -30,9 +34,8 @@ Select an action:
 
 global tg_clients
 
-
 def get_session_names() -> list[str]:
-    session_names = glob.glob("sessions/*.session")
+    session_names = sorted(glob.glob("sessions/*.session"))
     session_names = [
         os.path.splitext(os.path.basename(file))[0] for file in session_names
     ]
