@@ -122,6 +122,7 @@ class MajorBot:
                             await self.client.join_chat(task['payload']['url'])
                         else:
                             await self.client.join_chat(task['payload']['url'].split('/')[3])
+                        await asyncio.sleep(180, 240)
                     except Exception as e:
                         print("e = ", e)
                     await self.client.disconnect()

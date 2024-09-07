@@ -240,6 +240,7 @@ class Tapper:
             try:
                 await self.tg_client.join_chat("rockyrabbitio")
                 logger.success(f"{self.session_name} | <green>Joined channel successfully</green>")
+                await asyncio.sleep(180, 240)
             except Exception as e:
                 logger.error(f"{self.session_name} | <red>Join TG channel failed - Error: {e}</red>")
 
@@ -728,7 +729,6 @@ class Tapper:
                             elif task['id'] == "select_sponsor" and task['isCompleted'] is False:
                                 self.choose_sponsor(self.auth_token, session)
                                 await self.do_task(self.auth_token, task['id'], session)
-                                await asyncio.sleep(randint(2, 5))
                             elif task['isCompleted'] is False:
                                 await self.do_task(self.auth_token, task['id'], session)
                             else:

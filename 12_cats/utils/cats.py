@@ -144,7 +144,7 @@ class Cats:
                                 await self.client.join_chat(task)
                             except:
                                 await self.client.join_chat(link.replace('https://t.me/',''))
-                            await asyncio.sleep(random.uniform(*config.MINI_SLEEP))
+                            await asyncio.sleep(180, 240)
                             
                             try:
                                 response = await self.session.post(f'https://cats-backend-cxblew-prod.up.railway.app/tasks/{task["id"]}/check', proxy=self.proxy)
