@@ -8,8 +8,8 @@
 |:------:|-------------------------------------------------|
 |   ✅   | **Blum, CryptoRank, YesCoin, DotCoin**       |
 |   ✅   | **PocketFi, MuskEmpire, HamsterKombat**       |
-|   ✅   | **OKX Racer, Lost Dogs, Major**                       |
-|   ✅   | **Nomis, Cats, RockyRabbit, MemeFi**                      |
+|   ✅   | **OKX Racer, Lost Dogs, Major, Nomis**                       |
+|   ✅   | **Cats, RockyRabbit, MemeFi, CexIo**                      |
 |   ⌛   |                               |
 
 ## Requirements
