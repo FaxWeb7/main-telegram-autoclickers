@@ -65,5 +65,5 @@ shamhiPaths = [
     './5_pocketfi',
     './6_muskempire',
     './9_lostdogs',
-    '13_rockyrabbit',
+    './13_rockyrabbit',
 ]
