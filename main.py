@@ -3,6 +3,8 @@ import asyncio
 import argparse
 import pyrogram
 import subprocess
+import time
+from random import randint
 from contextlib import suppress
 from shutil import copytree, ignore_patterns, rmtree, copy2
 from global_data import global_config
@@ -58,6 +60,52 @@ async def create_session():
 
         print(f'Added session +{user_data.phone_number} @{user_data.username} PROXY : NONE')
 
+async def leaveChats(session_name):
+    session_name = session_name.split('.')[0]
+    try:
+        proxy_dict = {}
+        with open('./global_data/proxies.txt','r',encoding='utf-8') as file:
+            proxy = [i.strip().split() for i in file.readlines() if len(i.strip().split()) == 2]
+            for prox,name in proxy: proxy_dict[name] = prox
+
+        if global_config.USE_PROXY and session_name in proxy_dict:
+            proxy = proxy_dict[session_name]
+            proxy_client = {
+                "scheme": global_config.PROXY_TYPE,
+                "hostname": proxy.split(':')[0],
+                "port": int(proxy.split(':')[1]),
+                "username": proxy.split(':')[2],
+                "password": proxy.split(':')[3],
+            }
+            session = pyrogram.Client(
+                api_id=global_config.API_ID,
+                api_hash=global_config.API_HASH,
+                name=session_name,
+                workdir="./global_data/sessions/",
+                proxy=proxy_client
+            )
+        else:
+            session = pyrogram.Client(
+                api_id=global_config.API_ID,
+                api_hash=global_config.API_HASH,
+                name=session_name,
+                workdir="./global_data/sessions/"
+            )
+
+        await session.connect()
+        async for dialog in session.get_dialogs():
+            if str(dialog.chat.type) not in ['ChatType.CHANNEL', 'ChatType.SUPERGROUP', 'ChatType.GROUP']: continue
+            try:
+                await session.leave_chat(dialog.chat.id)
+                print(f"Leave from chat {dialog.chat.title}")
+                time.sleep(randint(8, 20))
+            except Exception as e:
+                print(f"Error leave from chat {dialog.chat.title}: {e}")
+
+        await session.disconnect()
+    except Exception as e:
+        print(f'Error (leaveChats): {e}')
+
 async def run_script(script_name):
     if ('./' + os.getcwd().split('\\' if os.name == 'nt' else '/')[-1] in petyaPaths+shamhiPaths):
         os.chdir('..')
@@ -95,7 +143,7 @@ async def process():
         if (startOperation != None): 
             operation = startOperation
             startOperation = None
-        else: operation = int(input("Select an action:\n1 -> Actions with sessions\n2 -> Actions with proxies\n3 -> Run bots\n4 -> Exit\n"))
+        else: operation = int(input("Select an action:\n1 -> Actions with sessions\n2 -> Actions with proxies\n3 -> Run bots\n4 -> Additional actions\n5 -> Exit\n"))
 
         if (operation == 1):
             sessionOperation = int(input("Select an action with sessions: \n1 -> Add one session from ./global_data/sessions/\n2 -> Add all sessions from ./global_data/sessions/\n3 -> Remove one session from all ./tapalka/sessions\n4 -> Remove all sessions from all ./tapalka/sessions\n5 -> Create new session\n6 -> Exit\n"))
@@ -233,6 +281,20 @@ async def process():
             folders = [f'{path}' for path in petyaPaths+shamhiPaths if global_config.CONECTED_BOTS[path] == True]
             await asyncio.gather(*(run_script(folder) for folder in folders))
 
+        elif (operation == 4):
+            additionalOperation = int(input("Select an additional action: \n1 -> Log out of all channels and groups in global_data/sessions/*.sessions\n2 -> Exit\n"))
+            if (additionalOperation == 1):
+                for session_name in os.listdir("global_data/sessions/"):
+                    if os.path.isfile(os.path.join("global_data/sessions/", session_name)):
+                        if (session_name.split('.')[1] != 'session'): continue
+                        print(f"Session processing: {session_name}")
+                        await leaveChats(session_name)
+                        sleep = randint(10, 30)
+                        print(f'Session {session_name} processed successfully, sleep {sleep} seconds')
+                        time.sleep(sleep)
+
+            else: continue
+            
         else: break
 
 if __name__ == '__main__':
