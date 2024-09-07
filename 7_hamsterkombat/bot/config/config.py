@@ -51,7 +51,7 @@ class Settings(BaseSettings):
     USE_RANDOM_MINI_GAME_KEY: bool = True
     AUTO_COMPLETE_TASKS: bool = True
 
-    USE_TAPS: bool = True
+    USE_TAPS: bool = global_config.USE_TAPS
     RANDOM_TAPS_COUNT: list[int] = [50, 200]
     SLEEP_BETWEEN_TAP: list[int] = [10, 25]
 

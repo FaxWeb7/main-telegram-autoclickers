@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     SKILLS_MODE: str = 'profitness'
     REF_CODE: str = 'hero6046075760'
 
-    TAPS_ENABLED: bool = True
+    TAPS_ENABLED: bool = global_config.USE_TAPS
     TAPS_PER_SECOND: list[int] = [10, 30] # tested with 4 fingers
     PVP_ENABLED: bool = False
     PVP_LEAGUE: str = 'auto'

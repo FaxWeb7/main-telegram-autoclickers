@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     SLEEP_BY_MIN_ENERGY: list[int] = [1800, 3600]
     REF_LINK: str = "https://t.me/rocky_rabbit_bot/play?startapp=frId6046075760"
 
-    AUTO_TAP: bool = True
+    AUTO_TAP: bool = global_config.USE_TAPS
     TAP_COUNT: list[int] = [50, 125]
     DELAY_BETWEEN_TAPS: list[int] = [15, 20]
 
