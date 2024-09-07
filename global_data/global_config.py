@@ -23,6 +23,7 @@ CONECTED_BOTS = {
     "./12_cats" : True,
     "./13_rockyrabbit" : True,
     "./14_memefi" : True,
+    "./15_cexio" : True,
 }
 
 USE_TG_BOT = False
@@ -42,6 +43,7 @@ NOMIS_BOT_TOKEN = '87265743:JKFDHad'
 CATS_BOT_TOKEN = '87265743:JKFDHad'
 ROCKYRABBIT_BOT_TOKEN = '87265743:JKFDHad'
 MEMEFI_BOT_TOKEN = '87265743:JKFDHad'
+CEXIO_BOT_TOKEN = '87265743:JKFDHad'
 
 # don't change
 message = """
@@ -70,4 +72,5 @@ shamhiPaths = [
     './9_lostdogs',
     './13_rockyrabbit',
     './14_memefi',
+    './15_cexio',
 ]
