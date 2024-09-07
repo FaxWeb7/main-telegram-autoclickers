@@ -9,7 +9,7 @@
 |   ✅   | **Blum, CryptoRank, YesCoin, DotCoin**       |
 |   ✅   | **PocketFi, MuskEmpire, HamsterKombat**       |
 |   ✅   | **OKX Racer, Lost Dogs, Major**                       |
-|   ✅   | **Nomis, Cats**                      |
+|   ✅   | **Nomis, Cats, RockyRabbit, MemeFi**                      |
 |   ⌛   |                               |
 
 ## Requirements
@@ -39,6 +39,11 @@
      ```
      
    - Set random delay between ```while True``` iterations in bots, in seconds
+     ```python
+     BIG_SLEEP = [minDelay, maxDelay]
+     ```
+     
+   - Set `USE_TAPS = False` if you don't want your bots to use taps 
      ```python
      BIG_SLEEP = [minDelay, maxDelay]
      ```
