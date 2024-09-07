@@ -21,6 +21,7 @@ CONECTED_BOTS = {
     "./11_nomis" : True,
     "./12_cats" : True,
     "./13_rockyrabbit" : True,
+    "./14_memefi" : True,
 }
 
 USE_TG_BOT = False
@@ -39,6 +40,7 @@ MAJOR_BOT_TOKEN = '87265743:JKFDHad'
 NOMIS_BOT_TOKEN = '87265743:JKFDHad'
 CATS_BOT_TOKEN = '87265743:JKFDHad'
 ROCKYRABBIT_BOT_TOKEN = '87265743:JKFDHad'
+MEMEFI_BOT_TOKEN = '87265743:JKFDHad'
 
 # don't change
 message = """
@@ -66,4 +68,5 @@ shamhiPaths = [
     './6_muskempire',
     './9_lostdogs',
     './13_rockyrabbit',
+    './14_memefi',
 ]
