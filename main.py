@@ -3,9 +3,8 @@ import asyncio
 import argparse
 import pyrogram
 import subprocess
-import time
+import psutil
 from random import randint
-from contextlib import suppress
 from shutil import copytree, ignore_patterns, rmtree, copy2
 from global_data import global_config
 from global_data.global_config import message, petyaPaths, shamhiPaths
@@ -98,7 +97,7 @@ async def leaveChats(session_name):
             try:
                 await session.leave_chat(dialog.chat.id)
                 print(f"Leave from chat {dialog.chat.title}")
-                time.sleep(randint(8, 20))
+                await asyncio.sleep(randint(8, 20))
             except Exception as e:
                 print(f"Error leave from chat {dialog.chat.title}: {e}")
 
@@ -133,6 +132,18 @@ async def run_script(script_name):
 
     await process.wait()
 
+async def kill_python_processes(lapDelay):
+    current_process = psutil.Process()
+    await asyncio.sleep(lapDelay)
+
+    for process in psutil.process_iter():
+        if 'python' not in process.name().lower() or process.pid == current_process.pid: continue
+        try:
+            process.terminate()
+            print(f"Process with PID {process.pid} sucessfully terminated")
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            print(f"Failed to terminate process with PID {process.pid}")
+
 async def process():
     print(message)
     parser = argparse.ArgumentParser()
@@ -143,10 +154,10 @@ async def process():
         if (startOperation != None): 
             operation = startOperation
             startOperation = None
-        else: operation = int(input("Select an action:\n1 -> Actions with sessions\n2 -> Actions with proxies\n3 -> Run bots\n4 -> Additional actions\n5 -> Exit\n"))
+        else: operation = int(input("Select an action:\n1 -> Actions with sessions\n2 -> Actions with proxies\n3 -> Additional actions\n4 -> Run bots\n5 -> Run bots with delay (for unix)\n6 -> Exit\n"))
 
         if (operation == 1):
-            sessionOperation = int(input("Select an action with sessions: \n1 -> Add one session from ./global_data/sessions/\n2 -> Add all sessions from ./global_data/sessions/\n3 -> Remove one session from all ./tapalka/sessions\n4 -> Remove all sessions from all ./tapalka/sessions\n5 -> Create new session\n6 -> Exit\n"))
+            sessionOperation = int(input("Select an action with sessions: \n1 -> Add one session from ./global_data/sessions/\n2 -> Update all sessions from ./global_data/sessions/\n3 -> Remove one session from all ./tapalka/sessions\n4 -> Remove all sessions from all ./tapalka/sessions\n5 -> Create new session\n6 -> Exit\n"))
             
             if (sessionOperation == 1):
                 sessionNumber = int(input("Enter session number (1-INF): "))
@@ -190,7 +201,7 @@ async def process():
             else: continue
 
         elif (operation == 2):
-            proxyOperation = int(input("Select an action with proxies: \n1 -> Add one proxy from ./global_data/proxies.txt/\n2 -> Add all proxies from ./global_data/proxies.txt/\n3 -> Remove one proxy from all ./tapalka/proxy.txt\n4 -> Remove all proxies from all ./tapalka/proxy.txt\n5 -> Exit\n"))
+            proxyOperation = int(input("Select an action with proxies: \n1 -> Add one proxy from ./global_data/proxies.txt/\n2 -> Update all proxies from ./global_data/proxies.txt/\n3 -> Remove one proxy from all ./tapalka/proxy.txt\n4 -> Remove all proxies from all ./tapalka/proxy.txt\n5 -> Exit\n"))
 
             if (proxyOperation == 1):
                 proxyNumber = int(input("Enter proxy number (1-INF): "))
@@ -201,6 +212,8 @@ async def process():
                     file.close()
                 
                 for path in petyaPaths:
+                    with open(f'{path}/proxy.txt', 'w') as file:
+                        file.write('')
                     with open(f'{path}/proxy.txt', 'a') as file:
                         file.write(proxy)
                         file.close()
@@ -276,12 +289,8 @@ async def process():
                 print(f'All proxies successfully removed!')
 
             else: continue
-
+        
         elif (operation == 3):
-            folders = [f'{path}' for path in petyaPaths+shamhiPaths if global_config.CONECTED_BOTS[path] == True]
-            await asyncio.gather(*(run_script(folder) for folder in folders))
-
-        elif (operation == 4):
             additionalOperation = int(input("Select an additional action: \n1 -> Log out of all channels and groups in global_data/sessions/*.sessions\n2 -> Exit\n"))
             if (additionalOperation == 1):
                 for session_name in os.listdir("global_data/sessions/"):
@@ -291,12 +300,38 @@ async def process():
                         await leaveChats(session_name)
                         sleep = randint(10, 30)
                         print(f'Session {session_name} processed successfully, sleep {sleep} seconds')
-                        time.sleep(sleep)
+                        await asyncio.sleep(sleep)
 
             else: continue
-            
+
+        elif (operation == 4):
+            folders = [f'{path}' for path in petyaPaths+shamhiPaths if global_config.CONECTED_BOTS[path] == True]
+            await asyncio.gather(*(run_script(folder) for folder in folders))
+        
+        elif (operation == 5):
+            if os.name == "nt": continue
+            simBots = int(input("Enter the number of simultaneously working bots: "))
+            lapDelay = int(input(f"Enter the number of seconds during which every {simBots} bots will work: "))
+            workDelay = int(input(f"Enter a delay between the work of every {simBots} bots (in seconds): "))
+
+            folders = sorted([f'{path}' for path in petyaPaths+shamhiPaths if global_config.CONECTED_BOTS[path] == True], key=lambda item: int(item.split('_')[0].split('./')[1]))
+            curIdx = 0
+            while True:
+                print("Current working bots: ")
+                tasks = []
+                for i in range(simBots):
+                    if curIdx == len(folders): curIdx = 0
+                    print(folders[curIdx])
+                    tasks.append(run_script(folders[curIdx]))
+                    curIdx += 1
+                tasks.append(kill_python_processes(lapDelay))
+                await asyncio.gather(*tasks)
+
+                sleep_ = randint(max(0, workDelay-60), workDelay+60)
+                print(f"Current batch of bots completed, wait {sleep_} seconds to next batch...")
+                await asyncio.sleep(sleep_)
+
         else: break
 
 if __name__ == '__main__':
-    with suppress(KeyboardInterrupt, RuntimeError, RuntimeWarning):
-        asyncio.run(process())
+    asyncio.run(process())
