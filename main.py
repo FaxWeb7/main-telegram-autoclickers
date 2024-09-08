@@ -83,6 +83,7 @@ async def leaveChats(session_name):
                 workdir="./global_data/sessions/",
                 proxy=proxy_client
             )
+            print(f"Session {session_name} will be precessed with proxy {proxy}")
         else:
             session = pyrogram.Client(
                 api_id=global_config.API_ID,
@@ -90,6 +91,7 @@ async def leaveChats(session_name):
                 name=session_name,
                 workdir="./global_data/sessions/"
             )
+            print(f"Session {session_name} will be precessed without proxy")
 
         await session.connect()
         async for dialog in session.get_dialogs():
