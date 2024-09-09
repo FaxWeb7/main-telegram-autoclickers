@@ -24,6 +24,7 @@ CONECTED_BOTS = {
     "./13_rockyrabbit" : True,
     "./14_memefi" : True,
     "./15_cexio" : True,
+    "./16_tapswap" : True,
 }
 
 USE_TG_BOT = False
@@ -44,6 +45,7 @@ CATS_BOT_TOKEN = '87265743:JKFDHad'
 ROCKYRABBIT_BOT_TOKEN = '87265743:JKFDHad'
 MEMEFI_BOT_TOKEN = '87265743:JKFDHad'
 CEXIO_BOT_TOKEN = '87265743:JKFDHad'
+TAPSWAP_BOT_TOKEN = '87265743:JKFDHad'
 
 # don't change
 message = """
@@ -73,4 +75,5 @@ shamhiPaths = [
     './13_rockyrabbit',
     './14_memefi',
     './15_cexio',
+    './16_tapswap',
 ]
