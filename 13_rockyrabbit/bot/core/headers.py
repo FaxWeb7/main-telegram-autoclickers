@@ -3,7 +3,7 @@ headers = {
     'Accept-Encoding': "gzip, deflate",
     'Accept-Language': 'en,en-US;q=0.9,vi;q=0.8',
     'Authorization': '',
-    "Rr-Version": "1.12.1",
+    "Rr-Version": "1.12.3",
     "Content-Type": "application/json",
     'Priority': "u=1, i",
     'Origin': 'https://play.rockyrabbit.io',
