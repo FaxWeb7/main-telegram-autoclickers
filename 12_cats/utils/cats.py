@@ -144,7 +144,7 @@ class Cats:
                                 await self.client.join_chat(task)
                             except:
                                 await self.client.join_chat(link.replace('https://t.me/',''))
-                            await asyncio.sleep(180, 240)
+                            await asyncio.sleep(random.randint(300, 900))
                             
                             try:
                                 response = await self.session.post(f'https://cats-backend-cxblew-prod.up.railway.app/tasks/{task["id"]}/check', proxy=self.proxy)
@@ -155,7 +155,11 @@ class Cats:
                                     logger.success(f"do_task | Thread {self.thread} | {self.name} | Claim task {task['title']}")
                                 await asyncio.sleep(random.uniform(*config.TASK_SLEEP))
                             except Exception as err:
-                                logger.error(f"tasks | Thread {self.thread} | {self.name} | {err}")
+                                if "[420 FLOOD_WAIT_X]" in err:
+                                    sleep_ = int(err.split('A wait of ').split(' ')[0]) + random.randint(200, 600)
+                                    logger.error(f"tasks | Thread {self.thread} | {self.name} | FLOOD error, sleep {sleep_} sec")
+                                    await asyncio.sleep(sleep_)
+                                else: logger.error(f"tasks | Thread {self.thread} | {self.name} | {err}")
                     else:
                         try:
                             json_data = {}
