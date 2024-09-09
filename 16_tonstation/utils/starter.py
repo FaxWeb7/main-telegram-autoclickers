@@ -3,12 +3,10 @@ import random
 from utils.ton_station import TonStation
 from utils.core import logger
 import datetime
-import pandas as pd
 from utils.core.telegram import Accounts
 from aiohttp.client_exceptions import ContentTypeError
 import asyncio
 from data import config
-
 
 async def start(thread: int, session_name: str, phone_number: str, proxy: [str, None]):
     tons = TonStation(session_name=session_name, phone_number=phone_number, thread=thread, proxy=proxy)
@@ -36,8 +34,10 @@ async def start(thread: int, session_name: str, phone_number: str, proxy: [str, 
                     logger.success(f"Thread {thread} | {account} | Claim farming! Balance: {farming.get('amount')}")
                 else:
                     logger.warning(f"Thread {thread} | {account} | Couldn't claim farming")
-
-            await asyncio.sleep(random.uniform(*config.DELAYS['REPEAT']))
+            
+            Sleep = random.randint(*config.DELAYS['REPEAT'])
+            logger.info(f"Sleep {Sleep} seconds...")
+            await asyncio.sleep(Sleep)
             
         except Exception as e:
             logger.error(f"Thread {thread} | {account} | Error: {e}")

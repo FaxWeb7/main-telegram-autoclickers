@@ -89,10 +89,6 @@ class TonStation:
         # print('farming_start', await resp.text())
         return resp.status == 200
 
-    async def balance_by_address(self):
-        resp = await self.session.get(f'https://tonstation.app/balance/api/v1/balance/{self.user_info["address"]}/by-address')
-        return (await resp.json()).get('data')
-
     async def get_user_profile(self):
         resp = await self.session.get(f'https://tonstation.app/userprofile/api/v1/users/{self.user_id}/by-telegram-id')
         return await resp.json()

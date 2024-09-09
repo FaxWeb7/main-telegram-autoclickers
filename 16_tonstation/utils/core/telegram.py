@@ -4,7 +4,7 @@ import random
 
 from data import config
 from pyrogram import Client
-from utilities.core import logger, load_from_json, save_list_to_file, save_to_json, get_all_lines
+from utils.core import logger, load_from_json, save_list_to_file, save_to_json, get_all_lines
 
 
 class Accounts:
