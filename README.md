@@ -10,6 +10,7 @@
 |   ✅   | **PocketFi, MuskEmpire, HamsterKombat**       |
 |   ✅   | **OKX Racer, Lost Dogs, Major, Nomis**                       |
 |   ✅   | **Cats, RockyRabbit, MemeFi, CexIo**                      |
+|   ✅   | **TonStation**                      |
 |   ⌛   |                               |
 
 ## Requirements
