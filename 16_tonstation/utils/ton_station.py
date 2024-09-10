@@ -96,7 +96,7 @@ class TonStation:
     async def logout(self):
         await self.session.close()
 
-    async def login(self):
+    async def login(self) -> None | str:
         attempts = 3
         while attempts:
             try:
@@ -125,7 +125,7 @@ class TonStation:
 
                 self.session.headers['Authorization'] = 'Bearer ' + access_token
                 logger.success(f"Thread {self.thread} | {self.account} | Login")
-                break
+                return 'ok'
             except Exception as e:
                 logger.error(f"Thread {self.thread} | {self.account} | Left login attempts: {attempts}, error: {e}")
                 await asyncio.sleep(random.uniform(*config.DELAYS['RELOGIN']))
@@ -133,7 +133,7 @@ class TonStation:
         else:
             logger.error(f"Thread {self.thread} | {self.account} | Couldn't login")
             await self.logout()
-            return
+            return None
 
     async def get_tg_web_data(self):
         try:

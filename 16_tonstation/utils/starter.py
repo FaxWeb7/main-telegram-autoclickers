@@ -12,7 +12,8 @@ async def start(thread: int, session_name: str, phone_number: str, proxy: [str, 
     tons = TonStation(session_name=session_name, phone_number=phone_number, thread=thread, proxy=proxy)
     account = session_name + '.session'
 
-    await tons.login()
+    login_log = await tons.login()
+    if (login_log == None): return
     while True:
         try:
             farming = await tons.farming_running()
@@ -28,7 +29,8 @@ async def start(thread: int, session_name: str, phone_number: str, proxy: [str, 
                 await asyncio.sleep(sleep)
 
             if farming is not False and tons.iso_to_unix_time(farming['timeEnd']) < tons.current_time():
-                await tons.login()
+                login_log = await tons.login()
+                if (login_log == None): return
                 farming = await tons.farming_claim(farming["_id"])
                 if farming:
                     logger.success(f"Thread {thread} | {account} | Claim farming! Balance: {farming.get('amount')}")
