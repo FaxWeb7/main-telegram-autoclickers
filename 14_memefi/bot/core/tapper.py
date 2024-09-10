@@ -5,6 +5,7 @@ from datetime import datetime
 from urllib.parse import unquote
 
 import aiohttp
+import aiocfscrape
 from aiohttp_proxy import ProxyConnector
 from better_proxy import Proxy
 from pyrogram import Client
@@ -450,7 +451,7 @@ class Tapper:
         conn = ProxyConnector().from_url(url=proxy, rdns=True, ssl=ssl_context) if proxy \
             else aiohttp.TCPConnector(ssl=ssl_context)
 
-        async with aiohttp.ClientSession(headers=headers, connector=conn) as http_client:
+        async with aiocfscrape.CloudflareScraper(headers=headers, connector=conn) as http_client:
             if proxy:
                 await self.check_proxy(http_client=http_client, proxy=proxy)
 
