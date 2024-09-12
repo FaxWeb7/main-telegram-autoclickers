@@ -17,14 +17,13 @@ CONECTED_BOTS = {
     "./6_muskempire" : True,
     "./7_hamsterkombat" : True,
     "./8_okxracer" : True,
-    "./9_lostdogs" : True,
-    "./10_major" : True,
-    "./11_nomis" : True,
-    "./12_cats" : True,
-    "./13_rockyrabbit" : True,
-    "./14_memefi" : True,
-    "./15_cexio" : True,
-    "./16_tonstation" : True,
+    "./9_major" : True,
+    "./10_nomis" : True,
+    "./11_cats" : True,
+    "./12_rockyrabbit" : True,
+    "./13_memefi" : True,
+    "./14_cexio" : True,
+    "./15_tonstation" : True,
 }
 
 USE_TG_BOT = False
@@ -38,7 +37,6 @@ POCKETFI_BOT_TOKEN = '87265743:JKFDHad'
 MUSKEMPIRE_BOT_TOKEN = '87265743:JKFDHad'
 HAMSTERKOMBAT_BOT_TOKEN = '87265743:JKFDHad'
 OKXRACER_BOT_TOKEN = '87265743:JKFDHad'
-LOSTDOGS_BOT_TOKEN = '87265743:JKFDHad'
 MAJOR_BOT_TOKEN = '87265743:JKFDHad'
 NOMIS_BOT_TOKEN = '87265743:JKFDHad'
 CATS_BOT_TOKEN = '87265743:JKFDHad'
@@ -63,17 +61,16 @@ petyaPaths = [
     './3_yescoin',
     './7_hamsterkombat',
     './8_okxracer',
-    './10_major',
-    './11_nomis',
-    './12_cats',
-    './16_tonstation',
+    './9_major',
+    './10_nomis',
+    './11_cats',
+    './15_tonstation',
 ]
 shamhiPaths = [
     './4_dotcoin',
     './5_pocketfi',
     './6_muskempire',
-    './9_lostdogs',
-    './13_rockyrabbit',
-    './14_memefi',
-    './15_cexio',
+    './12_rockyrabbit',
+    './13_memefi',
+    './14_cexio',
 ]
