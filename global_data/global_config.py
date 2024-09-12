@@ -63,7 +63,6 @@ petyaPaths = [
     './8_okxracer',
     './9_major',
     './10_nomis',
-    './15_tonstation',
 ]
 shamhiPaths = [
     './4_dotcoin',
@@ -73,4 +72,5 @@ shamhiPaths = [
     './12_rockyrabbit',
     './13_memefi',
     './14_cexio',
+    './15_tonstation',
 ]
