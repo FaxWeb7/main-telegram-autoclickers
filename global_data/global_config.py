@@ -63,13 +63,13 @@ petyaPaths = [
     './8_okxracer',
     './9_major',
     './10_nomis',
-    './11_cats',
     './15_tonstation',
 ]
 shamhiPaths = [
     './4_dotcoin',
     './5_pocketfi',
     './6_muskempire',
+    './11_cats',
     './12_rockyrabbit',
     './13_memefi',
     './14_cexio',

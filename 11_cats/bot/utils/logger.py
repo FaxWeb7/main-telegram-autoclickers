@@ -4,9 +4,9 @@ import time
 from threading import Thread
 from queue import Queue
 from loguru import logger
-from data import config
+from bot.config import settings
 
-TELEGRAM_API_URL = f"https://api.telegram.org/bot{config.BOT_TOKEN}/sendMessage"
+TELEGRAM_API_URL = f"https://api.telegram.org/bot{settings.BOT_TOKEN}/sendMessage"
 message_queue = Queue()
 def process_queue():
     while True:
@@ -15,7 +15,7 @@ def process_queue():
             break
         try:
             time.sleep(3)
-            response = requests.post(TELEGRAM_API_URL, data={'chat_id': config.CHAT_ID, 'text': message})
+            response = requests.post(TELEGRAM_API_URL, data={'chat_id': settings.CHAT_ID, 'text': message})
             if response.status_code != 200:
                 logger.error(f"Failed to send log to Telegram: {response.text}")
         except Exception as e:
@@ -29,7 +29,7 @@ thread.start()
 logger.remove()
 logger.add(sink=sys.stdout, format="<white>{time:YYYY-MM-DD HH:mm:ss}</white> | <blue>{level: <8}</blue> | <level>{message}</level>")
 
-if config.USE_TG_BOT:
+if settings.USE_TG_BOT:
     logger.add(lambda msg: message_queue.put(msg), format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {message}", level="INFO")
 
 logger = logger.opt(colors=True)
