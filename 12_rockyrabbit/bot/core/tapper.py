@@ -386,7 +386,7 @@ class Tapper:
             traceback.print_exc()
             logger.error(f"{self.session_name} | <red>Unknown error while trying to get task list ...: {e}</red>")
 
-    async def do_task(self, auth_token, taskId, session: requests.Session):
+    async def do_task(self, auth_token, taskId, session: requests.Session, cntChats):
         try:
             payload = {
                 "taskId": taskId,
@@ -404,14 +404,16 @@ class Tapper:
             else:
                 if response.status_code == 422:
                     response_data = response.json()
-                    if response_data['message'] == "you_are_not_subscribe_to_channel":
+                    if response_data['message'] == "you_are_not_subscribe_to_channel" and cntChats < 2:
                         await self.join_channel()
+                        cntChats += 1
                 logger.info(
                     f"{self.session_name} | failed to do task: {taskId} - Response code: {response.status_code}")
         except Exception as e:
             traceback.print_exc()
             logger.error(
                 f"{self.session_name} | <red>Unknown error while trying to do task: {taskId} - Error: {e}</red>")
+        return cntChats
 
     def choose_sponsor(self, auth_token, session: requests.Session):
         try:
@@ -711,7 +713,7 @@ class Tapper:
 
                     if settings.AUTO_TASK:
                         self.get_task_list(self.auth_token, session)
-
+                        cntChats = 0
                         for task in self.task_list:
                             if task['id'] == "streak_days_reward" and task['lastUpgradeAt'] != 0:
                                 timestamp = task['lastUpgradeAt']
@@ -719,7 +721,7 @@ class Tapper:
                                 today = datetime.now().date()
                                 yesterday = today - timedelta(days=1)
                                 if timestamp_date.date() == yesterday:
-                                    await self.do_task(self.auth_token, task['id'], session)
+                                    cntChats = await self.do_task(self.auth_token, task['id'], session, cntChats)
                                 else:
                                     continue
                             elif task['id'] == "invite_friends" or task['id'] == "invite_friends_10x":
@@ -728,9 +730,9 @@ class Tapper:
                                 continue
                             elif task['id'] == "select_sponsor" and task['isCompleted'] is False:
                                 self.choose_sponsor(self.auth_token, session)
-                                await self.do_task(self.auth_token, task['id'], session)
+                                cntChats = await self.do_task(self.auth_token, task['id'], session, cntChats)
                             elif task['isCompleted'] is False:
-                                await self.do_task(self.auth_token, task['id'], session)
+                                cntChats = await self.do_task(self.auth_token, task['id'], session, cntChats)
                             else:
                                 continue
 
