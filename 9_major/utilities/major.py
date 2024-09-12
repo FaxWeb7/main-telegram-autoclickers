@@ -89,11 +89,12 @@ class MajorBot:
         pass
 
     async def make_task(self, resp_json, headers):
+        cntChats = 0
         for task in resp_json:
             if task['id'] in config.BLACKLIST_TASK:
                 continue
             if 'https://t.me/' in task['payload']['url'] and 'boost' not in task['payload']['url'] and 'addlist' not in task['payload']['url']:
-              
+                if (cntChats >= 3): continue
                 if 'startapp' in task['payload']['url']:
                     bot_username = task['payload']['url'].split('/')[3]
                     
@@ -109,6 +110,8 @@ class MajorBot:
                                 start_param=start_param
                             )
                         )
+                        cntChats += 1
+                        await asyncio.sleep(180, 240)
                     except Exception as e:
                         print("e = ", e)   
                     await self.client.disconnect() 
@@ -122,6 +125,7 @@ class MajorBot:
                             await self.client.join_chat(task['payload']['url'])
                         else:
                             await self.client.join_chat(task['payload']['url'].split('/')[3])
+                        cntChats += 1
                         await asyncio.sleep(180, 240)
                     except Exception as e:
                         print("e = ", e)
