@@ -188,9 +188,9 @@ class Tapper:
                 for id, url, reward in channel_task_ids_with_urls:
                     if (maxChannels <= 0): break
                     username = url.split('https://t.me/')[1]
+                    if (username[0] == '+'): continue
                     if not self.tg_client.is_connected:
                         await self.tg_client.connect()
-
                     await self.tg_client.join_chat(username)
                     maxChannels -= 1
                     await asyncio.sleep(1)
