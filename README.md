@@ -1,5 +1,6 @@
 
 # Automatic autoclicker for popular telegram mini-apps
+## (THIS REPOSITORY IS NO LONGER SUPPORTED)
 ![](https://i.ibb.co/7QBLHsT/result.png)
 
 ## Bot Status
