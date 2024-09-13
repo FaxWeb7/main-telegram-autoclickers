@@ -34,6 +34,7 @@ POINTS = [120, 190] #[min, max]
 
 # тратить алмазы
 SPEND_DIAMONDS = True # True/False
+DO_TASKS = True
 
 # сон между играми
 SLEEP_GAME_TIME = [60,180] #[min,max]
