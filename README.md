@@ -1,6 +1,16 @@
 
 # Automatic autoclicker for popular telegram mini-apps
-## (THIS REPOSITORY IS NO LONGER SUPPORTED)
+## (THIS REPOSITORY IS NO LONGER SUPPORTED FOR FREE)
+If you want to purchase this program in an improved form, you can write to me in telegram, @faxweb_dev.
+
+What will be in the paid software:
+- More bots.
+- Constantly updated and working bots
+- Personal support and answers to questions from me
+- New software structure. (you won't need to bother with transferring session files and a proxy file, everything is much simpler)
+- Simplified work with sessions and proxies, and the .env file of the global config, now you can just do git pull and all the new software updates will be pulled in. (you don't need to bother with transferring session files, proxies and the global config after the update)
+- New features of the global config file, for example, the ability to set your referral links and more
+##
 ![](https://i.ibb.co/7QBLHsT/result.png)
 
 ## Bot Status
