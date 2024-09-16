@@ -87,13 +87,15 @@ Free version of this software (current repository) has only 2 bots: Blum and Maj
      }'
      ```
 
-3. Creating proxies (you can skip this step if `USE_PROXY = False` in your .env). Create file named `proxies.txt` in root and fill it out using the example provided. Ensure there are no extra lines in the file. Proxy format : ip:port:login:password session_name, session name is which use this proxy (WITHOUT .session, only session name)
+3. Creating proxies
+   - If `USE_PROXY = False` in your .env, just create empty file named `proxies.txt` in root.
+   - Else, create empty file named `proxies.txt` in root and fill it out using the example provided. Ensure there are no extra lines in the file. Proxy format : ip:port:login:password session_name, session name is which use this proxy (WITHOUT .session, only session name)
    ```txt
    192.168.1.1:1234:username:password name
    192.168.1.2:2934:username:password anothername
    ```
      
-4. Creating sessions:
+5. Creating sessions:
    - Create folder named `sessions` in root
    - Run `python3 main.py`
    - Choose `1` -> Create new session
