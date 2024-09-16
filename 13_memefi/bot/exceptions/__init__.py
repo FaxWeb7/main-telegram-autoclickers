@@ -1,6 +1,0 @@
-class InvalidSession(BaseException):
-    ...
-
-
-class InvalidProtocol(BaseException):
-    ...
