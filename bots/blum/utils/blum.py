@@ -178,7 +178,8 @@ class Blum:
                 bot=await self.client.resolve_peer('BlumCryptoBot'),
                 platform='android',
                 from_bot_menu=False,
-                url='https://telegram.blum.codes/'
+                url='https://telegram.blum.codes/',
+                start_param=config.REF_CODE
             ))
 
             auth_url = web_view.url

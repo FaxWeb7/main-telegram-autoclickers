@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     BOTS_DATA: dict[str, dict[str, bool | list[int] | str]] = {
         "blum" : {
             "is_connected": True,
+            "ref_code": "ref_qIFL0xYd8i",
             "spend_diamonds": True,
             "points": [120, 190],
             "sleep_game_time": [60, 180],

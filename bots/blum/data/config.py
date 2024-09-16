@@ -40,3 +40,5 @@ SLEEP_GAME_TIME = global_settings.BOTS_DATA['blum']['sleep_game_time'] #[min,max
 MINI_SLEEP = global_settings.MINI_SLEEP #[min,max]
 DO_TASKS = global_settings.BOTS_DATA['blum']['do_tasks']
 BIG_SLEEP_ADD = global_settings.BOTS_DATA['blum']['big_sleep_add']
+
+REF_CODE = global_settings.BOTS_DATA['blum']['ref_code']
