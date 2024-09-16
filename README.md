@@ -1,138 +1,118 @@
 
 # Automatic autoclicker for popular telegram mini-apps
-## (THIS REPOSITORY IS NO LONGER SUPPORTED FOR FREE)
-If you want to purchase this program in an improved form, you can write to me in telegram, @faxweb_dev.
-
-What will be in the paid software:
-- More bots.
-- Constantly updated and working bots
-- Personal support and answers to questions from me
-- New software structure. (you won't need to bother with transferring session files and a proxy file, everything is much simpler)
-- Simplified work with sessions and proxies, and the .env file of the global config, now you can just do git pull and all the new software updates will be pulled in. (you don't need to bother with transferring session files, proxies and the global config after the update)
-- New features of the global config file, for example, the ability to set your referral links and more
-##
+[<img src="https://img.shields.io/badge/Telegram-%40Me-orange">](https://t.me/faxweb_dev)
+[<img src="https://img.shields.io/badge/python-3.11-blue">](https://www.python.org/downloads/)
 ![](https://i.ibb.co/7QBLHsT/result.png)
 
 ## Bot Status
-
+### This is free version of software
+Free version of this software (current repository) has only 2 bots: Blum and Major, but the paid version of the software has 15 bots. If you are interested in purchasing a paid bot, write to me in telegram: https://t.me/faxweb_dev. Paid version software bot status:
 | Status | Bots                                            |
 |:------:|-------------------------------------------------|
 |   ✅   | **Blum, CryptoRank, YesCoin, DotCoin**       |
 |   ✅   | **PocketFi, MuskEmpire, HamsterKombat**       |
-|   ✅   | **OKX Racer, Lost Dogs, Major, Nomis**                       |
-|   ✅   | **Cats, RockyRabbit, MemeFi, CexIo**                      |
-|   ✅   | **TonStation**                      |
+|   ✅   | **OKX Racer, Major, Nomis, Cats**                       |
+|   ✅   | **RockyRabbit, MemeFi, CexIo, TonStation**                      |
 |   ⌛   |                               |
 
 ## Requirements
 - Python 3.11 (you can install it [here](https://www.python.org/downloads/release/python-3110/))
 - Telegram API_ID and API_HASH (you can get them [here](https://my.telegram.org/auth?to=apps))
 
-1. Install the required dependencies:
-   ```bash
-   python3.11 -m pip install -r requirements.txt
+## Run software
+1. Installation:
+   ```shell
+   ~ >>> git clone https://github.com/FaxWeb7/main-telegram-autoclickers.git 
+   ~ >>> cd main-telegram-autoclickers
+   
+   # Linux
+   ~/HamsterKombatBot >>> python3 -m venv venv
+   ~/HamsterKombatBot >>> source venv/bin/activate
+   ~/HamsterKombatBot >>> pip3 install -r requirements.txt
+   ~/HamsterKombatBot >>> cp .env-example .env
+   
+   # Windows
+   ~/HamsterKombatBot >>> python -m venv venv
+   ~/HamsterKombatBot >>> venv\Scripts\activate
+   ~/HamsterKombatBot >>> pip install -r requirements.txt
+   ~/HamsterKombatBot >>> copy .env-example .env
    ```
-
-2. Get your API_ID and API_HASH:
-   - Go to [my.telegram.org](https://my.telegram.org/auth?to=apps)
-   - Sign in with your Telegram account
-   - Create a new application to get your API_ID and API_HASH
-
-3. Configure the application in `global_data/global_config.py`:
+2. Configure the application in `.env`:
    - Add your `API_ID` and `API_HASH`:
      ```python
      API_ID = your_api_id
      API_HASH = 'your_api_hash'
      ```
-
-   - Set random delay between connections to accounts in seconds
-     ```python
-     ACC_DELAY = [minDelay, maxDelay]
-     ```
      
-   - Set random delay between ```while True``` iterations in bots, in seconds
-     ```python
-     BIG_SLEEP = [minDelay, maxDelay]
-     ```
-     
-   - Set `USE_TAPS = False` if you don't want your bots to use taps 
-     ```python
-     BIG_SLEEP = [minDelay, maxDelay]
-     ```
-
-   - If you want to use a proxy, set `USE_PROXY` to `True` and set your `PROXY_TYPE`, otherwise set it to `False`:
+   - If you want to use a proxy, set `USE_PROXY` to `True` and set your `PROXY_TYPE`, otherwise set `USE_PROXY = False`:
      ```python
      USE_PROXY = True  # or False
      PROXY_TYPE = "socks5" # or http
      ```
-     
-   - If you want to turn off some bots, you can do it by select False in the corresponding line in CONNECTED_BOTS, for example:
-     ```python
-      CONECTED_BOTS = {
-          "./1_blum" : True,
-          "./2_cryptorank" : False
-          "./3_yescoin" : True,
-          "./4_dotcoin" : False,
-          "./5_pocketfi" : True,
-          "./6_muskempire" : False,
-          "./7_hamsterkombat" : True,
-          "./8_okxracer" : True,
-          "./9_lostdogs" : False,
-          "./10_major" : False,
-          "./11_nomis" : False,
-          "./12_cats" : True,
-      }
 
+   - Set ACC_DELAY, BIG_SLEEP and USE_TAPS variables
+     ```python
+     ACC_DELAY = [minDelay, maxDelay] # random delay between connections to accounts in seconds
+     BIG_SLEEP = [minDelay, maxDelay] # random delay between <while True> iterations in bots, in seconds
+     USE_TAPS = True or False # USE_TAPS = False if you don't want your bots to use taps
      ```
 
-   - if you want to receive logs from each of the bots, set `USE_TG_BOT = True`, specify your `CHAT_ID`, and specify a token from `@BotFather` for each of the bots:
+   - if you want to receive logs from soft to your telegram, set `USE_TG_BOT = True`, specify your `CHAT_ID`, and specify a `BOT_TOKEN` from `@BotFather`, otherwise set `USE_TG_BOT = False`:
      ```python
-      BLUM_BOT_TOKEN = '87265743:JKFDHad'
-      CRYPTORANK_BOT_TOKEN = '87265743:JKFDHad'
-      YESCOIN_BOT_TOKEN = '87265743:JKFDHad'
-      DOTCOIN_BOT_TOKEN = '87265743:JKFDHad'
-      POCKETFI_BOT_TOKEN = '87265743:JKFDHad'
-      MUSKEMPIRE_BOT_TOKEN = '87265743:JKFDHad'
-      HAMSTERKOMBAT_BOT_TOKEN = '87265743:JKFDHad'
-      OKXRACER_BOT_TOKEN = '87265743:JKFDHad'
-      LOSTDOGS_BOT_TOKEN = '87265743:JKFDHad'
-      MAJOR_BOT_TOKEN = '87265743:JKFDHad'
-      NOMIS_BOT_TOKEN = '87265743:JKFDHad'
-      CATS_BOT_TOKEN = '87265743:JKFDHad'
+     USE_TG_BOT = True
+     CHAT_ID = '123456789'
+     BOT_TOKEN = '1234567:asdfghjqwerty'
+     ```
+   - For each bot in BOTS_DATA, you can choose for you, use this bot or not (is_connected), and specify individual settings for this particular bot. Default BOTS_DATA:
+     ```python
+     BOTS_DATA= '{
+        "blum" : {
+            "is_connected": true,
+            "spend_diamonds": true,
+            "points": [120, 190],
+            "sleep_game_time": [60, 180],
+            "do_tasks": true,
+            "big_sleep_add": [1800, 3600]
+        },
+        "major" : {
+            "is_connected": true,
+            "ref_code": "6046075760",
+            "play_hold_coin": true,
+            "play_roulette": true,
+            "play_swipe_coin": true,
+            "join_squad": true,
+            "task_sleep": [30, 120],
+            "game_sleep": [60, 180]
+        }
+     }'
      ```
 
-4. Creating proxies:
-   - If `USE_PROXY` is `True`, open `global_data/proxies.txt` and fill it out using the example provided. Ensure there are no extra lines in the file.
-   Proxy format : ip:port:login:password session_name, session name is which use this proxy (WITHOUT .session, only session name)
-      ```txt
-      192.168.1.1:1234:username:password 1_name
-      192.168.1.2:2934:username:password 2_anothername
-      ```
-   - Now you need to move all these proxies to all folders with bots, run `python3.11 main.py`
-   - Choose `2` -> Actions with proxies
-   - Choose `2` -> Add all proxies from ./global_data/proxies.txt/
+3. Creating proxies (you can skip this step if `USE_PROXY = False` in your .env). Create file named `proxies.txt` in root and fill it out using the example provided. Ensure there are no extra lines in the file. Proxy format : ip:port:login:password session_name, session name is which use this proxy (WITHOUT .session, only session name)
+   ```txt
+   192.168.1.1:1234:username:password name
+   192.168.1.2:2934:username:password anothername
+   ```
      
-5. Creating sessions:
-   - Run `python3.11 main.py`
-   - Choose `1` -> Actions with sessions
-   - Choose `5` -> Create new session. it is important to name sessions exactly like this (with numeration):
-      ```txt
-      1_name.session
-      2_anothername.session
-      ```
-   - Now you need to move all these sessions to all folders with bots, run `python3.11 main.py`
-   - Choose `1` -> Actions with sessions
-   - Choose `2` -> Add all sessions from ./global_data/sessions/
+4. Creating sessions:
+   - Create folder named `sessions` in root
+   - Run `python3 main.py`
+   - Choose `1` -> Create new session
+   - Enter the session name, phone number and etc.
 
 ## Usage
+1. Launching bots that have `is_connected = True` in the `BOTS_DATA` variable of the `.env` file:
+   - Run `python3 main.py`
+   - Choose `2` -> Run bots
+   - Enter the number of seconds during which every bot will work
+   - Enter a delay between the work of every pair of bots (in seconds)
+   
+2. Installing repository updates (if you see that I have committed a new change to a bot)
+   - Run `git pull` in root of repository
+      - If I added a new bot, you need to copy the variable with the settings for the new bot in BOTS_DATA in the .env-example file, and paste these settings into your .env file. (Adjust the settings for yourself if necessary)
+      - if I didn’t add a new bot, but corrected the errors of the current bots, then just git pull is enough
 
-Launch bots selected in ```global_data/global_config.py```
-- Run `python3.11 main.py`
-- Choose `4` -> Run bots
-- Or you can also just run `python3.11 main.py -a 4`
-
+  
 ## Important Notes
-
 - DONT USE MAIN ACCOUNT BECAUSE THERE IS ALWAYS A CHANCE TO GET BANNED IN TELEGRAM
 - **Python Version:** The software runs on Python 3.11. Using a different version may cause errors.
 - The software will work with all accounts using the single `API_ID` and `API_HASH`. No need to change them for each account.
