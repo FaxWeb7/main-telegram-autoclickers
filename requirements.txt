@@ -6,3 +6,6 @@ fake-useragent==1.5.1
 requests==2.28.1
 aiohttp_socks==0.8.4
 python-dotenv==1.0.1
+pydantic==2.8.2
+pydantic-settings==2.3.4
+pydantic_core==2.20.1
