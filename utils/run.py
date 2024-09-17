@@ -27,12 +27,7 @@ async def update_data():
 
         for path in global_settings.SECOND_PATHS:
             with open(f'bots/{path}/bot/config/proxies.txt', 'w', encoding='utf-8') as file:
-                file.write('')
-            with open(f'bots/{path}/bot/config/proxies.txt', 'a', encoding='utf-8') as file:
-                for proxy in all_proxies.split('\n'):
-                    if (proxy == '' or proxy == '\n' or len(proxy.strip().split(' ')) != 2): continue
-                    proxy = proxy.strip().split(' ')[0].split(':')
-                    file.write(f'{global_settings.PROXY_TYPE}://{proxy[2]}:{proxy[3]}@{proxy[0]}:{proxy[1]}\n')
+                file.write(all_proxies)
         logger.info('[SOFT] | update_data | Proxies successfully updated')
 
         logger.info('[SOFT] | update_data | Updating configs...')

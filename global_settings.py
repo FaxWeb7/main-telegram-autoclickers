@@ -49,6 +49,16 @@ class Settings(BaseSettings):
             "use_energy_recover": True,
             "clicks_sleep": [60, 180],
             "tasks_sleep": [10, 40]
+        },
+        "dotcoin" : {
+            "is_connected": True,
+            "ref_code": "r_6046075760",
+            "auto_upgrade_tap": True,
+            "max_tap_level": 5,
+            "auto_upgrade_attempts": True,
+            "max_attempts_level": 5,
+            "random_taps_count": [50, 200],
+            "taps_sleep": [10, 25]
         }
     }
 
@@ -62,6 +72,6 @@ class Settings(BaseSettings):
     GitHub Repository: https://github.com/FaxWeb7/main-telegram-autoclickers
     """
     FIRST_PATHS: list[str] = ['blum', 'major', 'yescoin']
-    SECOND_PATHS: list[str] = []
+    SECOND_PATHS: list[str] = ['dotcoin']
 
 global_settings = Settings()
