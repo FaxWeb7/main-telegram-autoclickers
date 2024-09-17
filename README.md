@@ -28,10 +28,14 @@ Free version of this software (current repository) has only 2 bots: Blum and Maj
    # Linux
    ~/main-telegram-autoclickers >>> pip3 install -r requirements.txt
    ~/main-telegram-autoclickers >>> cp .env-example .env
+   ~/main-telegram-autoclickers >>> touch proxies.txt
+   ~/main-telegram-autoclickers >>> mkdir sessions
    
    # Windows
    ~/main-telegram-autoclickers >>> pip install -r requirements.txt
    ~/main-telegram-autoclickers >>> copy .env-example .env
+   ~/main-telegram-autoclickers >>> type nul > proxies.txt
+   ~/main-telegram-autoclickers >>> mkdir sessions
    ```
 2. Configure the application in `.env`:
    - Add your `API_ID` and `API_HASH`:
