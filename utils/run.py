@@ -74,14 +74,14 @@ async def run_soft():
                 while True:
                     line = await process.stdout.readline()
                     if line:
-                        logger.info(f'[{folder}] | {line.decode().rstrip()}')
+                        logger.info(f'[{folder}] | {line.decode("cp1252").rstrip()}')
                     else: break
 
             async def stream_errors(process, folder):
                 while True:
                     line = await process.stderr.readline()
                     if line:
-                        logger.error(f'[{folder}] | {line.decode().rstrip()}')
+                        logger.error(f'[{folder}] | {line.decode("cp1252").rstrip()}')
                     else: break
 
             asyncio.create_task(stream_output(process, folder))
