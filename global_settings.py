@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     CHAT_ID: str = ''
     BOT_TOKEN: str = ''
 
-    BOTS_DATA: dict[str, dict[str, bool | list[int] | str]] = {
+    BOTS_DATA: dict[str, dict[str, bool | list[int] | str | int]] = {
         "blum" : {
             "is_connected": True,
             "ref_code": "ref_qIFL0xYd8i",
@@ -37,6 +37,18 @@ class Settings(BaseSettings):
             "join_squad": True,
             "task_sleep": [30, 120],
             "game_sleep": [60, 180]
+        },
+        "yescoin" : {
+            "is_connected": True,
+            "ref_code": "KWWehI",
+            "do_tasks": True,
+            "upgrade": True,
+            "max_upgrade_lvl": 7,
+            "min_energy": 50,
+            "use_chests": True,
+            "use_energy_recover": True,
+            "clicks_sleep": [60, 180],
+            "tasks_sleep": [10, 40]
         }
     }
 
@@ -49,7 +61,7 @@ class Settings(BaseSettings):
     ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝ ╚══╝╚══╝ ╚══════╝╚═════╝
     GitHub Repository: https://github.com/FaxWeb7/main-telegram-autoclickers
     """
-    FIRST_PATHS: list[str] = ['blum', 'major']
+    FIRST_PATHS: list[str] = ['blum', 'major', 'yescoin']
     SECOND_PATHS: list[str] = []
 
 global_settings = Settings()
