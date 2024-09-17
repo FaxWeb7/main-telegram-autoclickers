@@ -26,16 +26,12 @@ Free version of this software (current repository) has only 2 bots: Blum and Maj
    ~ >>> cd main-telegram-autoclickers
    
    # Linux
-   ~/HamsterKombatBot >>> python3 -m venv venv
-   ~/HamsterKombatBot >>> source venv/bin/activate
-   ~/HamsterKombatBot >>> pip3 install -r requirements.txt
-   ~/HamsterKombatBot >>> cp .env-example .env
+   ~/main-telegram-autoclickers >>> pip3 install -r requirements.txt
+   ~/main-telegram-autoclickers >>> cp .env-example .env
    
    # Windows
-   ~/HamsterKombatBot >>> python -m venv venv
-   ~/HamsterKombatBot >>> venv\Scripts\activate
-   ~/HamsterKombatBot >>> pip install -r requirements.txt
-   ~/HamsterKombatBot >>> copy .env-example .env
+   ~/main-telegram-autoclickers >>> pip install -r requirements.txt
+   ~/main-telegram-autoclickers >>> copy .env-example .env
    ```
 2. Configure the application in `.env`:
    - Add your `API_ID` and `API_HASH`:
