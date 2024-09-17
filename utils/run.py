@@ -50,13 +50,6 @@ async def update_data():
         return False
 
 async def run_soft():
-    a = 0
-    if not os.path.exists('.env'):
-        print("Create .env file and fill it!")
-        return
-    if global_settings.API_ID == 0 or global_settings.API_HASH == '':
-        print("Fill API_ID and API_HASH in .env!")
-        return
     lapDelay = int(input(f"Enter the number of seconds during which every bot will work: "))
     workDelay = int(input(f"Enter a delay between the work of every pair of bots (in seconds): "))
 

@@ -1,3 +1,4 @@
+import os
 import asyncio
 import argparse
 
@@ -12,6 +13,19 @@ async def process():
     parser.add_argument('-a', '--action', type=str, help='Action')
     startAction = parser.parse_args().action
     if (startAction): startAction = int(startAction)
+
+    if not os.path.exists('sessions'):
+        print("Sessions folder not found, read README!")
+        return
+    if not os.path.exists('proxies.txt'):
+        print("File proxies.txt not found, read README!")
+        return
+    if not os.path.exists('.env'):
+        print("File .env not found, read README!")
+        return
+    if global_settings.API_ID == 0 or global_settings.API_HASH == '':
+        print("API_ID or API_HASH not found in .env, read README!")
+        return
 
     while True:
         if (startAction != None): 
