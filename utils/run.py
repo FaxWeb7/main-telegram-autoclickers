@@ -1,5 +1,5 @@
 import asyncio
-import os
+import os, sys
 from pathlib import Path
 from shutil import copytree, rmtree
 
@@ -74,14 +74,14 @@ async def run_soft():
                 while True:
                     line = await process.stdout.readline()
                     if line:
-                        logger.info(f'[{folder}] | {line.decode("cp1252").rstrip()}')
+                        logger.info(f'[{folder}] | {line.decode(sys.stdout.encoding).rstrip()}')
                     else: break
 
             async def stream_errors(process, folder):
                 while True:
                     line = await process.stderr.readline()
                     if line:
-                        logger.error(f'[{folder}] | {line.decode("cp1252").rstrip()}')
+                        logger.error(f'[{folder}] | {line.decode(sys.stdout.encoding).rstrip()}')
                     else: break
 
             asyncio.create_task(stream_output(process, folder))
