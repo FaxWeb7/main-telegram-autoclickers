@@ -25,7 +25,7 @@ def get_session_names() -> list[str]:
     return session_names
 
 
-def get_proxies() -> list[Proxy]:
+def get_proxies() -> list[str]:
     if settings.USE_PROXY_FROM_FILE:
         with open('bot/config/proxies.txt', 'r', encoding='utf-8-sig') as file:
             proxies = file.read().split('\n')
