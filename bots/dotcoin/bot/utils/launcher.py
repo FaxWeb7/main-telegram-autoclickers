@@ -72,7 +72,7 @@ async def run_tasks(tg_clients: list[Client]):
         tasks.append(asyncio.create_task(
             run_claimer(
                 tg_client=tg_client,
-                proxy=proxies[tg_client.name] if tg_client.name in proxies else None
+                proxy=proxy_dict[tg_client.name] if tg_client.name in proxy_dict else None
             )
         ))
     await asyncio.gather(*tasks)
