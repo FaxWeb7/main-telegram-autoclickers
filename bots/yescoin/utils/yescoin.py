@@ -16,7 +16,7 @@ class YesCoin:
         self.account = session_name + '.session'
         self.thread = thread
         self.proxy = f"{config.PROXY['TYPE']['REQUESTS']}://{proxy.split(':')[2]}:{proxy.split(':')[3]}@{proxy.split(':')[0]}:{proxy.split(':')[1]}"
-        connector = aiohttp_proxy.ProxyConnector.from_url(self.proxy) if proxy else aiohttp.TCPConnector(verify_ssl=False)
+        connector = aiohttp_proxy.ProxyConnector.from_url(self.proxy, verify_ssl=False) if proxy else aiohttp.TCPConnector(verify_ssl=False)
 
         if proxy:
             proxy = {

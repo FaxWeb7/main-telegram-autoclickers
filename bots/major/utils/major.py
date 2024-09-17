@@ -35,7 +35,7 @@ class Major:
             self.proxy = None
             
     async def create_session(self):
-        connector = ProxyConnector.from_url(self.proxy) if self.proxy else aiohttp.TCPConnector(verify_ssl=False)
+        connector = ProxyConnector.from_url(self.proxy, verify_ssl=False) if self.proxy else aiohttp.TCPConnector(verify_ssl=False)
         
         headers = {
             'accept': 'application/json, text/plain, */*',
