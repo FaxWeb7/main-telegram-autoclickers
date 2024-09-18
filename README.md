@@ -28,14 +28,10 @@ Free version of this software (current repository) has only 4 bots: Blum, Major,
    # Linux
    ~/main-telegram-autoclickers >>> pip3 install -r requirements.txt
    ~/main-telegram-autoclickers >>> cp .env-example .env
-   ~/main-telegram-autoclickers >>> touch proxies.txt
-   ~/main-telegram-autoclickers >>> mkdir sessions
    
    # Windows
    ~/main-telegram-autoclickers >>> pip install -r requirements.txt
    ~/main-telegram-autoclickers >>> copy .env-example .env
-   ~/main-telegram-autoclickers >>> type nul > proxies.txt
-   ~/main-telegram-autoclickers >>> mkdir sessions
    ```
 2. Configure the application in `.env`:
    - Add your `API_ID` and `API_HASH`:
@@ -88,7 +84,7 @@ Free version of this software (current repository) has only 4 bots: Blum, Major,
      ```
 
 3. Creating proxies
-   - If `USE_PROXY = False` in your .env, just create empty file named `proxies.txt` in root.
+   - If `USE_PROXY = False` , then skip this step
    - Else, create empty file named `proxies.txt` in root and fill it out using the example provided. Ensure there are no extra lines in the file. Proxy format : ip:port:login:password session_name, session name is which use this proxy (WITHOUT .session, only session name)
    ```txt
    192.168.1.1:1234:username:password name
@@ -96,7 +92,6 @@ Free version of this software (current repository) has only 4 bots: Blum, Major,
    ```
      
 5. Creating sessions:
-   - Create folder named `sessions` in root
    - Run `python3 main.py`
    - Choose `1` -> Create new session
    - Enter the session name, phone number and etc.
@@ -105,7 +100,6 @@ Free version of this software (current repository) has only 4 bots: Blum, Major,
 1. Launching bots that have `is_connected = True` in the `BOTS_DATA` variable of the `.env` file:
    - Run `python3 main.py`
    - Choose `2` -> Run bots
-   - Enter the number of seconds during which every bot will work
    - Enter a delay between the work of every pair of bots (in seconds)
    
 2. Installing repository updates (if you see that I have committed a new change to a bot)
