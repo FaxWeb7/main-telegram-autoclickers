@@ -45,6 +45,13 @@ async def update_data():
         return False
 
 async def run_soft():
+    session_path = Path('sessions')
+    session_files = session_path.glob('*.session')
+    session_names = [file.stem for file in session_files]
+    if (len(session_names) == 0):
+        print("Create sessions!")
+        return
+    
     lapDelay = int(input(f"Enter the number of seconds during which every bot will work: "))
     workDelay = int(input(f"Enter a delay between the work of every pair of bots (in seconds): "))
 

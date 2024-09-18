@@ -15,11 +15,9 @@ async def process():
     if (startAction): startAction = int(startAction)
 
     if not os.path.exists('sessions'):
-        print("Sessions folder not found, read README!")
-        return
+        os.mkdir('sessions')
     if not os.path.exists('proxies.txt'):
-        print("File proxies.txt not found, read README!")
-        return
+        with open('proxies.txt', 'w') as f: f.write('')
     if not os.path.exists('.env'):
         print("File .env not found, read README!")
         return
