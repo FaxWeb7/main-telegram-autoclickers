@@ -36,7 +36,6 @@ DELAYS = {
     'ACCOUNT': global_settings.ACC_DELAY,  # delay between connections to accounts (the more accounts, the longer the delay)
     'CLICKS': global_settings.BOTS_DATA['yescoin']['clicks_sleep'],   # delay between clicks
     'TASKS': global_settings.BOTS_DATA['yescoin']['tasks_sleep'],      # delay between completed tasks
-    'BIG_SLEEP' : global_settings.BIG_SLEEP
 }
 
 PROXY = {

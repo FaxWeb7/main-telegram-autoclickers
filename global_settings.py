@@ -10,7 +10,6 @@ class Settings(BaseSettings):
     PROXY_TYPE: str = "socks5"
 
     ACC_DELAY: list[int] = [0, 200]
-    BIG_SLEEP: list[int] = [10000, 20000]
     MINI_SLEEP: list[int] = [20, 80]
     USE_TAPS: bool = False
 
@@ -18,15 +17,14 @@ class Settings(BaseSettings):
     CHAT_ID: str = ''
     BOT_TOKEN: str = ''
 
-    BOTS_DATA: dict[str, dict[str, bool | list[int] | str | int]] = {
+    BOTS_DATA: dict[str, dict[str, bool | list[int] | str | int | float]] = {
         "blum" : {
             "is_connected": True,
             "ref_code": "ref_qIFL0xYd8i",
             "spend_diamonds": True,
             "points": [120, 190],
             "sleep_game_time": [60, 180],
-            "do_tasks": True,
-            "big_sleep_add": [1800, 3600]
+            "do_tasks": True
         },
         "major" : {
             "is_connected": True,

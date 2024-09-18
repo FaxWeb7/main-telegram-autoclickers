@@ -47,7 +47,6 @@ SWIPE_COIN = global_settings.BOTS_DATA['major']['play_swipe_coin']
 MINI_SLEEP = global_settings.MINI_SLEEP
 
 #задержка между циклами
-BIG_SLEEP = global_settings.BIG_SLEEP
 
 # вступать в сквад
 JOIN_SQUAD = global_settings.BOTS_DATA['major']['join_squad']

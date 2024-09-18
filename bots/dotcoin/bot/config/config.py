@@ -18,7 +18,6 @@ class Settings(BaseSettings):
     PROXY_TYPE: str = global_settings.PROXY_TYPE
 
     ACC_DELAY: list[int] = global_settings.ACC_DELAY
-    BIG_SLEEP: list[int] = global_settings.BIG_SLEEP
 
     AUTO_UPGRADE_TAP: bool = global_settings.BOTS_DATA['dotcoin']['auto_upgrade_tap']
     MAX_TAP_LEVEL: int = global_settings.BOTS_DATA['dotcoin']['max_tap_level']
