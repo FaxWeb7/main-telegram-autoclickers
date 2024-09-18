@@ -52,7 +52,6 @@ async def run_soft():
         print("Create sessions!")
         return
     
-    lapDelay = int(input(f"Enter the number of seconds during which every bot will work: "))
     workDelay = int(input(f"Enter a delay between the work of every pair of bots (in seconds): "))
 
     ok = await update_data()
@@ -88,9 +87,6 @@ async def run_soft():
 
             asyncio.create_task(stream_output(process, folder))
             asyncio.create_task(stream_errors(process, folder))
-
-            await asyncio.sleep(lapDelay)
-            process.kill()
             await process.wait()
 
             logger.info(f"[SOFT] | run_soft | Wait {workDelay} seconds to next bot...")

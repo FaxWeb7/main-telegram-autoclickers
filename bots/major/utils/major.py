@@ -35,7 +35,7 @@ class Major:
             self.proxy = None
             
     async def create_session(self):
-        connector = ProxyConnector.from_url(self.proxy, verify_ssl=False) if self.proxy else aiohttp.TCPConnector(verify_ssl=False)
+        connector = ProxyConnector.from_url(self.proxy) if self.proxy else aiohttp.TCPConnector(verify_ssl=False)
         
         headers = {
             'accept': 'application/json, text/plain, */*',
@@ -55,88 +55,83 @@ class Major:
         return aiohttp.ClientSession(headers=headers, trust_env=True, connector=connector)
     
     async def main(self):
-        while True:
+        try:
+            await asyncio.sleep(random.randint(*config.ACC_DELAY))
+            self.session = await self.create_session()
             try:
-                await asyncio.sleep(random.randint(*config.ACC_DELAY))
-                self.session = await self.create_session()
-                try:
-                    login = await self.login()
-                    if login == False:
-                        await self.session.close()
-                        return 0
-                    logger.info(f"main | Thread {self.thread} | {self.name} | Start! | PROXY : {self.proxy}")
-                except Exception as err:
-                    logger.error(f"main | Thread {self.thread} | {self.name} | {err}")
+                login = await self.login()
+                if login == False:
                     await self.session.close()
                     return 0
-                
-                user = await self.user()
+                logger.info(f"main | Thread {self.thread} | {self.name} | Start! | PROXY : {self.proxy}")
+            except Exception as err:
+                logger.error(f"main | Thread {self.thread} | {self.name} | {err}")
+                await self.session.close()
+                return 0
+            
+            user = await self.user()
+            await asyncio.sleep(random.uniform(*config.MINI_SLEEP))
+            if random.randint(0,3) == 0 and config.JOIN_SQUAD:
+                if user['squad_id'] == None:
+                    subscribe=True
+                    tasks = await self.get_tasks(is_daily=False)
+                    for task in tasks:
+                        if task['id'] == 27:
+                            subscribe = False
+                    if not subscribe:
+                        async with self.client:
+                            ans = await self.client.join_chat('starsmajor')
+                        await self.do_task(task_id=27)
+                    await self.join_squad()
                 await asyncio.sleep(random.uniform(*config.MINI_SLEEP))
-                if random.randint(0,3) == 0 and config.JOIN_SQUAD:
-                    if user['squad_id'] == None:
-                        subscribe=True
-                        tasks = await self.get_tasks(is_daily=False)
-                        for task in tasks:
-                            if task['id'] == 27:
-                                subscribe = False
-                        if not subscribe:
-                            async with self.client:
-                                ans = await self.client.join_chat('starsmajor')
-                            await self.do_task(task_id=27)
-                        await self.join_squad()
-                    await asyncio.sleep(random.uniform(*config.MINI_SLEEP))
 
-                await self.get_streak()
-                await self.visit()
-                
-                await asyncio.sleep(random.uniform(*config.MINI_SLEEP))
-                tasks = await self.get_tasks(is_daily=False)
-                await asyncio.sleep(3*random.uniform(*config.MINI_SLEEP))
-                for task in tasks:
-                    if not task['is_completed'] and task['id'] not in config.BLACKLIST_TASKS:
-                        if random.randint(0,3) == 0: 
-                            task_info = (await self.do_task(task_id=task['id']))
-                            if 'detail' in task_info:
-                                logger.info(f"main | Thread {self.thread} | {self.name} | {task_info['detail']}")
-                                await asyncio.sleep(10*random.uniform(*config.TASK_SLEEP))
-                            elif task_info['is_completed']:
-                                logger.success(f"main | Thread {self.thread} | {self.name} | CLAIM TASK {task['description']}")
-                                await self.get_tasks(is_daily=False)
-                                await self.get_tasks(is_daily=True)
-                                await asyncio.sleep(random.uniform(*config.TASK_SLEEP))
-                
-                await asyncio.sleep(random.uniform(*config.MINI_SLEEP))
-                
-                tasks = await self.get_tasks(is_daily=True)
-                for task in tasks:
-                    if not task['is_completed'] and task['id'] == 5:
+            await self.get_streak()
+            await self.visit()
+            
+            await asyncio.sleep(random.uniform(*config.MINI_SLEEP))
+            tasks = await self.get_tasks(is_daily=False)
+            await asyncio.sleep(3*random.uniform(*config.MINI_SLEEP))
+            for task in tasks:
+                if not task['is_completed'] and task['id'] not in config.BLACKLIST_TASKS:
+                    if random.randint(0,3) == 0: 
                         task_info = (await self.do_task(task_id=task['id']))
                         if 'detail' in task_info:
                             logger.info(f"main | Thread {self.thread} | {self.name} | {task_info['detail']}")
+                            await asyncio.sleep(10*random.uniform(*config.TASK_SLEEP))
                         elif task_info['is_completed']:
                             logger.success(f"main | Thread {self.thread} | {self.name} | CLAIM TASK {task['description']}")
-                
-                mini_games = []
-                if config.HOLD_COIN:
-                    mini_games.append(self.play_hold_coin)
-                if config.ROULETTE:
-                    mini_games.append(self.play_roulette)
-                if config.SWIPE_COIN:
-                    mini_games.append(self.play_swipe_coin)
-                random.shuffle(mini_games)
-                for game in mini_games:
-                    await game()
-                    await asyncio.sleep(random.uniform(*config.GAME_SLEEP))
-                
-                await self.session.close()
-                
-                logger.info(f"main | Thread {self.thread} | {self.name} | КРУГ ОКОНЧЕН")
-                await asyncio.sleep(random.uniform(*config.BIG_SLEEP))
-            except Exception as err:
-                logger.error(f"main | Thread {self.thread} | {self.name} | {err}")
+                            await self.get_tasks(is_daily=False)
+                            await self.get_tasks(is_daily=True)
+                            await asyncio.sleep(random.uniform(*config.TASK_SLEEP))
             
-                
+            await asyncio.sleep(random.uniform(*config.MINI_SLEEP))
             
+            tasks = await self.get_tasks(is_daily=True)
+            for task in tasks:
+                if not task['is_completed'] and task['id'] == 5:
+                    task_info = (await self.do_task(task_id=task['id']))
+                    if 'detail' in task_info:
+                        logger.info(f"main | Thread {self.thread} | {self.name} | {task_info['detail']}")
+                    elif task_info['is_completed']:
+                        logger.success(f"main | Thread {self.thread} | {self.name} | CLAIM TASK {task['description']}")
+            
+            mini_games = []
+            if config.HOLD_COIN:
+                mini_games.append(self.play_hold_coin)
+            if config.ROULETTE:
+                mini_games.append(self.play_roulette)
+            if config.SWIPE_COIN:
+                mini_games.append(self.play_swipe_coin)
+            random.shuffle(mini_games)
+            for game in mini_games:
+                await game()
+                await asyncio.sleep(random.uniform(*config.GAME_SLEEP))
+            
+            await self.session.close()
+            logger.info(f"main | Thread {self.thread} | {self.name} | All activities in major completed")
+        except Exception as err:
+            logger.error(f"main | Thread {self.thread} | {self.name} | {err}")
+            await self.session.close()
 
     async def play_swipe_coin(self):
         resp = await self.session.get("https://major.bot/api/swipe_coin/")

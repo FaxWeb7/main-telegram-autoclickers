@@ -58,58 +58,44 @@ class Blum:
             await self.session.close()
             return 0
             
-        while True:
-            try:
-                valid = await self.is_token_valid()
-                if not valid:
-                    logger.warning(f"main | Thread {self.thread} | {self.name} | Token is invalid. Refreshing token...")
-                    await self.refresh()
+        try:
+            valid = await self.is_token_valid()
+            if not valid:
+                logger.warning(f"main | Thread {self.thread} | {self.name} | Token is invalid. Refreshing token...")
+                await self.refresh()
+            await asyncio.sleep(random.randint(*config.MINI_SLEEP))
+            
+            await self.claim_diamond()
+            await asyncio.sleep(random.randint(*config.MINI_SLEEP))
+            
+            timestamp, start_time, end_time = await self.balance()
+            
+            await self.get_referral_info()
+            await asyncio.sleep(random.randint(*config.MINI_SLEEP))
+            
+            if config.DO_TASKS:
+                await self.do_tasks()
                 await asyncio.sleep(random.randint(*config.MINI_SLEEP))
-                
-                await self.claim_diamond()
-                await asyncio.sleep(random.randint(*config.MINI_SLEEP))
-                
-                try:
-                    timestamp, start_time, end_time = await self.balance()
-                except:
-                    continue
-                
-                await self.get_referral_info()
-                await asyncio.sleep(random.randint(*config.MINI_SLEEP))
-                
-                if config.DO_TASKS:
-                    await self.do_tasks()
-                    await asyncio.sleep(random.randint(*config.MINI_SLEEP))
-                
-                if config.SPEND_DIAMONDS:
-                    diamonds_balance = await self.get_diamonds_balance()
-                    logger.info(f"main | Thread {self.thread} | {self.name} | Have {diamonds_balance} diamonds!")
-                    for _ in range(diamonds_balance):
-                        await self.game()
-                        await asyncio.sleep(random.randint(*config.SLEEP_GAME_TIME))
-                        
-                if start_time is None and end_time is None:
-                    await self.start()
-                    logger.info(f"main | Thread {self.thread} | {self.name} | Start farming!")
-                elif start_time is not None and end_time is not None and timestamp >= end_time:
-                    timestamp, balance = await self.claim()
-                    logger.success(f"main | Thread {self.thread} | {self.name} | Claimed reward! Balance: {balance}")
-                else:
-                    add_sleep = random.randint(*config.BIG_SLEEP_ADD)
-                    logger.info(f"main | Thread {self.thread} | {self.name} | Sleep {(end_time-timestamp+add_sleep)} seconds!")
-                    await asyncio.sleep(end_time-timestamp+add_sleep)
-                    await self.login()
-                await asyncio.sleep(random.randint(*config.MINI_SLEEP))
-            except Exception as err:
-                logger.error(f"main | Thread {self.thread} | {self.name} | {err}")
-                if err != "Server disconnected":
-                    valid = await self.is_token_valid()
-                    if not valid:
-                        logger.warning(f"main | Thread {self.thread} | {self.name} | Token is invalid. Refreshing token...")
-                        await self.refresh()
-                    await asyncio.sleep(random.randint(*config.MINI_SLEEP))
-                else:
-                    await asyncio.sleep(5*random.randint(*config.MINI_SLEEP))
+            
+            if config.SPEND_DIAMONDS:
+                diamonds_balance = await self.get_diamonds_balance()
+                logger.info(f"main | Thread {self.thread} | {self.name} | Have {diamonds_balance} diamonds!")
+                for _ in range(diamonds_balance):
+                    await self.game()
+                    await asyncio.sleep(random.randint(*config.SLEEP_GAME_TIME))
+                    
+            if start_time is None and end_time is None:
+                await self.start()
+                logger.info(f"main | Thread {self.thread} | {self.name} | Start farming!")
+            elif start_time is not None and end_time is not None and timestamp >= end_time:
+                timestamp, balance = await self.claim()
+                logger.success(f"main | Thread {self.thread} | {self.name} | Claimed reward! Balance: {balance}")
+            
+            await self.session.close()
+            logger.info(f"main | Thread {self.thread} | {self.name} | All activities in blum completed")
+        except Exception as err:
+            logger.error(f"main | Thread {self.thread} | {self.name} | Error log: {err}")
+            await self.session.close()
 
 
     async def claim(self):
