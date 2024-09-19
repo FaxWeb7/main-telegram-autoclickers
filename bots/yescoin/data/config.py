@@ -58,3 +58,5 @@ register accounts in web app
 The soft also collects statistics on accounts and uses proxies from {f"the {PROXY['PROXY_PATH']} file" if PROXY['USE_PROXY_FROM_FILE'] else "the accounts.json file"}
 To buy this soft with the option to set your referral link write me: https://t.me/Axcent_ape
 """
+
+ERRORS_BEFORE_STOP = global_settings.BOTS_DATA['yescoin']['errors_before_stop']

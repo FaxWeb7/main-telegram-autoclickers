@@ -50,3 +50,4 @@ MINI_SLEEP = global_settings.MINI_SLEEP
 
 # вступать в сквад
 JOIN_SQUAD = global_settings.BOTS_DATA['major']['join_squad']
+ERRORS_BEFORE_STOP = global_settings.BOTS_DATA['major']['errors_before_stop']

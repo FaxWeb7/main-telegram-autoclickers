@@ -28,6 +28,7 @@ class Settings(BaseSettings):
     SLEEP_BETWEEN_TAP: list[int] = global_settings.BOTS_DATA['dotcoin']['taps_sleep']
     REF_CODE: str = global_settings.BOTS_DATA['dotcoin']['ref_code']
     USE_PROXY_FROM_FILE: bool = global_settings.USE_PROXY
+    ERRORS_BEFORE_STOP: int = global_settings.BOTS_DATA['dotcoin']['errors_before_stop']
 
 
 settings = Settings()

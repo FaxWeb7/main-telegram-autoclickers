@@ -41,3 +41,4 @@ MINI_SLEEP = global_settings.MINI_SLEEP #[min,max]
 DO_TASKS = global_settings.BOTS_DATA['blum']['do_tasks']
 
 REF_CODE = global_settings.BOTS_DATA['blum']['ref_code']
+ERRORS_BEFORE_STOP = global_settings.BOTS_DATA['blum']['errors_before_stop']

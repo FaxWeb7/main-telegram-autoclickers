@@ -21,6 +21,7 @@ class Settings(BaseSettings):
         "blum" : {
             "is_connected": True,
             "ref_code": "ref_qIFL0xYd8i",
+            "errors_before_stop": 8,
             "spend_diamonds": True,
             "points": [120, 190],
             "sleep_game_time": [60, 180],
@@ -29,6 +30,7 @@ class Settings(BaseSettings):
         "major" : {
             "is_connected": True,
             "ref_code": "6046075760",
+            "errors_before_stop": 8,
             "play_hold_coin": True,
             "play_roulette": True,
             "play_swipe_coin": True,
@@ -39,6 +41,7 @@ class Settings(BaseSettings):
         "yescoin" : {
             "is_connected": True,
             "ref_code": "KWWehI",
+            "errors_before_stop": 8,
             "do_tasks": True,
             "upgrade": True,
             "max_upgrade_lvl": 7,
@@ -51,6 +54,7 @@ class Settings(BaseSettings):
         "dotcoin" : {
             "is_connected": True,
             "ref_code": "r_6046075760",
+            "errors_before_stop": 8,
             "auto_upgrade_tap": True,
             "max_tap_level": 5,
             "auto_upgrade_attempts": True,

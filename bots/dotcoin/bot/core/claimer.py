@@ -22,6 +22,7 @@ class Claimer:
     def __init__(self, tg_client: Client):
         self.session_name = tg_client.name
         self.tg_client = tg_client
+        self.error_cnt = 0
         headers['User-Agent'] = UserAgent(os='android').random
 
     async def get_tg_web_data(self, proxy: str | None) -> dict[str]:
@@ -183,109 +184,115 @@ class Claimer:
             if proxy:
                 await self.check_proxy(http_client=http_client, proxy=proxy)
 
-            try:
-                if time() - access_token_created_time >= 3600:
-                    tg_web_data = await self.get_tg_web_data(proxy=proxy)
-                    access_token = await self.get_token(http_client=http_client, tg_web_data=tg_web_data['tg_web_data'])
+            while True:
+                try:
+                    if time() - access_token_created_time >= 3600:
+                        tg_web_data = await self.get_tg_web_data(proxy=proxy)
+                        access_token = await self.get_token(http_client=http_client, tg_web_data=tg_web_data['tg_web_data'])
 
-                    http_client.headers["Authorization"] = f"Bearer {access_token}"
-                    headers["Authorization"] = f"Bearer {access_token}"
+                        http_client.headers["Authorization"] = f"Bearer {access_token}"
+                        headers["Authorization"] = f"Bearer {access_token}"
 
-                    http_client.headers["X-Telegram-User-Id"] = tg_web_data['id']
-                    headers["X-Telegram-User-Id"] = tg_web_data['id']
+                        http_client.headers["X-Telegram-User-Id"] = tg_web_data['id']
+                        headers["X-Telegram-User-Id"] = tg_web_data['id']
 
-                    access_token_created_time = time()
+                        access_token_created_time = time()
+
+                        profile_data = await self.get_profile_data(http_client=http_client)
+
+                        balance = profile_data['balance']
+                        daily_attempts = profile_data['daily_attempts']
+                        
+                        logger.info(f"{self.session_name} | Balance: <c>{balance}</c>")
+                        logger.info(f"{self.session_name} | Remaining attempts: <m>{daily_attempts}</m>")
+
+                        tasks_data = await self.get_tasks_data(http_client=http_client, is_premium=profile_data['is_premium'])
+
+                        for task in tasks_data:
+                            task_id = task["id"]
+                            task_title = task["title"]
+                            task_reward = task["reward"]
+                            task_status = task["is_completed"]
+
+                            if task_status is True:
+                                continue
+
+                            if task["url"] is None and task["image"] is None:
+                                continue
+
+                            task_data_claim = await self.complate_task(http_client=http_client, task_id=task_id)
+                            if task_data_claim:
+                                logger.success(f"{self.session_name} | Successful claim task | "
+                                            f"Task Title: <c>{task_title}</c> | "
+                                            f"Task Reward: <g>+{task_reward}</g>")
+                                continue
+
+                        for i in range(daily_attempts, 0, -1):
+                            if i == 0:
+                                logger.info(f"{self.session_name} | Minimum attempts reached: {i}")
+                                logger.info(f"{self.session_name} | Next try to tap coins in 1 hour")
+                                break
+
+                            taps = randint(a=settings.RANDOM_TAPS_COUNT[0], b=settings.RANDOM_TAPS_COUNT[1])
+                            status = await self.save_coins(http_client=http_client, taps=taps)
+                            if status:
+                                new_balance = balance + taps
+                                logger.success(f"{self.session_name} | Successful Tapped! | "
+                                    f"Balance: <c>{new_balance}</c> (<g>+{taps}</g>) | Remaining attempts: <e>{i}</e>")
+
+                            sleep = randint(a=settings.SLEEP_BETWEEN_TAP[0], b=settings.SLEEP_BETWEEN_TAP[1])
+                            logger.info(f"{self.session_name} | Sleep {sleep}s for next tap")
+                            await asyncio.sleep(delay=sleep)
 
                     profile_data = await self.get_profile_data(http_client=http_client)
 
-                    balance = profile_data['balance']
-                    daily_attempts = profile_data['daily_attempts']
+                    balance = int(profile_data['balance'])
+                    daily_attempts = int(profile_data['daily_attempts'])
+                    multiple_lvl = profile_data['multiple_clicks']
+                    attempts_lvl = profile_data['limit_attempts'] - 9
                     
+                    next_multiple_lvl = multiple_lvl + 1
+                    next_multiple_price = (2 ** multiple_lvl) * 1000
+                    next_attempts_lvl = attempts_lvl + 1
+                    next_attempts_price = (2 ** attempts_lvl) * 1000
+
                     logger.info(f"{self.session_name} | Balance: <c>{balance}</c>")
                     logger.info(f"{self.session_name} | Remaining attempts: <m>{daily_attempts}</m>")
 
-                    tasks_data = await self.get_tasks_data(http_client=http_client, is_premium=profile_data['is_premium'])
+                    if (settings.AUTO_UPGRADE_TAP is True
+                            and balance > next_multiple_price
+                            and next_multiple_lvl <= settings.MAX_TAP_LEVEL):
+                        logger.info(f"{self.session_name} | Sleep 5s before upgrade tap to {next_multiple_lvl} lvl")
+                        await asyncio.sleep(delay=5)
 
-                    for task in tasks_data:
-                        task_id = task["id"]
-                        task_title = task["title"]
-                        task_reward = task["reward"]
-                        task_status = task["is_completed"]
+                        status = await self.upgrade_boosts(http_client=http_client, boost_type="add_multitap", lvl=multiple_lvl)
+                        if status is True:
+                            logger.success(f"{self.session_name} | Tap upgraded to {next_multiple_lvl} lvl")
 
-                        if task_status is True:
-                            continue
+                            await asyncio.sleep(delay=1)
 
-                        if task["url"] is None and task["image"] is None:
-                            continue
+                    if (settings.AUTO_UPGRADE_ATTEMPTS is True
+                            and balance > next_attempts_price
+                            and next_attempts_lvl <= settings.MAX_ATTEMPTS_LEVEL):
+                        logger.info(
+                            f"{self.session_name} | Sleep 5s before upgrade limit attempts to {next_attempts_lvl} lvl")
+                        await asyncio.sleep(delay=5)
 
-                        task_data_claim = await self.complate_task(http_client=http_client, task_id=task_id)
-                        if task_data_claim:
-                            logger.success(f"{self.session_name} | Successful claim task | "
-                                        f"Task Title: <c>{task_title}</c> | "
-                                        f"Task Reward: <g>+{task_reward}</g>")
-                            continue
+                        status = await self.upgrade_boosts(http_client=http_client, boost_type="add_attempts", lvl=attempts_lvl)
+                        if status is True:
+                            new_daily_attempts = next_attempts_lvl + 9
+                            logger.success(f"{self.session_name} | Limit attempts upgraded to {next_attempts_lvl} lvl (<m>{new_daily_attempts}</m>)")
 
-                    for i in range(daily_attempts, 0, -1):
-                        if i == 0:
-                            logger.info(f"{self.session_name} | Minimum attempts reached: {i}")
-                            logger.info(f"{self.session_name} | Next try to tap coins in 1 hour")
-                            break
+                            await asyncio.sleep(delay=1)
 
-                        taps = randint(a=settings.RANDOM_TAPS_COUNT[0], b=settings.RANDOM_TAPS_COUNT[1])
-                        status = await self.save_coins(http_client=http_client, taps=taps)
-                        if status:
-                            new_balance = balance + taps
-                            logger.success(f"{self.session_name} | Successful Tapped! | "
-                                f"Balance: <c>{new_balance}</c> (<g>+{taps}</g>) | Remaining attempts: <e>{i}</e>")
-
-                        sleep = randint(a=settings.SLEEP_BETWEEN_TAP[0], b=settings.SLEEP_BETWEEN_TAP[1])
-                        logger.info(f"{self.session_name} | Sleep {sleep}s for next tap")
-                        await asyncio.sleep(delay=sleep)
-
-                profile_data = await self.get_profile_data(http_client=http_client)
-
-                balance = int(profile_data['balance'])
-                daily_attempts = int(profile_data['daily_attempts'])
-                multiple_lvl = profile_data['multiple_clicks']
-                attempts_lvl = profile_data['limit_attempts'] - 9
-                
-                next_multiple_lvl = multiple_lvl + 1
-                next_multiple_price = (2 ** multiple_lvl) * 1000
-                next_attempts_lvl = attempts_lvl + 1
-                next_attempts_price = (2 ** attempts_lvl) * 1000
-
-                logger.info(f"{self.session_name} | Balance: <c>{balance}</c>")
-                logger.info(f"{self.session_name} | Remaining attempts: <m>{daily_attempts}</m>")
-
-                if (settings.AUTO_UPGRADE_TAP is True
-                        and balance > next_multiple_price
-                        and next_multiple_lvl <= settings.MAX_TAP_LEVEL):
-                    logger.info(f"{self.session_name} | Sleep 5s before upgrade tap to {next_multiple_lvl} lvl")
-                    await asyncio.sleep(delay=5)
-
-                    status = await self.upgrade_boosts(http_client=http_client, boost_type="add_multitap", lvl=multiple_lvl)
-                    if status is True:
-                        logger.success(f"{self.session_name} | Tap upgraded to {next_multiple_lvl} lvl")
-
-                        await asyncio.sleep(delay=1)
-
-                if (settings.AUTO_UPGRADE_ATTEMPTS is True
-                        and balance > next_attempts_price
-                        and next_attempts_lvl <= settings.MAX_ATTEMPTS_LEVEL):
-                    logger.info(
-                        f"{self.session_name} | Sleep 5s before upgrade limit attempts to {next_attempts_lvl} lvl")
-                    await asyncio.sleep(delay=5)
-
-                    status = await self.upgrade_boosts(http_client=http_client, boost_type="add_attempts", lvl=attempts_lvl)
-                    if status is True:
-                        new_daily_attempts = next_attempts_lvl + 9
-                        logger.success(f"{self.session_name} | Limit attempts upgraded to {next_attempts_lvl} lvl (<m>{new_daily_attempts}</m>)")
-
-                        await asyncio.sleep(delay=1)
-
-                logger.info(f"{self.session_name} | All activities in dotcoin completed")
-            except Exception as error:
-                logger.error(f"{self.session_name} | Unknown error: {error}")
+                    logger.info(f"{self.session_name} | All activities in dotcoin completed")
+                    return 0
+                except Exception as error:
+                    logger.error(f"{self.session_name} | Unknown error: {error}")
+                    await asyncio.sleep(52)
+                    self.error_cnt += 1
+                    if (self.error_cnt >= settings.ERRORS_BEFORE_STOP):
+                        return 0
 
 
 async def run_claimer(tg_client: Client, proxy: str | None):
