@@ -46,10 +46,9 @@ Free version of this software (current repository) has only 4 bots: Blum, Major,
      PROXY_TYPE = "socks5" # or http
      ```
 
-   - Set ACC_DELAY, BIG_SLEEP and USE_TAPS variables
+   - Set ACC_DELAY and USE_TAPS variables
      ```python
      ACC_DELAY = [minDelay, maxDelay] # random delay between connections to accounts in seconds
-     BIG_SLEEP = [minDelay, maxDelay] # random delay between <while True> iterations in bots, in seconds
      USE_TAPS = True or False # USE_TAPS = False if you don't want your bots to use taps
      ```
 
