@@ -90,7 +90,7 @@ Free version of this software (current repository) has only 4 bots: Blum, Major,
    192.168.1.2:2934:username:password anothername
    ```
      
-5. Creating sessions:
+4. Creating sessions:
    - Run `python3 main.py`
    - Choose `1` -> Create new session
    - Enter the session name, phone number and etc.
