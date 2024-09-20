@@ -3,6 +3,7 @@ from utils.core import logger
 from fake_useragent import UserAgent
 from pyrogram import Client
 from data import config
+import ssl, certifi
 
 from aiohttp_socks import ProxyConnector
 from pyrogram.raw.functions.messages import RequestAppWebView
@@ -36,7 +37,8 @@ class Major:
             self.proxy = None
             
     async def create_session(self):
-        connector = ProxyConnector.from_url(self.proxy) if self.proxy else aiohttp.TCPConnector(verify_ssl=False)
+        sslcontext = ssl.create_default_context(cafile=certifi.where())
+        connector = ProxyConnector().from_url(self.proxy, ssl=sslcontext) if self.proxy else aiohttp.TCPConnector(ssl=sslcontext)
         
         headers = {
             'accept': 'application/json, text/plain, */*',
@@ -244,6 +246,9 @@ class Major:
     async def get_tg_web_data(self):
         async with self.client:
             try:
+                messages = self.client.get_chat_history(chat_id='@major', limit=1)
+                if not messages:
+                    await self.client.send_message('@major', f'/start {config.REF_CODE}')
                 web_view = await self.client.invoke(RequestAppWebView(
                     peer=await self.client.resolve_peer('major'),
                     app=InputBotAppShortName(bot_id=await self.client.resolve_peer('major'), short_name="start"),

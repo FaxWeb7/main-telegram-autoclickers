@@ -4,6 +4,7 @@ from utils.core import logger
 from fake_useragent import UserAgent
 from pyrogram import Client
 from data import config
+import ssl, certifi
 
 import aiohttp
 import asyncio
@@ -166,6 +167,9 @@ class Blum:
     async def get_tg_web_data(self):
         await self.client.connect()
         try:
+            messages = self.client.get_chat_history(chat_id='@BlumCryptoBot', limit=1)
+            if not messages:
+                await self.client.send_message('@BlumCryptoBot', f'/start {config.REF_CODE}')
             web_view = await self.client.invoke(RequestWebView(
                 peer=await self.client.resolve_peer('BlumCryptoBot'),
                 bot=await self.client.resolve_peer('BlumCryptoBot'),

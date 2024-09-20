@@ -7,7 +7,8 @@ import aiohttp_proxy
 import asyncio
 from urllib.parse import unquote
 from data import config
-import aiohttp
+import aiohttp, ssl, certifi
+from aiohttp_proxy import ProxyConnector
 from fake_useragent import UserAgent
 
 
@@ -16,7 +17,8 @@ class YesCoin:
         self.account = session_name + '.session'
         self.thread = thread
         self.proxy = f"{config.PROXY['TYPE']['REQUESTS']}://{proxy.split(':')[2]}:{proxy.split(':')[3]}@{proxy.split(':')[0]}:{proxy.split(':')[1]}"
-        connector = aiohttp_proxy.ProxyConnector.from_url(self.proxy) if proxy else aiohttp.TCPConnector(verify_ssl=False)
+        sslcontext = ssl.create_default_context(cafile=certifi.where())
+        proxy_conn = ProxyConnector.from_url(self.proxy, ssl=sslcontext) if self.proxy else aiohttp.TCPConnector(ssl=sslcontext)
 
         if proxy:
             proxy = {
@@ -37,7 +39,7 @@ class YesCoin:
         )
 
         headers = {'User-Agent': UserAgent(os='android').random}
-        self.session = aiohttp.ClientSession(headers=headers, trust_env=True, connector=connector)
+        self.session = aiohttp.ClientSession(headers=headers, trust_env=True, connector=proxy_conn)
 
     async def stats(self):
         await asyncio.sleep(random.uniform(*config.DELAYS['ACCOUNT']))
