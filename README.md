@@ -6,11 +6,11 @@
 
 ## Bot Status
 ### This is free version of software
-Free version of this software (current repository) has only 4 bots: Blum, Major, Yescoin and Dotcoin, but the paid version of the software has 17 bots. If you are interested in purchasing a paid bot, write to me in telegram: https://t.me/faxweb_dev. Paid version software bot status:
+Free version of this software (current repository) has only 4 bots: Blum, Major, Yescoin and Dotcoin, but the paid version of the software has 16 bots. If you are interested in purchasing a paid bot, write to me in telegram: https://t.me/faxweb_dev. Paid version software bot status:
 | Status | Bots                                            |
 |:------:|-------------------------------------------------|
 |   ✅   | **Blum, YesCoin, LeapApp, DotCoin**       |
-|   ✅   | **PocketFi, MuskEmpire, HamsterKombat**       |
+|   ✅   | **PocketFi, MuskEmpire**       |
 |   ✅   | **OKX Racer, Major, Nomis, Cats**                       |
 |   ✅   | **RockyRabbit, MemeFi, CexIo, TonStation**                      |
 |   ✅   | **MMProBump, Clayton**                      |
