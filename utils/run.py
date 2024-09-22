@@ -71,12 +71,17 @@ async def run_soft():
                 stderr=asyncio.subprocess.PIPE
             )
             
+            def colored_message(message):
+                if "ERROR" in message: return f"<red>{message}</red>"
+                elif "INFO" in message: return f"<white>{message}</white>"
+                else: return f"<green>{message}</green>"
+
             async def stream_output(process, folder):
                 while True:
                     line = await process.stdout.readline()
                     if line:
                         s = line.decode(sys.stdout.encoding).rstrip().replace("<", "\\<").replace(">", "\\>")
-                        logger.info(f'[{folder}] | {s}')
+                        logger.info(f'<blue>[{folder}] | </blue> {colored_message(s)}')
                     else: break
 
             async def stream_errors(process, folder):
@@ -84,7 +89,7 @@ async def run_soft():
                     line = await process.stderr.readline()
                     if line:
                         s = line.decode(sys.stdout.encoding).rstrip().replace("<", "\\<").replace(">", "\\>")
-                        logger.error(f'[{folder}] | {s}')
+                        logger.error(f'<blue>[{folder}] | </blue> {s}')
                     else: break
 
             asyncio.create_task(stream_output(process, folder))
