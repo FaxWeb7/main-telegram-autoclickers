@@ -118,7 +118,21 @@ class Major:
                             logger.info(f"main | Thread {self.thread} | {self.name} | {task_info['detail']}")
                         elif task_info['is_completed']:
                             logger.success(f"main | Thread {self.thread} | {self.name} | CLAIM TASK {task['description']}")
-                
+                        await asyncio.sleep(random.uniform(*config.MINI_SLEEP))
+                    if not task['is_completed'] and task['id'] == 29:
+                        task_info = (await self.do_task(task_id=task['id']))
+                        if 'detail' in task_info:
+                            logger.info(f"main | Thread {self.thread} | {self.name} | {task_info['detail']}")
+                        elif task_info['is_completed']:
+                            logger.success(f"main | Thread {self.thread} | {self.name} | CLAIM TASK {task['description']}")
+                        await asyncio.sleep(random.uniform(*config.MINI_SLEEP))
+                    if not task['is_completed'] and task['id'] == 16:
+                        task_info = (await self.do_task(task_id=task['id']))
+                        if 'detail' in task_info:
+                            logger.info(f"main | Thread {self.thread} | {self.name} | {task_info['detail']}")
+                        elif task_info['is_completed']:
+                            logger.success(f"main | Thread {self.thread} | {self.name} | CLAIM TASK {task['description']}")
+                        await asyncio.sleep(random.uniform(*config.MINI_SLEEP)) 
                 mini_games = []
                 if config.HOLD_COIN:
                     mini_games.append(self.play_hold_coin)
