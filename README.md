@@ -2,7 +2,7 @@
 # Automatic autoclicker for popular telegram mini-apps
 [<img src="https://img.shields.io/badge/Telegram-%40Me-orange">](https://t.me/faxweb_dev)
 [<img src="https://img.shields.io/badge/python-3.11-blue">](https://www.python.org/downloads/)
-![](https://i.ibb.co/60d28ZR/2024-09-16-21-29-53.png)
+![](https://i.ibb.co/HBW9tSY/2024-09-22-19-49-28.png)
 
 ## Bot Status
 ### This is free version of software
