@@ -14,7 +14,7 @@ Free version of this software (current repository) has only 4 bots: Blum, Major,
 |   ✅   | **DotCoin, LeapApp, Major, MemeFi**       |
 |   ✅   | **MMProBump, Nomis, OKX Racer, PocketFi**                       |
 |   ✅   | **TonStation, VanaDataHero, YesCoin**                      |
-|   ⌛   |                               |
+|   ⌛   | **Tomarket, MoonBix**                              |
 
 ## Requirements
 - Python 3.11 (you can install it [here](https://www.python.org/downloads/release/python-3110/))
