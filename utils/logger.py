@@ -28,9 +28,9 @@ thread = Thread(target=process_queue, daemon=True)
 thread.start()
 
 logger.remove()
-logger.add(sys.stdout, format="<blue>{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | </blue> <level>{message}</level>", colorize=True)
+logger.add(sys.stdout, format="<blue>{time:YYYY-MM-DD HH:mm:ss} | </blue> <level>{message}</level>", colorize=True)
 
 if global_settings.USE_TG_BOT:
-    logger.add(lambda msg: message_queue.put(msg), format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {message}", level="INFO")
+    logger.add(lambda msg: message_queue.put(msg), format="{time:YYYY-MM-DD HH:mm:ss} | {message}", level="INFO")
 
 logger = logger.opt(colors=True)
