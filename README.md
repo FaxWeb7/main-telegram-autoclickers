@@ -59,7 +59,7 @@ Free version of this software (current repository) has only 4 bots: Blum, Major,
      CHAT_ID = '123456789'
      BOT_TOKEN = '1234567:asdfghjqwerty'
      ```
-   - For each bot in BOTS_DATA, you can choose for you, use this bot or not (is_connected), and specify individual settings for this particular bot. Default BOTS_DATA:
+   - For each bot in BOTS_DATA, you can choose for you, use this bot or not (is_connected), and specify individual settings for this particular bot. Example BOTS_DATA:
      ```python
      BOTS_DATA= '{
         "blum" : {
@@ -69,16 +69,6 @@ Free version of this software (current repository) has only 4 bots: Blum, Major,
             "sleep_game_time": [60, 180],
             "do_tasks": true,
             "big_sleep_add": [1800, 3600]
-        },
-        "major" : {
-            "is_connected": true,
-            "ref_code": "6046075760",
-            "play_hold_coin": true,
-            "play_roulette": true,
-            "play_swipe_coin": true,
-            "join_squad": true,
-            "task_sleep": [30, 120],
-            "game_sleep": [60, 180]
         }
      }'
      ```
@@ -100,7 +90,6 @@ Free version of this software (current repository) has only 4 bots: Blum, Major,
 1. Launching bots that have `is_connected = True` in the `BOTS_DATA` variable of the `.env` file:
    - Run `python3 main.py`
    - Choose `2` -> Run bots
-   - Enter a delay between the work of every pair of bots (in seconds)
    
 2. Installing repository updates (if you see that I have committed a new change to a bot)
    - Run `git pull` in root of repository
