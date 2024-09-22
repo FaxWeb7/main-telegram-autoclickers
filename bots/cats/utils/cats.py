@@ -61,10 +61,10 @@ class Cats:
                         logger.info(f"main | Thread {self.thread} | {self.name} | Start! | PROXY : {self.proxy}")
                     except Exception as err:
                         logger.error(f"main | Thread {self.thread} | {self.name} | {err}")
-                        self.session.close()
+                        await self.session.close()
                         return 0
                     await self.do_tasks()
-                    self.session.close()
+                    await self.session.close()
                     return 0
                 except Exception as err:
                     logger.error(f"main | Thread {self.thread} | {self.name} | {err}")
