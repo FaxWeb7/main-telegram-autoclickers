@@ -61,6 +61,12 @@ class Settings(BaseSettings):
             "max_attempts_level": 5,
             "random_taps_count": [50, 200],
             "taps_sleep": [10, 25]
+        },
+        "cats" : {
+            "is_connected": True,
+            "ref_code": "18awB6nNqqe8928y1u4vp",
+            "errors_before_stop": 2,
+            "task_sleep": [40, 120]
         }
     }
 
@@ -73,7 +79,7 @@ class Settings(BaseSettings):
     ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝ ╚══╝╚══╝ ╚══════╝╚═════╝
     GitHub Repository: https://github.com/FaxWeb7/main-telegram-autoclickers
     """
-    FIRST_PATHS: list[str] = ['blum', 'major', 'yescoin']
+    FIRST_PATHS: list[str] = ['blum', 'major', 'yescoin', 'cats']
     SECOND_PATHS: list[str] = ['dotcoin']
 
 global_settings = Settings()
