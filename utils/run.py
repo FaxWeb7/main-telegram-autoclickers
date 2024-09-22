@@ -1,5 +1,6 @@
 import asyncio
 import os, sys
+from random import randint
 from pathlib import Path
 from shutil import copytree, rmtree
 
@@ -51,8 +52,6 @@ async def run_soft():
     if (len(session_names) == 0):
         print("Create sessions!")
         return
-    
-    workDelay = int(input(f"Enter a delay between the work of every pair of bots (in seconds): "))
 
     ok = await update_data()
     if (not ok): return
@@ -96,6 +95,7 @@ async def run_soft():
             asyncio.create_task(stream_errors(process, folder))
             await process.wait()
 
+            workDelay = randint(600, 900)
             logger.info(f"[SOFT] | run_soft | Wait {workDelay} seconds to next bot...")
             await asyncio.sleep(workDelay)
             cur_idx = (cur_idx + 1) % len(folders)
