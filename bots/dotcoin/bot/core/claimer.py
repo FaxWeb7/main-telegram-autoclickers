@@ -47,7 +47,7 @@ class Claimer:
                 except (Unauthorized, UserDeactivated, AuthKeyUnregistered):
                     raise InvalidSession(self.session_name)
 
-            messages = self.tg_client.get_chat_history(chat_id='@dotcoin_bot', limit=1)
+            messages = await self.tg_client.get_chat_history_count(chat_id='@dotcoin_bot')
             if not messages:
                 await self.tg_client.send_message('@dotcoin_bot', f'/start {settings.REF_CODE}')
             web_view = await self.tg_client.invoke(RequestWebView(

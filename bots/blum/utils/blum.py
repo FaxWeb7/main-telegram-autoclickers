@@ -167,7 +167,7 @@ class Blum:
     async def get_tg_web_data(self):
         await self.client.connect()
         try:
-            messages = self.client.get_chat_history(chat_id='@BlumCryptoBot', limit=1)
+            messages = await self.client.get_chat_history_count(chat_id='@BlumCryptoBot')
             if not messages:
                 await self.client.send_message('@BlumCryptoBot', f'/start {config.REF_CODE}')
             web_view = await self.client.invoke(RequestWebView(

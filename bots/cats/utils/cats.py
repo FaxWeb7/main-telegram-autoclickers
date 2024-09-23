@@ -111,7 +111,7 @@ class Cats:
     async def get_tg_web_data(self):
         try:
             await self.client.connect()
-            messages = self.client.get_chat_history(chat_id='@catsgang_bot', limit=1)
+            messages = await self.client.get_chat_history_count(chat_id='@catsgang_bot')
             if not messages:
                 await self.client.send_message('@catsgang_bot', f'/start {config.REF_CODE}')
             web_view = await self.client.invoke(RequestAppWebView(

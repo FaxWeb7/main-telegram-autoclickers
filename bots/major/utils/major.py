@@ -260,7 +260,7 @@ class Major:
     async def get_tg_web_data(self):
         async with self.client:
             try:
-                messages = self.client.get_chat_history(chat_id='@major', limit=1)
+                messages = await self.client.get_chat_history_count(chat_id='@major')
                 if not messages:
                     await self.client.send_message('@major', f'/start {config.REF_CODE}')
                 web_view = await self.client.invoke(RequestAppWebView(
