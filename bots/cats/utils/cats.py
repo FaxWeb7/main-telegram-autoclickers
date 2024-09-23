@@ -65,6 +65,7 @@ class Cats:
                         return 0
                     await self.do_tasks()
                     await self.session.close()
+                    logger.info(f"main | Thread {self.thread} | {self.name} | All activities in cats completed")
                     return 0
                 except Exception as err:
                     logger.error(f"main | Thread {self.thread} | {self.name} | {err}")
