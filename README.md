@@ -6,7 +6,7 @@
 
 ## Bot Status
 ### This is free version of software
-Free version of this software (current repository) has only 4 bots: Blum, Major, Yescoin and Dotcoin, but the paid version of the software has 15 bots. If you are interested in purchasing a paid bot, write to me in telegram: https://t.me/faxweb_dev. Paid version software bot status:
+Free version of this software (current repository) has 5 bots: Blum, Major, Yescoin, Dotcoin and catsgang, but the paid version of the software has 15 bots. If you are interested in purchasing a paid bot, write to me in telegram: https://t.me/faxweb_dev. Paid version software bot status:
 ## Bot Status
 | Status | Bots                                            |
 |:------:|-------------------------------------------------|
