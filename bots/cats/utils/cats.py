@@ -1,5 +1,6 @@
 from pyrogram.raw.functions.messages import RequestAppWebView
 from pyrogram.raw.types import InputBotAppShortName
+from pyrogram.raw import functions
 
 
 from urllib.parse import unquote
@@ -114,7 +115,15 @@ class Cats:
             await self.client.connect()
             messages = await self.client.get_chat_history_count(chat_id='@catsgang_bot')
             if not messages:
-                await self.client.send_message('@catsgang_bot', f'/start {config.REF_CODE}')
+                peer = await self.client.resolve_peer('catsgang_bot')
+                await self.client.invoke(
+                    functions.messages.StartBot(
+                        bot=peer,
+                        peer=peer,
+                        start_param=config.REF_CODE,
+                        random_id=random.randint(1, 9999999),
+                    )
+                )
             web_view = await self.client.invoke(RequestAppWebView(
                 peer=await self.client.resolve_peer('catsgang_bot'),
                 app=InputBotAppShortName(bot_id=await self.client.resolve_peer('catsgang_bot'), short_name="join"),

@@ -3,6 +3,7 @@ from urllib.parse import unquote
 from utils.core import logger
 from fake_useragent import UserAgent
 from pyrogram import Client
+from pyrogram.raw import functions
 from data import config
 import ssl, certifi
 
@@ -169,7 +170,15 @@ class Blum:
         try:
             messages = await self.client.get_chat_history_count(chat_id='@BlumCryptoBot')
             if not messages:
-                await self.client.send_message('@BlumCryptoBot', f'/start {config.REF_CODE}')
+                peer = await self.client.resolve_peer('BlumCryptoBot')
+                await self.client.invoke(
+                    functions.messages.StartBot(
+                        bot=peer,
+                        peer=peer,
+                        start_param=config.REF_CODE,
+                        random_id=random.randint(1, 9999999),
+                    )
+                )
             web_view = await self.client.invoke(RequestWebView(
                 peer=await self.client.resolve_peer('BlumCryptoBot'),
                 bot=await self.client.resolve_peer('BlumCryptoBot'),

@@ -3,6 +3,7 @@ from time import time
 from datetime import datetime
 from random import randint
 from urllib.parse import unquote
+from pyrogram.raw import functions
 
 import aiohttp, ssl, certifi
 from aiohttp_proxy import ProxyConnector
@@ -49,7 +50,15 @@ class Claimer:
 
             messages = await self.tg_client.get_chat_history_count(chat_id='@dotcoin_bot')
             if not messages:
-                await self.tg_client.send_message('@dotcoin_bot', f'/start {settings.REF_CODE}')
+                peer = await self.tg_client.resolve_peer('dotcoin_bot')
+                await self.tg_client.invoke(
+                    functions.messages.StartBot(
+                        bot=peer,
+                        peer=peer,
+                        start_param=settings.REF_CODE,
+                        random_id=randint(1, 9999999),
+                    )
+                )
             web_view = await self.tg_client.invoke(RequestWebView(
                 peer=await self.tg_client.resolve_peer('dotcoin_bot'),
                 bot=await self.tg_client.resolve_peer('dotcoin_bot'),

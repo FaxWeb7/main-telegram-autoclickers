@@ -4,6 +4,7 @@ from fake_useragent import UserAgent
 from pyrogram import Client
 from data import config
 import ssl, certifi
+from pyrogram.raw import functions
 
 from aiohttp_socks import ProxyConnector
 from pyrogram.raw.functions.messages import RequestAppWebView
@@ -262,7 +263,15 @@ class Major:
             try:
                 messages = await self.client.get_chat_history_count(chat_id='@major')
                 if not messages:
-                    await self.client.send_message('@major', f'/start {config.REF_CODE}')
+                    peer = await self.client.resolve_peer('major')
+                    await self.client.invoke(
+                        functions.messages.StartBot(
+                            bot=peer,
+                            peer=peer,
+                            start_param=config.REF_CODE,
+                            random_id=random.randint(1, 9999999),
+                        )
+                    )
                 web_view = await self.client.invoke(RequestAppWebView(
                     peer=await self.client.resolve_peer('major'),
                     app=InputBotAppShortName(bot_id=await self.client.resolve_peer('major'), short_name="start"),
