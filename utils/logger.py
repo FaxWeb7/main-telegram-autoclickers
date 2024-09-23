@@ -15,10 +15,15 @@ def process_queue():
         if message is None:
             break
         try:
-            time.sleep(3)
+            time.sleep(5)
             response = requests.post(TELEGRAM_API_URL, data={'chat_id': global_settings.CHAT_ID, 'text': message})
             if response.status_code != 200:
-                logger.error(f"Failed to send log to Telegram: {response.text}")
+                if ('Too Many Requests' in response.text):
+                    cooldown = int(response.text.split('retry after ')[1].split(',')[0][:-1]) + 600
+                    logger.error(f"Too many requests to telegram bot, wait {cooldown} seconds")
+                    time.sleep(cooldown)
+                else:
+                    logger.error(f"Failed to send log to Telegram: {response.text}")
         except Exception as e:
             logger.error(f"Failed to send log to Telegram: {e}")
         finally:
