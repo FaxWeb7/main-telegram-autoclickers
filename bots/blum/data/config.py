@@ -29,6 +29,7 @@ USE_PROXY = global_settings.USE_PROXY # True/False
 
 # скок поинтов с игры
 POINTS = global_settings.BOTS_DATA['blum']['points'] #[min, max]
+MAX_GAMES_COUNT = global_settings.BOTS_DATA['blum']['max_games_count'] #[min, max]
 
 # тратить алмазы
 SPEND_DIAMONDS = global_settings.BOTS_DATA['blum']['spend_diamonds'] # True/False

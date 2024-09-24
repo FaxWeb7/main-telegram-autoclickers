@@ -84,7 +84,9 @@ class Blum:
                 if config.SPEND_DIAMONDS:
                     diamonds_balance = await self.get_diamonds_balance()
                     logger.info(f"main | Thread {self.thread} | {self.name} | Have {diamonds_balance} diamonds!")
-                    for _ in range(diamonds_balance):
+                    games_count = random.randint(*config.MAX_GAMES_COUNT)
+                    logger.info(f"main | Thread {self.thread} | {self.name} | Starting play {games_count} games...")
+                    for _ in range(games_count):
                         await self.game()
                         await asyncio.sleep(random.randint(*config.SLEEP_GAME_TIME))
                         

@@ -11,7 +11,7 @@ class Settings(BaseSettings):
 
     SOFT_ITERATIONS_NUM: int = 1
     SOFT_ITERATIONS_DELAY: list[int] = [600, 900]
-    
+
     ACC_DELAY: list[int] = [0, 200]
     MINI_SLEEP: list[int] = [20, 80]
     USE_TAPS: bool = False
@@ -26,6 +26,7 @@ class Settings(BaseSettings):
             "ref_code": "ref_qIFL0xYd8i",
             "errors_before_stop": 2,
             "spend_diamonds": True,
+            "max_games_count": [10, 20],
             "points": [120, 190],
             "sleep_game_time": [60, 180],
             "do_tasks": True
