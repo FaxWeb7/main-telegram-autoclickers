@@ -9,6 +9,8 @@ class Settings(BaseSettings):
     USE_PROXY: bool = False
     PROXY_TYPE: str = "socks5"
 
+    SOFT_ITERATIONS_NUM: int = 1
+
     ACC_DELAY: list[int] = [0, 200]
     MINI_SLEEP: list[int] = [20, 80]
     USE_TAPS: bool = False

@@ -57,8 +57,14 @@ async def run_soft():
     if (not ok): return
     folders = sorted([f'{path}' for path in global_settings.FIRST_PATHS+global_settings.SECOND_PATHS if global_settings.BOTS_DATA[path]['is_connected']])
     cur_idx = 0
+    cur_soft_iteration = 0
     while True:
         try:
+            if (cur_idx == 0): cur_soft_iteration += 1
+            if (cur_soft_iteration == global_settings.SOFT_ITERATIONS_NUM+1):
+                logger.info(f"[SOFT] | run_soft | {global_settings.SOFT_ITERATIONS_NUM} soft iterations completed")
+                return
+
             folder = folders[cur_idx].upper()
             logger.info(f"[SOFT] | run_soft | Current working bot: {folder}")
             
