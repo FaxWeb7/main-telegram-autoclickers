@@ -48,6 +48,12 @@ Free version of this software (current repository) has 5 bots: Blum, Major, Yesc
      USE_PROXY = True  # or False
      PROXY_TYPE = "socks5" # or http
      ```
+     
+   - Set `SOFT_ITERATIONS_NUM` (1 soft iteration = execute all activities in all bots) and `SOFT_ITERATIONS_DELAY` (delay between transition from one bot to another)
+     ```python
+     SOFT_ITERATIONS_NUM = 1
+     SOFT_ITERATIONS_DELAY = [600, 900]
+     ```
 
    - Set ACC_DELAY and USE_TAPS variables
      ```python
