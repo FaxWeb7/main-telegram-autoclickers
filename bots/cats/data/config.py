@@ -32,6 +32,8 @@ REF_CODE = global_settings.BOTS_DATA['cats']['ref_code']
 # задержка в секундах между выполнеными тасками
 TASK_SLEEP = global_settings.BOTS_DATA['cats']['task_sleep']
 
+DO_PHOTOS = global_settings.BOTS_DATA['cats']['do_photos']
+
 ERRORS_BEFORE_STOP = global_settings.BOTS_DATA['cats']['errors_before_stop']
 
 # мини задержки

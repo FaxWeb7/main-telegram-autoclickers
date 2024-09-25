@@ -70,6 +70,7 @@ class Settings(BaseSettings):
             "is_connected": True,
             "ref_code": "18awB6nNqqe8928y1u4vp",
             "errors_before_stop": 2,
+            "do_photos": True,
             "task_sleep": [40, 120]
         }
     }

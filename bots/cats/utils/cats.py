@@ -8,10 +8,13 @@ from utils.core import logger
 from fake_useragent import UserAgent
 from pyrogram import Client
 from data import config
+from datetime import datetime,timezone,timedelta
+import uuid
 
 import aiohttp
 import asyncio
 import random
+import os
 
 class Cats:
     def __init__(self, thread: int, account: str, proxy : str):
@@ -53,41 +56,100 @@ class Cats:
         self.session = aiohttp.ClientSession(headers=headers, trust_env=True, connector=aiohttp.TCPConnector(verify_ssl=False,limit=1,force_close=True))
 
     async def main(self):
-        try:
-            await asyncio.sleep(random.randint(*config.ACC_DELAY))
-            while True:
+        await asyncio.sleep(random.randint(*config.ACC_DELAY))
+        while True:
+            try:
                 try:
-                    try:
-                        login = await self.login()
-                        logger.info(f"main | Thread {self.thread} | {self.name} | Start! | PROXY : {self.proxy}")
-                    except Exception as err:
-                        logger.error(f"main | Thread {self.thread} | {self.name} | {err}")
-                        await self.session.close()
-                        return 0
-                    await self.do_tasks()
-                    await self.session.close()
-                    logger.info(f"main | Thread {self.thread} | {self.name} | All activities in cats completed")
-                    return 0
+                    login = await self.login()
+                    logger.info(f"main | Thread {self.thread} | {self.name} | Start! | PROXY : {self.proxy}")
                 except Exception as err:
                     logger.error(f"main | Thread {self.thread} | {self.name} | {err}")
-                    await asyncio.sleep(52)
-                    self.error_cnt += 1
-                    if (self.error_cnt >= config.ERRORS_BEFORE_STOP):
-                        await self.session.close()
-                        return 0
-        except:
-            await self.session.close()
-    
-    async def stats(self):
-        try:
-            await self.login()
-            
-            resp = await self.session.get('https://api.catshouse.club/user',proxy=self.proxy)
-            resp = await resp.json()
-            await self.session.close()
-            return {'id':resp['id'],'username':resp['username'],'age':resp['telegramAge'],'total':resp['totalRewards']}
-        except:
-            return {'id':0,'username':'NONE','age':0,'total':0}
+                    await self.session.close()
+                    return 0
+                if config.DO_PHOTOS:
+                    user = await self.session.get('https://api.catshouse.club/tasks/user', params={'referral_code': self.ref}, proxy=self.proxy)
+                    user = await user.json()
+                    await asyncio.sleep(random.randint(5, 10))
+                    UserHasOgPass = user.get('hasOgPass', False)
+                    logger.info(f"main | Thread {self.thread} | {self.name} | User has OG Pass: <y>{UserHasOgPass}</y>")
+                    for _ in range(3 if UserHasOgPass else 1):
+                        reward = await self.send_cats()
+                        if reward:
+                            logger.info(f"main | Thread {self.thread} | {self.name} | Reward from Avatar quest: <y>{reward}</y>")
+                        await asyncio.sleep(random.randint(5, 15))
+
+                await self.do_tasks()
+                await self.session.close()
+                logger.info(f"main | Thread {self.thread} | {self.name} | All activities in cats completed")
+                return 0
+            except Exception as err:
+                logger.error(f"main | Thread {self.thread} | {self.name} | {err}")
+                await asyncio.sleep(52)
+                self.error_cnt += 1
+                if (self.error_cnt >= config.ERRORS_BEFORE_STOP):
+                    await self.session.close()
+                    return 0
+
+    async def send_cats(self):
+        params = {
+            'group':'cats'
+        }
+        avatar_info = await self.session.get("https://api.catshouse.club/user/avatar", params=params, proxy=self.proxy)
+        avatar_info = await avatar_info.json()
+        if avatar_info:
+            attempt_time_str = avatar_info.get('attemptTime', None)
+            if not attempt_time_str:
+                time_difference = timedelta(hours=25)
+            else:
+                attempt_time = datetime.fromisoformat(attempt_time_str.replace('Z', '+00:00'))
+                current_time = datetime.now(timezone.utc)
+                next_day_3am = (attempt_time + timedelta(days=1)).replace(hour=3, minute=0, second=0, microsecond=0)
+                
+                if current_time >= next_day_3am:
+                    time_difference = timedelta(hours=25)
+                else:
+                    time_difference = next_day_3am - current_time
+
+            if time_difference > timedelta(hours=24):
+                response = await self.session.get(f"https://cataas.com/cat?timestamp={int(datetime.now().timestamp() * 1000)}", headers={
+                    "accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+                    "accept-language": "en-US,en;q=0.9,ru;q=0.8",
+                    "sec-ch-ua": "\"Not;A=Brand\";v=\"24\", \"Chromium\";v=\"128\"",
+                    "sec-ch-ua-mobile": "?0",
+                    "sec-ch-ua-platform": "\"macOS\"",
+                    "sec-fetch-dest": "image",
+                    "sec-fetch-mode": "no-cors",
+                    "sec-fetch-site": "cross-site"
+                })
+                if not response and response.status not in [200, 201]:
+                    logger.error(f"main | Thread {self.thread} | {self.name} | Failed to fetch image from cataas.com")
+                    return None
+                
+                image_content = await response.read()
+                    
+                boundary = f"----WebKitFormBoundary{uuid.uuid4().hex}"
+                form_data = (
+                    f'--{boundary}\r\n'
+                    f'Content-Disposition: form-data; name="photo"; filename="{uuid.uuid4().hex}.jpg"\r\n'
+                    f'Content-Type: image/jpeg\r\n\r\n'
+                ).encode('utf-8')
+                
+                form_data += image_content
+                form_data += f'\r\n--{boundary}--\r\n'.encode('utf-8')
+                
+                headers = self.session.headers.copy()
+                headers['Content-Type'] = f'multipart/form-data; boundary={boundary}'
+                response = await self.session.post("https://api.catshouse.club/user/avatar/upgrade", params=params, proxy=self.proxy, data=form_data, headers=headers)
+                response = await response.json()
+                if response:
+                    return response.get('rewards', 0)
+                else:
+                    return None
+            else:
+                hours, remainder = divmod(time_difference.seconds, 3600)
+                minutes, seconds = divmod(remainder, 60)
+                logger.info(f"main | Thread {self.thread} | {self.name} | Time until next avatar upload: <y>{hours}</y> hours, <y>{minutes}</y> minutes, and <y>{seconds}</y> seconds")
+                return None
 
     async def login(self):
         try:
