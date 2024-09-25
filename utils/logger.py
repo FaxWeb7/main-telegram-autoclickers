@@ -11,11 +11,15 @@ TELEGRAM_API_URL = f"https://api.telegram.org/bot{global_settings.BOT_TOKEN}/sen
 message_queue = Queue()
 def process_queue():
     while True:
-        message = message_queue.get()
-        if message is None:
-            break
+        message = ''
+
+        start_time = time.time()
+        while time.time() - start_time < 5:
+            if not message_queue.empty():
+                message += message_queue.get() + '\n'
+
+        if (message == ''): continue
         try:
-            time.sleep(5)
             response = requests.post(TELEGRAM_API_URL, data={'chat_id': global_settings.CHAT_ID, 'text': message})
             if response.status_code != 200:
                 if ('Too Many Requests' in response.text):
