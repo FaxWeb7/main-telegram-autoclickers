@@ -67,16 +67,10 @@ class Cats:
                     await self.session.close()
                     return 0
                 if config.DO_PHOTOS:
-                    user = await self.session.get('https://api.catshouse.club/tasks/user', params={'referral_code': self.ref}, proxy=self.proxy)
-                    user = await user.json()
-                    await asyncio.sleep(random.randint(5, 10))
-                    UserHasOgPass = user.get('hasOgPass', False)
-                    logger.info(f"main | Thread {self.thread} | {self.name} | User has OG Pass: <y>{UserHasOgPass}</y>")
-                    for _ in range(3 if UserHasOgPass else 1):
-                        reward = await self.send_cats()
-                        if reward:
-                            logger.info(f"main | Thread {self.thread} | {self.name} | Reward from Avatar quest: <y>{reward}</y>")
-                        await asyncio.sleep(random.randint(5, 15))
+                    reward = await self.send_cats()
+                    if reward:
+                        logger.info(f"main | Thread {self.thread} | {self.name} | Reward from Avatar quest: <y>{reward}</y>")
+                    await asyncio.sleep(random.randint(5, 15))
 
                 await self.do_tasks()
                 await self.session.close()
