@@ -14,7 +14,7 @@ def process_queue():
         message = ''
 
         start_time = time.time()
-        while time.time() - start_time < 5:
+        while time.time() - start_time < 5 and len(message) < 3000:
             if not message_queue.empty():
                 message += message_queue.get() + '\n'
 
