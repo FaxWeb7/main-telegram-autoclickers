@@ -7,8 +7,8 @@
 ![](https://i.ibb.co/HBW9tSY/2024-09-22-19-49-28.png)
 
 ## Bot Status
-#### Subscribe to the telegram channel to follow updates: [@faxweb_development](https://t.me/faxweb_development)
-Free version of this software (current repository) has 5 bots: Blum, Major, Yescoin, Dotcoin and catsgang, but the paid version of the software has 17 bots. If you are interested in purchasing a paid bot, write to me in telegram: [@faxweb_dev_admin](https://t.me/faxweb_dev_admin). Paid version software bot status:
+#### Subscribe to the telegram channel to follow updates and/or purchase paid software version: [@faxweb_development](https://t.me/faxweb_development)
+Free version of this software (current repository) has 5 bots: Blum, Major, Yescoin, Dotcoin and catsgang, but the paid version of the software has 17 bots. If you are interested in purchasing a paid bot, read the pinned message in my telegram channel: [@faxweb_development](https://t.me/faxweb_development). Paid version software bot status:
 | Status | Bots                                            |
 |:------:|-------------------------------------------------|
 |   ✅   | **Blum, Cats, CexIo, Clayton**       |
