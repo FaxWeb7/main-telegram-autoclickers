@@ -1,5 +1,5 @@
 import asyncio
-import os, sys
+import os
 from random import randint
 from pathlib import Path
 from shutil import copytree, rmtree
@@ -85,7 +85,7 @@ async def run_soft():
                 while True:
                     line = await process.stdout.readline()
                     if line:
-                        s = line.decode(sys.stdout.encoding).rstrip().replace("<", "\\<").replace(">", "\\>")
+                        s = line.decode('cp1251' if os.name == 'nt' else 'utf-8').rstrip().replace("<", "\\<").replace3(">", "\\>")
                         logger.info(f'<blue>[{folder}] | </blue> {colored_message(s)}')
                     else: break
 
@@ -93,7 +93,7 @@ async def run_soft():
                 while True:
                     line = await process.stderr.readline()
                     if line:
-                        s = line.decode(sys.stdout.encoding).rstrip().replace("<", "\\<").replace(">", "\\>")
+                        s = line.decode('cp1251' if os.name == 'nt' else 'utf-8').rstrip().replace("<", "\\<").replace(">", "\\>")
                         logger.error(f'<blue>[{folder}] | </blue> {s}')
                     else: break
 
