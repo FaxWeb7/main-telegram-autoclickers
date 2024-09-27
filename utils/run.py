@@ -85,7 +85,7 @@ async def run_soft():
                 while True:
                     line = await process.stdout.readline()
                     if line:
-                        s = line.decode('cp1251' if os.name == 'nt' else 'utf-8').rstrip().replace("<", "\\<").replace3(">", "\\>")
+                        s = line.decode('cp1251' if os.name == 'nt' else 'utf-8').rstrip().replace("<", "\\<").replace(">", "\\>")
                         logger.info(f'<blue>[{folder}] | </blue> {colored_message(s)}')
                     else: break
 
