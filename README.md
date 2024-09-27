@@ -38,6 +38,7 @@ Free version of this software (current repository) has 5 bots: Blum, Major, Yesc
    ~/main-telegram-autoclickers >>> copy .env-example .env
    ```
 2. Configure the application in `.env`:
+   - open .env file (`nano .env` for linux, and `notepad .env` for windows)
    - Add your `API_ID` and `API_HASH`:
      ```python
      API_ID = your_api_id
