@@ -20,7 +20,6 @@ Free version of this software (current repository) has 5 bots: Blum, Major, Yesc
 ## Requirements
 - Python 3.11 (you can install it [here](https://www.python.org/downloads/release/python-3110/))
 - Telegram API_ID and API_HASH (you can get them [here](https://my.telegram.org/auth?to=apps))
-- It is advisable to run the software on Linux/Macos, since unpredictable encoding errors may appear on Windows
 
 ## Run software
 1. Installation:
@@ -33,6 +32,7 @@ Free version of this software (current repository) has 5 bots: Blum, Major, Yesc
    ~/main-telegram-autoclickers >>> cp .env-example .env
    
    # Windows
+   ~/ >>> chcp 1251
    ~/main-telegram-autoclickers >>> pip install -r requirements.txt
    ~/main-telegram-autoclickers >>> copy .env-example .env
    ```
