@@ -1,13 +1,14 @@
 
 # Automatic autoclicker for popular telegram mini-apps
-[<img src="https://img.shields.io/badge/Telegram-%40Me-orange">](https://t.me/faxweb_dev)
+[<img src="https://img.shields.io/badge/Telegram-%40My_Channel-orange">](https://t.me/faxweb_development)
+[<img src="https://img.shields.io/badge/Telegram-%40Me-orange">](https://t.me/faxweb_dev_admin)
 [<img src="https://img.shields.io/badge/python-3.11-blue">](https://www.python.org/downloads/)
+
 ![](https://i.ibb.co/HBW9tSY/2024-09-22-19-49-28.png)
 
 ## Bot Status
-### This is free version of software
-Free version of this software (current repository) has 5 bots: Blum, Major, Yescoin, Dotcoin and catsgang, but the paid version of the software has 17 bots. If you are interested in purchasing a paid bot, write to me in telegram: https://t.me/faxweb_dev. Paid version software bot status:
-## Bot Status
+#### Subscribe to the telegram channel to follow updates: [@faxweb_development](https://t.me/faxweb_development)
+Free version of this software (current repository) has 5 bots: Blum, Major, Yescoin, Dotcoin and catsgang, but the paid version of the software has 17 bots. If you are interested in purchasing a paid bot, write to me in telegram: [@faxweb_dev_admin](https://t.me/faxweb_dev_admin). Paid version software bot status:
 | Status | Bots                                            |
 |:------:|-------------------------------------------------|
 |   ✅   | **Blum, Cats, CexIo, Clayton**       |
@@ -32,7 +33,7 @@ Free version of this software (current repository) has 5 bots: Blum, Major, Yesc
    ~/main-telegram-autoclickers >>> cp .env-example .env
    
    # Windows
-   ~/ >>> chcp 1251
+   ~ >>> chcp 1251
    ~/main-telegram-autoclickers >>> pip install -r requirements.txt
    ~/main-telegram-autoclickers >>> copy .env-example .env
    ```
