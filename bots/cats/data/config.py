@@ -40,7 +40,7 @@ ERRORS_BEFORE_STOP = global_settings.BOTS_DATA['cats']['errors_before_stop']
 MINI_SLEEP = global_settings.MINI_SLEEP
 
 # айди тасков которые будут пропускаться
-BLACKLIST = [2, 3, 4, 5, 99, 104, 105]
+BLACKLIST = [2, 3, 4, 5, 99, 104, 105, 130]
 
 hello ='''              _                               __  _        
  _ __    ___ | |_  _   _   __ _  ___   ___   / _|| |_  ___ 

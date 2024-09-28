@@ -85,10 +85,7 @@ class Cats:
                     return 0
 
     async def send_cats(self):
-        params = {
-            'group':'cats'
-        }
-        avatar_info = await self.session.get("https://api.catshouse.club/user/avatar", params=params, proxy=self.proxy)
+        avatar_info = await self.session.get("https://api.catshouse.club/user/avatar", proxy=self.proxy)
         avatar_info = await avatar_info.json()
         if avatar_info:
             attempt_time_str = avatar_info.get('attemptTime', None)
@@ -133,7 +130,7 @@ class Cats:
                 
                 headers = self.session.headers.copy()
                 headers['Content-Type'] = f'multipart/form-data; boundary={boundary}'
-                response = await self.session.post("https://api.catshouse.club/user/avatar/upgrade", params=params, proxy=self.proxy, data=form_data, headers=headers)
+                response = await self.session.post("https://api.catshouse.club/user/avatar/upgrade", proxy=self.proxy, data=form_data, headers=headers)
                 response = await response.json()
                 if response:
                     return response.get('rewards', 0)
