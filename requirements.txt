@@ -10,3 +10,4 @@ pydantic==2.8.2
 pydantic-settings==2.3.4
 pydantic_core==2.20.1
 better-proxy==1.1.5
+aiohttp-proxy==0.1.2
