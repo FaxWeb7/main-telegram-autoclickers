@@ -57,12 +57,12 @@ async def run_soft():
     if (not ok): return
     folders = sorted([f'{path}' for path in global_settings.FIRST_PATHS+global_settings.SECOND_PATHS if global_settings.BOTS_DATA[path]['is_connected']])
     cur_idx = 0
-    cur_soft_iteration = 0
+    cur_soft_circle = 0
     while True:
         try:
-            if (cur_idx == 0): cur_soft_iteration += 1
-            if (cur_soft_iteration == global_settings.SOFT_ITERATIONS_NUM+1):
-                logger.info(f"[SOFT] | run_soft | {global_settings.SOFT_ITERATIONS_NUM} soft iterations completed")
+            if (cur_idx == 0): cur_soft_circle += 1
+            if (cur_soft_circle == global_settings.SOFT_CIRCLES_NUM+1):
+                logger.info(f"[SOFT] | run_soft | {global_settings.SOFT_CIRCLES_NUM} soft circles completed")
                 return
 
             folder = folders[cur_idx].upper()
@@ -101,10 +101,14 @@ async def run_soft():
             asyncio.create_task(stream_errors(process, folder))
             await process.wait()
 
-            workDelay = randint(*global_settings.SOFT_ITERATIONS_DELAY)
-            logger.info(f"[SOFT] | run_soft | Wait {workDelay} seconds to next bot...")
-            await asyncio.sleep(workDelay)
             cur_idx = (cur_idx + 1) % len(folders)
+            if (cur_idx != 0):
+                workDelay = randint(*global_settings.SOFT_BOTS_DELAY)
+                logger.info(f"[SOFT] | run_soft | Wait {workDelay} seconds to next bot...")
+            else:
+                workDelay = randint(*global_settings.SOFT_CIRCLES_DELAY)
+                logger.info(f"[SOFT] | run_soft | Circle completed! Wait {workDelay} seconds to next circle...")
+            await asyncio.sleep(workDelay)
 
             os.chdir('../../')
         except Exception as e:

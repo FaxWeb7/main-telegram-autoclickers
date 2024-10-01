@@ -9,8 +9,9 @@ class Settings(BaseSettings):
     USE_PROXY: bool = False
     PROXY_TYPE: str = "socks5"
 
-    SOFT_ITERATIONS_NUM: int = 1
-    SOFT_ITERATIONS_DELAY: list[int] = [600, 900]
+    SOFT_BOTS_DELAY: list[int] = [600, 900]
+    SOFT_CIRCLES_NUM: int = 10
+    SOFT_CIRCLES_DELAY: list[int] = [21000, 25000]
 
     ACC_DELAY: list[int] = [0, 200]
     MINI_SLEEP: list[int] = [20, 80]
