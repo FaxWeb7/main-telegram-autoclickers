@@ -15,7 +15,7 @@ Free version of this software (current repository) has 5 bots: Blum, Major, Yesc
 |   ✅   | **DotCoin, LeapApp, Major, MemeFi**       |
 |   ✅   | **MMProBump, Nomis, OKX Racer, PocketFi**                       |
 |   ✅   | **TonStation, VanaDataHero, YesCoin**                      |
-|   ✅   | **MoonBix, Not Pixel, FriendsFabric**                              |
+|   ✅   | **MoonBix, Not Pixel, FriendsFactory**                              |
 |   ⌛   | **Tomarket, CoinSweeper, DuckChain**                              |
 
 ## Requirements
