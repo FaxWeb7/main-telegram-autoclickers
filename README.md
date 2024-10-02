@@ -8,14 +8,14 @@
 
 ## Bot Status
 #### Subscribe to the telegram channel to follow updates and/or purchase paid software version: [@faxweb_dev](https://t.me/faxweb_dev)
-Free version of this software (current repository) has 5 bots: Blum, Major, Yescoin, Dotcoin and catsgang, but the paid version of the software has 17 bots. If you are interested in purchasing a paid bot, read the pinned message in my telegram channel: [@faxweb_dev](https://t.me/faxweb_dev). Paid version software bot status:
+Free version of this software (current repository) has 5 bots: Blum, Major, Yescoin, Dotcoin and catsgang, but the paid version of the software has 18 bots. If you are interested in purchasing a paid bot, read the pinned message in my telegram channel: [@faxweb_dev](https://t.me/faxweb_dev). Paid version software bot status:
 | Status | Bots                                            |
 |:------:|-------------------------------------------------|
 |   ✅   | **Blum, Cats, CexIo, Clayton**       |
 |   ✅   | **DotCoin, LeapApp, Major, MemeFi**       |
 |   ✅   | **MMProBump, Nomis, OKX Racer, PocketFi**                       |
 |   ✅   | **TonStation, VanaDataHero, YesCoin**                      |
-|   ✅   | **MoonBix, Not Pixel**                              |
+|   ✅   | **MoonBix, Not Pixel, FriendsFabric**                              |
 |   ⌛   | **Tomarket, CoinSweeper, DuckChain**                              |
 
 ## Requirements
