@@ -204,7 +204,7 @@ class Cats:
     async def do_tasks(self):
 
         params = {
-            'group':'cats'
+            'group':'kukoin'
         }
         resp = await self.session.get('https://api.catshouse.club/tasks/user', params=params)
         resp_json = await resp.json()
@@ -222,9 +222,9 @@ class Cats:
                                 response = await self.session.post(f'https://api.catshouse.club/tasks/{task["id"]}/complete', json=json_data)
                                 resp = await response.json()
                                 if resp['success']:
-                                    logger.success(f"do_task | Thread {self.thread} | {self.name} | Claim task {task['title']}")
+                                    logger.success(f"do_task | Thread {self.thread} | {self.name} | KUKOIN Claim task {task['title']}")
                                 else:
-                                    logger.error(f"do_task | Thread {self.thread} | {self.name} | task {task['id']} {resp}")
+                                    logger.error(f"do_task | Thread {self.thread} | {self.name} | KUKOIN task {task['id']} {resp}")
                             except Exception as err:
                                 logger.error(f"tasks | Thread {self.thread} | {self.name} | {err} TASK_ID : {task['id']}")
                             await asyncio.sleep(random.uniform(*config.TASK_SLEEP))
@@ -233,5 +233,84 @@ class Cats:
                             
         except Exception as err:
             logger.error(f"tasks | Thread {self.thread} | {self.name} | {err} {task} TASK_ID : {task['id']}")
-    
+        
+        params = {
+            'group':'cats'
+        }
+        resp = await self.session.get('https://api.catshouse.club/tasks/user', params=params,proxy=self.proxy)
+        resp_json = await resp.json()
+        try:
+            for task in resp_json['tasks']:
+                if task['id'] in config.BLACKLIST:
+                    continue
+                try:
+                    if not task['completed']:
+                        if task['type'] == 'SUBSCRIBE_TO_CHANNEL':
+                            continue
+                        else:
+                            if task['type'] == 'YOUTUBE_WATCH':
+                                try:
+                                    if task['id'] == 141:
+                                        json_data = {}
+                                        response = await self.session.post(f'https://api.catshouse.club/tasks/141/complete?answer=dildo', proxy=self.proxy, json=json_data)
+                                        resp = await response.json()
+                                        if resp['success']:
+                                            logger.success(f"do_task | Thread {self.thread} | {self.name} | Claim task (dildo) YOUTUBE")
+                                        else:
+                                            logger.error(f"do_task | Thread {self.thread} | {self.name} | task (dildo) YOUTUBE {resp}")
+                                            
+                                    elif task['id'] == 153:
+                                        json_data = {}
+                                        response = await self.session.post(f'https://api.catshouse.club/tasks/153/complete?answer=ABSTRACT', proxy=self.proxy, json=json_data)
+                                        resp = await response.json()
+                                        if resp['success']:
+                                            logger.success(f"do_task | Thread {self.thread} | {self.name} | Claim task (ABSTRACT) YOUTUBE")
+                                        else:
+                                            logger.error(f"do_task | Thread {self.thread} | {self.name} | task (ABSTRACT) YOUTUBE {resp}")
+                                        
+                                    elif task['id'] == 146:
+                                        json_data = {}
+                                        response = await self.session.post(f'https://api.catshouse.club/tasks/146/complete?answer=dip', proxy=self.proxy, json=json_data)
+                                        resp = await response.json()
+                                        if resp['success']:
+                                            logger.success(f"do_task | Thread {self.thread} | {self.name} | Claim task (dip) YOUTUBE")
+                                        else:
+                                            logger.error(f"do_task | Thread {self.thread} | {self.name} | task (dip) YOUTUBE {resp}")
+                                    
+                                    elif task['id'] == 148:
+                                        json_data = {}
+                                        response = await self.session.post(f'https://api.catshouse.club/tasks/148/complete?answer=AIRNODE', proxy=self.proxy, json=json_data)
+                                        resp = await response.json()
+                                        if resp['success']:
+                                            logger.success(f"do_task | Thread {self.thread} | {self.name} | Claim task (AIRNODE) YOUTUBE")
+                                        else:
+                                            logger.error(f"do_task | Thread {self.thread} | {self.name} | task (AIRNODE) YOUTUBE {resp}")
+                                    
+                                    elif task['id'] == 149:
+                                        json_data = {}
+                                        response = await self.session.post(f'https://api.catshouse.club/tasks/149/complete?answer=WEI', proxy=self.proxy, json=json_data)
+                                        resp = await response.json()
+                                        if resp['success']:
+                                            logger.success(f"do_task | Thread {self.thread} | {self.name} | Claim task (WEI) YOUTUBE")
+                                        else:
+                                            logger.error(f"do_task | Thread {self.thread} | {self.name} | task (WEI) YOUTUBE {resp}")
+                                except Exception as err:
+                                    logger.error(f"tasks | Thread {self.thread} | {self.name} | {err} TASK_ID : {task['id']}")      
+                            else:
+                                try:
+                                    json_data = {}
+                                    response = await self.session.post(f'https://api.catshouse.club/tasks/{task["id"]}/complete', proxy=self.proxy, json=json_data)
+                                    resp = await response.json()
+                                    if resp['success']:
+                                        logger.success(f"do_task | Thread {self.thread} | {self.name} | Claim task {task['title']}")
+                                    else:
+                                        logger.error(f"do_task | Thread {self.thread} | {self.name} | task {task['id']} {resp}")
+                                except Exception as err:
+                                    logger.error(f"tasks | Thread {self.thread} | {self.name} | {err} TASK_ID : {task['id']}")
+                            await asyncio.sleep(random.uniform(*config.TASK_SLEEP))
+                except Exception as err:
+                    logger.error(f"tasks | Thread {self.thread} | {self.name} | {err} TASK_ID : {task['id']}")
+                            
+        except Exception as err:
+            logger.error(f"tasks | Thread {self.thread} | {self.name} | {err} {task} TASK_ID : {task['id']}")
  
