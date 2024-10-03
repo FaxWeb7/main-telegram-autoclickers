@@ -9,7 +9,8 @@ from fake_useragent import UserAgent
 from pyrogram import Client
 from data import config
 from datetime import datetime,timezone,timedelta
-import uuid
+import uuid, ssl, certifi
+from aiohttp_socks import ProxyConnector
 
 import aiohttp
 import asyncio
@@ -53,7 +54,9 @@ class Cats:
             'sec-fetch-mode': 'cors',
             'sec-fetch-site': 'cross-site',
             'user-agent': UserAgent(os='android').random}
-        self.session = aiohttp.ClientSession(headers=headers, trust_env=True, connector=aiohttp.TCPConnector(verify_ssl=False,limit=1,force_close=True))
+        sslcontext = ssl.create_default_context(cafile=certifi.where())
+        connector = ProxyConnector.from_url(self.proxy, ssl=sslcontext) if self.proxy else aiohttp.TCPConnector(ssl=sslcontext, limit=1, force_close=True)
+        self.session = aiohttp.ClientSession(headers=headers, trust_env=True, connector=connector)
 
     async def main(self):
         await asyncio.sleep(random.randint(*config.ACC_DELAY))
@@ -85,7 +88,7 @@ class Cats:
                     return 0
 
     async def send_cats(self):
-        avatar_info = await self.session.get("https://api.catshouse.club/user/avatar", proxy=self.proxy)
+        avatar_info = await self.session.get("https://api.catshouse.club/user/avatar")
         avatar_info = await avatar_info.json()
         if avatar_info:
             attempt_time_str = avatar_info.get('attemptTime', None)
@@ -130,7 +133,7 @@ class Cats:
                 
                 headers = self.session.headers.copy()
                 headers['Content-Type'] = f'multipart/form-data; boundary={boundary}'
-                response = await self.session.post("https://api.catshouse.club/user/avatar/upgrade", proxy=self.proxy, data=form_data, headers=headers)
+                response = await self.session.post("https://api.catshouse.club/user/avatar/upgrade", data=form_data, headers=headers)
                 response = await response.json()
                 if response:
                     return response.get('rewards', 0)
@@ -152,7 +155,7 @@ class Cats:
             params = {
                 'referral_code': self.ref,
             }
-            resp = await self.session.post("https://api.catshouse.club/user/create", params=params,proxy=self.proxy)
+            resp = await self.session.post("https://api.catshouse.club/user/create", params=params)
             resp = await resp.text()
             if 'message' in resp:
                 return False
@@ -203,7 +206,7 @@ class Cats:
         params = {
             'group':'cats'
         }
-        resp = await self.session.get('https://api.catshouse.club/tasks/user', params=params,proxy=self.proxy)
+        resp = await self.session.get('https://api.catshouse.club/tasks/user', params=params)
         resp_json = await resp.json()
         try:
             for task in resp_json['tasks']:
@@ -216,7 +219,7 @@ class Cats:
                         else:
                             try:
                                 json_data = {}
-                                response = await self.session.post(f'https://api.catshouse.club/tasks/{task["id"]}/complete', proxy=self.proxy, json=json_data)
+                                response = await self.session.post(f'https://api.catshouse.club/tasks/{task["id"]}/complete', json=json_data)
                                 resp = await response.json()
                                 if resp['success']:
                                     logger.success(f"do_task | Thread {self.thread} | {self.name} | Claim task {task['title']}")
