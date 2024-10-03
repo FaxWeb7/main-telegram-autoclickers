@@ -29,15 +29,23 @@ async def process():
         if (startAction != None): 
             action = startAction
             startAction = None
-        else: action = int(input("Select an action:\n1 -> Create new session\n2 -> Run bots\n3 -> Additional actions\n4 -> Exit\n"))
+        else: action = int(input("Select an action:\n1 -> Create new session\n2 -> Launch software\n3 -> Launch software from a specific bot\n4 -> Additional actions\n4 -> Exit\n"))
 
         if (action == 1):
             await create_session()
 
         elif (action == 2):
-            await run_soft()
+            await run_soft(0)
 
         elif (action == 3):
+            folders = sorted([f'{path}' for path in global_settings.FIRST_PATHS+global_settings.SECOND_PATHS if global_settings.BOTS_DATA[path]['is_connected']])
+            mess = "Enter the NUMBER with which bot to start the software?\n"
+            for i in range(len(folders)):
+                mess += str(i) + " - " + folders[i] + '\n'
+            cur_idx = int(input(mess))
+            await run_soft(cur_idx)
+
+        elif (action == 4):
             await additional_actions()
 
         else: break

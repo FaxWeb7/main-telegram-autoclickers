@@ -45,7 +45,7 @@ async def update_data():
         logger.error(f"[SOFT] | update_data | Error in update_data: {e}")
         return False
 
-async def run_soft():
+async def run_soft(cur_idx):
     session_path = Path('sessions')
     session_files = session_path.glob('*.session')
     session_names = [file.stem for file in session_files]
@@ -56,7 +56,6 @@ async def run_soft():
     ok = await update_data()
     if (not ok): return
     folders = sorted([f'{path}' for path in global_settings.FIRST_PATHS+global_settings.SECOND_PATHS if global_settings.BOTS_DATA[path]['is_connected']])
-    cur_idx = 0
     cur_soft_circle = 0
     while True:
         try:
