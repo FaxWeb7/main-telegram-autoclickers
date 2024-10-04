@@ -2,6 +2,7 @@ import random
 from utils.core import logger
 from pyrogram import Client
 from pyrogram.raw.functions.messages import RequestAppWebView
+from pyrogram.raw import functions
 from pyrogram.raw.types import InputBotAppShortName
 import aiohttp_proxy
 import asyncio
@@ -167,7 +168,17 @@ class YesCoin:
     async def get_tg_web_data(self):
         try:
             await self.client.connect()
-
+            messages = await self.client.get_chat_history_count(chat_id='@theYescoin_bot')
+            if not messages:
+                peer = await self.client.resolve_peer('theYescoin_bot')
+                await self.client.invoke(
+                    functions.messages.StartBot(
+                        bot=peer,
+                        peer=peer,
+                        start_param=config.REF_CODE,
+                        random_id=random.randint(1, 9999999),
+                    )
+                )
             web_view = await self.client.invoke(RequestAppWebView(
                 peer=await self.client.resolve_peer('theYescoin_bot'),
                 app=InputBotAppShortName(bot_id=await self.client.resolve_peer('theYescoin_bot'), short_name="Yescoin"),
