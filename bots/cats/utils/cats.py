@@ -69,13 +69,13 @@ class Cats:
                     logger.error(f"main | Thread {self.thread} | {self.name} | {err}")
                     await self.session.close()
                     return 0
+                await asyncio.sleep(random.uniform(*config.MINI_SLEEP))
+                await self.do_tasks()
                 if config.DO_PHOTOS:
                     reward = await self.send_cats()
                     if reward:
                         logger.info(f"main | Thread {self.thread} | {self.name} | Reward from Avatar quest: <y>{reward}</y>")
                     await asyncio.sleep(random.randint(5, 15))
-
-                await self.do_tasks()
                 await self.session.close()
                 logger.info(f"main | Thread {self.thread} | {self.name} | All activities in cats completed")
                 return 0
@@ -294,6 +294,23 @@ class Cats:
                                             logger.success(f"do_task | Thread {self.thread} | {self.name} | Claim task (WEI) YOUTUBE")
                                         else:
                                             logger.error(f"do_task | Thread {self.thread} | {self.name} | task (WEI) YOUTUBE {resp}")
+                                    elif task['id'] == 155:
+                                        json_data = {}
+                                        response = await self.session.post(f'https://api.catshouse.club/tasks/155/complete?answer=AUDIT', proxy=self.proxy, json=json_data)
+                                        resp = await response.json()
+                                        if resp['success']:
+                                            logger.success(f"do_task | Thread {self.thread} | {self.name} | Claim task (AUDIT) YOUTUBE")
+                                        else:
+                                            logger.error(f"do_task | Thread {self.thread} | {self.name} | task (AUDIT) YOUTUBE {resp}")
+                                    
+                                    elif task['id'] == 154:
+                                        json_data = {}
+                                        response = await self.session.post(f'https://api.catshouse.club/tasks/154/complete?answer=AUCTION', proxy=self.proxy, json=json_data)
+                                        resp = await response.json()
+                                        if resp['success']:
+                                            logger.success(f"do_task | Thread {self.thread} | {self.name} | Claim task (AUCTION) YOUTUBE")
+                                        else:
+                                            logger.error(f"do_task | Thread {self.thread} | {self.name} | task (AUCTION) YOUTUBE {resp}")
                                 except Exception as err:
                                     logger.error(f"tasks | Thread {self.thread} | {self.name} | {err} TASK_ID : {task['id']}")      
                             else:
