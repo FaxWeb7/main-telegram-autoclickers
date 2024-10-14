@@ -1,14 +1,14 @@
 
 # Automatic autoclicker for popular telegram mini-apps
 [<img src="https://img.shields.io/badge/Telegram-%40My_Channel-orange">](https://t.me/faxweb_dev)
-[<img src="https://img.shields.io/badge/Telegram-%40Me-orange">](https://t.me/faxweb_dev_admin)
+[<img src="https://img.shields.io/badge/Telegram-%40Me-orange">](https://t.me/faxweb_dev_adm1n)
 [<img src="https://img.shields.io/badge/python-3.11-blue">](https://www.python.org/downloads/)
 
 ![](https://i.ibb.co/HBW9tSY/2024-09-22-19-49-28.png)
 
 ## Bot Status
 #### Subscribe to the telegram channel to follow updates and/or purchase paid software version: [@faxweb_dev](https://t.me/faxweb_dev)
-Free version of this software (current repository) has 5 bots: Blum, Major, Yescoin, Dotcoin and catsgang, but the paid version of the software has 19 bots. If you are interested in purchasing a paid bot, read the pinned message in my telegram channel: [@faxweb_dev](https://t.me/faxweb_dev). Paid version software bot status:
+Free version of this software (current repository) has 5 bots: Blum, Major, Yescoin, Dotcoin and catsgang, but the paid version of the software has 19 bots. If you are interested in purchasing a paid bot, read the pinned message in my telegram channel: [@faxweb_dev](https://t.me/faxweb_dev_adm1n). Paid version software bot status:
 | Status | Bots                                            |
 |:------:|-------------------------------------------------|
 |   ✅   | **Blum, Cats, CexIo, Clayton**       |
