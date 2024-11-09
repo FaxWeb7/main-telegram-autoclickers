@@ -4,6 +4,8 @@
 [<img src="https://img.shields.io/badge/Telegram-%40Me-orange">](https://t.me/faxweb_dev_adm1n)
 [<img src="https://img.shields.io/badge/python-3.11-blue">](https://www.python.org/downloads/)
 
+## WARNING! The software is no longer supported and I don't recommend you to use it
+
 ![](https://i.ibb.co/HBW9tSY/2024-09-22-19-49-28.png)
 
 ## Bot Status
